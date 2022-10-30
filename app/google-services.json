@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "573107840738",
+    "project_id": "clicktoeat-326e9",
+    "storage_bucket": "clicktoeat-326e9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:573107840738:android:9ebd2f8ed42867c23b60bb",
+        "android_client_info": {
+          "package_name": "com.nasportfolio.clicktoeat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "573107840738-vbslpucgrtgd4083m7ovnji5jaa9bb3h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAD_Qcre7oYEBWL0GjD_xOMKLbRO9W-mg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "573107840738-vbslpucgrtgd4083m7ovnji5jaa9bb3h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
