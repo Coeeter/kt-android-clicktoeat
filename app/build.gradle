@@ -86,6 +86,9 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
 
     // for notifications
-    implementation platform('com.google.firebase:firebase-bom:31.0.2')
+    implementation platform('com.google.firebase:firebase-bom:30.4.1')
     implementation 'com.google.firebase:firebase-messaging-ktx:23.0.5'
+
+    // for splash
+    implementation 'androidx.core:core-splashscreen:1.0.0'
 }
