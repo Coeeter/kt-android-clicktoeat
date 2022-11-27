@@ -91,4 +91,7 @@ dependencies {
 
     // for splash
     implementation 'androidx.core:core-splashscreen:1.0.0'
+
+    // for json conversion
+    implementation 'com.google.code.gson:gson:2.8.0'
 }
