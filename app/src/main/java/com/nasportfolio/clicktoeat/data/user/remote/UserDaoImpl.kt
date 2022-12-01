@@ -1,10 +1,10 @@
-package com.nasportfolio.clicktoeat.data.restaurant.remote
+package com.nasportfolio.clicktoeat.data.user.remote
 
 import com.google.gson.Gson
 import com.nasportfolio.clicktoeat.data.common.DefaultErrorDto
-import com.nasportfolio.clicktoeat.data.restaurant.Restaurant
-import com.nasportfolio.clicktoeat.data.restaurant.remote.dtos.CreateRestaurantDto
-import com.nasportfolio.clicktoeat.data.restaurant.remote.dtos.UpdateRestaurantDto
+import com.nasportfolio.clicktoeat.data.user.User
+import com.nasportfolio.clicktoeat.data.user.remote.dto.SignUpDto
+import com.nasportfolio.clicktoeat.data.user.remote.dto.UpdateAccountDto
 import com.nasportfolio.clicktoeat.domain.common.exceptions.NoNetworkException
 import com.nasportfolio.clicktoeat.utils.Constants.BASE_URL
 import com.nasportfolio.clicktoeat.utils.Constants.UNABLE_GET_BODY_ERROR_MESSAGE
@@ -15,15 +15,15 @@ import com.nasportfolio.clicktoeat.utils.toJson
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
-class RestaurantDaoImpl (
+class UserDaoImpl(
     private val okHttpClient: OkHttpClient,
     private val gson: Gson,
-) : RestaurantDao {
+) : UserDao {
     companion object {
-        const val PATH = "/api/restaurants"
+        const val PATH = "/api/users"
     }
 
-    override suspend fun getAllRestaurants(): Resource<List<Restaurant>> {
+    override suspend fun getAllUsers(): Resource<List<User>> {
         val request = Request.Builder()
             .url("$BASE_URL/$PATH")
             .build()
@@ -31,9 +31,10 @@ class RestaurantDaoImpl (
             val response = okHttpClient.newCall(request).await()
             val json = response.body?.toJson()
             json ?: return Resource.Failure(UNABLE_GET_BODY_ERROR_MESSAGE)
-            if (response.code == 200) return Resource.Success(
-                gson.decodeFromJson(json)
-            )
+            if (response.code == 200)
+                return Resource.Success(
+                    gson.decodeFromJson(json)
+                )
             val errorDto = gson.decodeFromJson<DefaultErrorDto>(json)
             return Resource.Failure(errorDto.error)
         } catch (e: NoNetworkException) {
@@ -41,37 +42,48 @@ class RestaurantDaoImpl (
         }
     }
 
-    override suspend fun getRestaurantById(id: String): Resource<Restaurant> {
+    override suspend fun getUserById(id: String): Resource<User> {
         val request = Request.Builder()
             .url("$BASE_URL/$PATH/$id")
             .build()
         try {
             val response = okHttpClient.newCall(request).await()
-            val json = response.body?.toJson()
-            json ?: return Resource.Failure(UNABLE_GET_BODY_ERROR_MESSAGE)
-            if (response.code == 200) return Resource.Success(
+            val json = response.body?.toJson() ?: return Resource.Failure(
+                "No user with id $id found"
+            )
+            return Resource.Success(
                 gson.decodeFromJson(json)
             )
-            val errorDto = gson.decodeFromJson<DefaultErrorDto>(json)
-            return Resource.Failure(errorDto.error)
         } catch (e: NoNetworkException) {
             return Resource.Failure(e.message.toString())
         }
     }
 
-    override suspend fun createRestaurant(
-        createRestaurantDto: CreateRestaurantDto
-    ): Resource<String> {
+    override suspend fun validateToken(): Resource<User> {
         TODO("Not yet implemented")
     }
 
-    override suspend fun updateRestaurant(
-        updateRestaurantDto: UpdateRestaurantDto
-    ): Resource<Restaurant> {
+    override suspend fun forgotPassword(email: String): Resource<String> {
         TODO("Not yet implemented")
     }
 
-    override suspend fun deleteRestaurant(id: String): Resource<Unit> {
+    override suspend fun validateCredential(e: String, c: String): Resource<String> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun updateAccount(updateAccountDto: UpdateAccountDto): Resource<String> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteAccount(password: String): Resource<String> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun login(email: String, password: String): Resource<String> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun signUp(signUpDto: SignUpDto): Resource<String> {
         TODO("Not yet implemented")
     }
 }

@@ -3,6 +3,8 @@ package com.nasportfolio.clicktoeat.di
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.nasportfolio.clicktoeat.data.restaurant.remote.RestaurantDao
 import com.nasportfolio.clicktoeat.data.restaurant.remote.RestaurantDaoImpl
 import com.nasportfolio.clicktoeat.domain.common.exceptions.NoNetworkException
@@ -51,6 +53,12 @@ object NetworkModule {
     ): OkHttpClient = OkHttpClient.Builder()
         .addInterceptor(interceptor)
         .build()
+
+    @Singleton
+    @Provides
+    fun providesGson(): Gson = GsonBuilder()
+        .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+        .create()
 
     @Singleton
     @Provides
