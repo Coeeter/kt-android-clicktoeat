@@ -1,8 +1,8 @@
-package com.nasportfolio.clicktoeat.data.comment
+package com.nasportfolio.clicktoeat.domain.comment
 
 import com.google.gson.annotations.SerializedName
-import com.nasportfolio.clicktoeat.data.restaurant.Restaurant
-import com.nasportfolio.clicktoeat.data.user.User
+import com.nasportfolio.clicktoeat.domain.restaurant.Restaurant
+import com.nasportfolio.clicktoeat.domain.user.User
 import java.util.*
 
 data class Comment(

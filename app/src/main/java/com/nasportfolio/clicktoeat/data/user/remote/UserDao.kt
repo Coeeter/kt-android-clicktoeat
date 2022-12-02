@@ -1,9 +1,9 @@
 package com.nasportfolio.clicktoeat.data.user.remote
 
-import com.nasportfolio.clicktoeat.data.user.User
 import com.nasportfolio.clicktoeat.data.user.remote.dto.SignUpDto
 import com.nasportfolio.clicktoeat.data.user.remote.dto.UpdateAccountDto
-import com.nasportfolio.clicktoeat.utils.Resource
+import com.nasportfolio.clicktoeat.domain.user.User
+import com.nasportfolio.clicktoeat.domain.utils.Resource
 
 interface UserDao {
     suspend fun getAllUsers(): Resource<List<User>>

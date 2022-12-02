@@ -1,13 +1,13 @@
 package com.nasportfolio.clicktoeat.data.restaurant.remote
 
 import com.google.gson.Gson
-import com.nasportfolio.clicktoeat.data.common.dtos.DefaultErrorDto
-import com.nasportfolio.clicktoeat.data.restaurant.Restaurant
 import com.nasportfolio.clicktoeat.data.restaurant.remote.dtos.CreateRestaurantDto
 import com.nasportfolio.clicktoeat.data.restaurant.remote.dtos.UpdateRestaurantDto
+import com.nasportfolio.clicktoeat.domain.restaurant.Restaurant
+import com.nasportfolio.clicktoeat.domain.utils.Resource
+import com.nasportfolio.clicktoeat.domain.utils.ResourceError
 import com.nasportfolio.clicktoeat.utils.Constants.BASE_URL
 import com.nasportfolio.clicktoeat.utils.Constants.UNABLE_GET_BODY_ERROR_MESSAGE
-import com.nasportfolio.clicktoeat.utils.Resource
 import com.nasportfolio.clicktoeat.utils.await
 import com.nasportfolio.clicktoeat.utils.decodeFromJson
 import com.nasportfolio.clicktoeat.utils.toJson
@@ -31,14 +31,21 @@ class RestaurantDaoImpl @Inject constructor(
         try {
             val response = okHttpClient.newCall(request).await()
             val json = response.body?.toJson()
-            json ?: return Resource.Failure(UNABLE_GET_BODY_ERROR_MESSAGE)
+            json ?: return Resource.Failure(
+                ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
+            )
             if (response.code == 200) return Resource.Success(
                 gson.decodeFromJson(json)
             )
-            val errorDto = gson.decodeFromJson<DefaultErrorDto>(json)
-            return Resource.Failure(errorDto.error)
+            val errorDto =
+                gson.decodeFromJson<ResourceError.Default>(
+                    json
+                )
+            return Resource.Failure(errorDto)
         } catch (e: IOException) {
-            return Resource.Failure(e.message.toString())
+            return Resource.Failure(
+                ResourceError.Default(e.message.toString())
+            )
         }
     }
 
@@ -49,14 +56,20 @@ class RestaurantDaoImpl @Inject constructor(
         try {
             val response = okHttpClient.newCall(request).await()
             val json = response.body?.toJson()
-            json ?: return Resource.Failure(UNABLE_GET_BODY_ERROR_MESSAGE)
+            json ?: return Resource.Failure(
+                ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
+            )
             if (response.code == 200) return Resource.Success(
                 gson.decodeFromJson(json)
             )
-            val errorDto = gson.decodeFromJson<DefaultErrorDto>(json)
-            return Resource.Failure(errorDto.error)
+            val errorDto = gson.decodeFromJson<ResourceError.Default>(
+                json
+            )
+            return Resource.Failure(errorDto)
         } catch (e: IOException) {
-            return Resource.Failure(e.message.toString())
+            return Resource.Failure(
+                ResourceError.Default(e.message.toString())
+            )
         }
     }
 

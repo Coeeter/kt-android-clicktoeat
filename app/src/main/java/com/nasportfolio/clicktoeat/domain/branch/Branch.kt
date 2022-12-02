@@ -1,6 +1,6 @@
-package com.nasportfolio.clicktoeat.data.branch
+package com.nasportfolio.clicktoeat.domain.branch
 
-import com.nasportfolio.clicktoeat.data.restaurant.Restaurant
+import com.nasportfolio.clicktoeat.domain.restaurant.Restaurant
 
 data class Branch(
     val id: String,

@@ -1,18 +1,23 @@
 package com.nasportfolio.clicktoeat.data.user.remote
 
 import com.google.gson.Gson
-import com.nasportfolio.clicktoeat.data.common.dtos.DefaultErrorDto
-import com.nasportfolio.clicktoeat.data.user.User
 import com.nasportfolio.clicktoeat.data.user.remote.dto.SignUpDto
+import com.nasportfolio.clicktoeat.data.user.remote.dto.TokenDto
 import com.nasportfolio.clicktoeat.data.user.remote.dto.UpdateAccountDto
+import com.nasportfolio.clicktoeat.domain.user.User
+import com.nasportfolio.clicktoeat.domain.utils.Resource
+import com.nasportfolio.clicktoeat.domain.utils.ResourceError
 import com.nasportfolio.clicktoeat.utils.Constants.BASE_URL
 import com.nasportfolio.clicktoeat.utils.Constants.UNABLE_GET_BODY_ERROR_MESSAGE
-import com.nasportfolio.clicktoeat.utils.Resource
 import com.nasportfolio.clicktoeat.utils.await
 import com.nasportfolio.clicktoeat.utils.decodeFromJson
 import com.nasportfolio.clicktoeat.utils.toJson
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import javax.inject.Inject
 
@@ -21,7 +26,9 @@ class UserDaoImpl @Inject constructor(
     private val gson: Gson,
 ) : UserDao {
     companion object {
-        const val PATH = "/api/users"
+        const val PATH = "/apiF/users"
+        val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaTypeOrNull()
+        val IMAGE_MEDIA_TYPE = "image/*".toMediaTypeOrNull()
     }
 
     override suspend fun getAllUsers(): Resource<List<User>> {
@@ -31,15 +38,21 @@ class UserDaoImpl @Inject constructor(
         try {
             val response = okHttpClient.newCall(request).await()
             val json = response.body?.toJson()
-            json ?: return Resource.Failure(UNABLE_GET_BODY_ERROR_MESSAGE)
+            json ?: return Resource.Failure(
+                ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
+            )
             if (response.code == 200)
                 return Resource.Success(
                     gson.decodeFromJson(json)
                 )
-            val errorDto = gson.decodeFromJson<DefaultErrorDto>(json)
-            return Resource.Failure(errorDto.error)
+            val errorDto = gson.decodeFromJson<ResourceError.Default>(
+                json
+            )
+            return Resource.Failure(errorDto)
         } catch (e: IOException) {
-            return Resource.Failure(e.message.toString())
+            return Resource.Failure(
+                ResourceError.Default(e.message.toString())
+            )
         }
     }
 
@@ -50,13 +63,15 @@ class UserDaoImpl @Inject constructor(
         try {
             val response = okHttpClient.newCall(request).await()
             val json = response.body?.toJson() ?: return Resource.Failure(
-                "No user with id $id found"
+                ResourceError.Default("No user with id $id found")
             )
             return Resource.Success(
                 gson.decodeFromJson(json)
             )
         } catch (e: IOException) {
-            return Resource.Failure(e.message.toString())
+            return Resource.Failure(
+                ResourceError.Default(e.message.toString())
+            )
         }
     }
 
@@ -81,10 +96,70 @@ class UserDaoImpl @Inject constructor(
     }
 
     override suspend fun login(email: String, password: String): Resource<String> {
-        TODO("Not yet implemented")
+        val map = hashMapOf("email" to email, "password" to password)
+        val body = gson.toJson(map).toRequestBody(JSON_MEDIA_TYPE)
+        val request = Request.Builder()
+            .url("$BASE_URL/$PATH/login")
+            .post(body)
+            .build()
+        try {
+            val response = okHttpClient.newCall(request).await()
+            val json = response.body?.toJson() ?: return Resource.Failure(
+                ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
+            )
+            if (response.code == 200) return Resource.Success(
+                gson.decodeFromJson<TokenDto>(json).token
+            )
+            val errorDto = gson.decodeFromJson<ResourceError.Default>(
+                json
+            )
+            return Resource.Failure(errorDto)
+        } catch (e: IOException) {
+            return Resource.Failure(
+                ResourceError.Default(e.message.toString())
+            )
+        }
     }
 
     override suspend fun signUp(signUpDto: SignUpDto): Resource<String> {
-        TODO("Not yet implemented")
+        val body = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart("username", signUpDto.username)
+            .addFormDataPart("email", signUpDto.email)
+            .addFormDataPart("fcmToken", signUpDto.fcmToken)
+            .addFormDataPart("password", signUpDto.password)
+            .addFormDataPart(
+                "image",
+                signUpDto.image.name,
+                signUpDto.image.asRequestBody(IMAGE_MEDIA_TYPE)
+            )
+            .build()
+        val request = Request.Builder()
+            .url("$BASE_URL/$PATH/create-account")
+            .post(body)
+            .build()
+        try {
+            val response = okHttpClient.newCall(request).await()
+            val json = response.body?.toJson() ?: return Resource.Failure(
+                ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
+            )
+            if (response.code == 200) return Resource.Success(
+                gson.decodeFromJson<TokenDto>(json).token
+            )
+            if (response.code == 400) {
+                val fieldErrorDto = gson.decodeFromJson<ResourceError.Field>(
+                    json
+                )
+                return Resource.Failure(fieldErrorDto)
+            }
+            val errorDto = gson.decodeFromJson<ResourceError.Default>(
+                json
+            )
+            return Resource.Failure(errorDto)
+        } catch (e: IOException) {
+            return Resource.Failure(
+                ResourceError.Default(e.message.toString())
+            )
+        }
     }
 }

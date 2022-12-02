@@ -1,4 +1,4 @@
-package com.nasportfolio.clicktoeat.data.common.models
+package com.nasportfolio.clicktoeat.domain.common
 
 data class Image(
     val id: Int,
