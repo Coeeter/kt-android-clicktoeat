@@ -6,12 +6,10 @@ import com.nasportfolio.clicktoeat.data.restaurant.remote.dtos.UpdateRestaurantD
 import com.nasportfolio.clicktoeat.domain.restaurant.Restaurant
 import com.nasportfolio.clicktoeat.domain.utils.Resource
 import com.nasportfolio.clicktoeat.domain.utils.ResourceError
-import com.nasportfolio.clicktoeat.utils.Constants.BASE_URL
 import com.nasportfolio.clicktoeat.utils.Constants.UNABLE_GET_BODY_ERROR_MESSAGE
 import com.nasportfolio.clicktoeat.utils.decodeFromJson
 import com.nasportfolio.clicktoeat.utils.toJson
 import okhttp3.OkHttpClient
-import okhttp3.Request
 import java.io.IOException
 import javax.inject.Inject
 
@@ -22,8 +20,7 @@ class RestaurantDaoImpl @Inject constructor(
     override suspend fun getAllRestaurants(): Resource<List<Restaurant>> {
         try {
             val response = get()
-            val json = response.body?.toJson()
-            json ?: return Resource.Failure(
+            val json = response.body?.toJson() ?: return Resource.Failure(
                 ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
             )
             if (response.code == 200) return Resource.Success(
@@ -42,8 +39,7 @@ class RestaurantDaoImpl @Inject constructor(
     override suspend fun getRestaurantById(id: String): Resource<Restaurant> {
         try {
             val response = get("/$id")
-            val json = response.body?.toJson()
-            json ?: return Resource.Failure(
+            val json = response.body?.toJson() ?: return Resource.Failure(
                 ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
             )
             if (response.code == 200) return Resource.Success(
