@@ -1,7 +1,7 @@
 package com.nasportfolio.clicktoeat.data.user.remote
 
 import com.google.gson.Gson
-import com.nasportfolio.clicktoeat.data.common.DefaultErrorDto
+import com.nasportfolio.clicktoeat.data.common.dtos.DefaultErrorDto
 import com.nasportfolio.clicktoeat.data.user.User
 import com.nasportfolio.clicktoeat.data.user.remote.dto.SignUpDto
 import com.nasportfolio.clicktoeat.data.user.remote.dto.UpdateAccountDto

@@ -1,7 +1,7 @@
 package com.nasportfolio.clicktoeat.data.restaurant
 
 import com.nasportfolio.clicktoeat.data.branch.Branch
-import com.nasportfolio.clicktoeat.data.common.Image
+import com.nasportfolio.clicktoeat.data.common.models.Image
 
 data class Restaurant(
     val id: String,

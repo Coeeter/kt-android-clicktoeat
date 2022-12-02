@@ -1,7 +1,7 @@
 package com.nasportfolio.clicktoeat.data.restaurant.remote
 
 import com.google.gson.Gson
-import com.nasportfolio.clicktoeat.data.common.DefaultErrorDto
+import com.nasportfolio.clicktoeat.data.common.dtos.DefaultErrorDto
 import com.nasportfolio.clicktoeat.data.restaurant.Restaurant
 import com.nasportfolio.clicktoeat.data.restaurant.remote.dtos.CreateRestaurantDto
 import com.nasportfolio.clicktoeat.data.restaurant.remote.dtos.UpdateRestaurantDto
