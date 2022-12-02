@@ -7,36 +7,21 @@ import com.nasportfolio.clicktoeat.data.user.remote.dto.UpdateAccountDto
 import com.nasportfolio.clicktoeat.domain.user.User
 import com.nasportfolio.clicktoeat.domain.utils.Resource
 import com.nasportfolio.clicktoeat.domain.utils.ResourceError
-import com.nasportfolio.clicktoeat.utils.Constants.BASE_URL
 import com.nasportfolio.clicktoeat.utils.Constants.UNABLE_GET_BODY_ERROR_MESSAGE
-import com.nasportfolio.clicktoeat.utils.await
 import com.nasportfolio.clicktoeat.utils.decodeFromJson
 import com.nasportfolio.clicktoeat.utils.toJson
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import javax.inject.Inject
 
 class UserDaoImpl @Inject constructor(
-    private val okHttpClient: OkHttpClient,
-    private val gson: Gson,
-) : UserDao {
-    companion object {
-        const val PATH = "/apiF/users"
-        val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaTypeOrNull()
-        val IMAGE_MEDIA_TYPE = "image/*".toMediaTypeOrNull()
-    }
+    okHttpClient: OkHttpClient,
+    gson: Gson,
+) : UserDao(okHttpClient, gson) {
 
     override suspend fun getAllUsers(): Resource<List<User>> {
-        val request = Request.Builder()
-            .url("$BASE_URL/$PATH")
-            .build()
         try {
-            val response = okHttpClient.newCall(request).await()
+            val response = get()
             val json = response.body?.toJson()
             json ?: return Resource.Failure(
                 ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
@@ -55,11 +40,8 @@ class UserDaoImpl @Inject constructor(
     }
 
     override suspend fun getUserById(id: String): Resource<User> {
-        val request = Request.Builder()
-            .url("$BASE_URL/$PATH/$id")
-            .build()
         try {
-            val response = okHttpClient.newCall(request).await()
+            val response = get("/$id")
             val json = response.body?.toJson() ?: return Resource.Failure(
                 ResourceError.Default("No user with id $id found")
             )
@@ -94,14 +76,11 @@ class UserDaoImpl @Inject constructor(
     }
 
     override suspend fun login(email: String, password: String): Resource<String> {
-        val map = hashMapOf("email" to email, "password" to password)
-        val body = gson.toJson(map).toRequestBody(JSON_MEDIA_TYPE)
-        val request = Request.Builder()
-            .url("$BASE_URL/$PATH/login")
-            .post(body)
-            .build()
         try {
-            val response = okHttpClient.newCall(request).await()
+            val response = post(
+                "/login",
+                hashMapOf("email" to email, "password" to password)
+            )
             val json = response.body?.toJson() ?: return Resource.Failure(
                 ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
             )
@@ -122,25 +101,18 @@ class UserDaoImpl @Inject constructor(
     }
 
     override suspend fun signUp(signUpDto: SignUpDto): Resource<String> {
-        val body = MultipartBody.Builder()
-            .setType(MultipartBody.FORM)
-            .addFormDataPart("username", signUpDto.username)
-            .addFormDataPart("email", signUpDto.email)
-            .addFormDataPart("fcmToken", signUpDto.fcmToken)
-            .addFormDataPart("password", signUpDto.password)
-        signUpDto.image?.let {
-            body.addFormDataPart(
-                "image",
-                it.name,
-                it.asRequestBody(IMAGE_MEDIA_TYPE)
-            )
-        }
-        val request = Request.Builder()
-            .url("$BASE_URL/$PATH/create-account")
-            .post(body.build())
-            .build()
         try {
-            val response = okHttpClient.newCall(request).await()
+            val response = post(
+                "/create-account",
+                hashMapOf(
+                    "username" to signUpDto.username,
+                    "email" to signUpDto.email,
+                    "fcmToken" to signUpDto.fcmToken,
+                    "password" to signUpDto.password
+                ),
+                signUpDto.image,
+                "image"
+            )
             val json = response.body?.toJson() ?: return Resource.Failure(
                 ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
             )
