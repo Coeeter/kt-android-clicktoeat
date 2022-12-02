@@ -5,10 +5,6 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.nasportfolio.clicktoeat.data.restaurant.remote.RestaurantDao
-import com.nasportfolio.clicktoeat.data.restaurant.remote.RestaurantDaoImpl
-import com.nasportfolio.clicktoeat.data.user.remote.UserDao
-import com.nasportfolio.clicktoeat.data.user.remote.UserDaoImpl
 import com.nasportfolio.clicktoeat.domain.common.exceptions.NoNetworkException
 import dagger.Module
 import dagger.Provides

@@ -14,8 +14,9 @@ import com.nasportfolio.clicktoeat.utils.decodeFromJson
 import com.nasportfolio.clicktoeat.utils.toJson
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import javax.inject.Inject
 
-class UserDaoImpl(
+class UserDaoImpl @Inject constructor(
     private val okHttpClient: OkHttpClient,
     private val gson: Gson,
 ) : UserDao {
