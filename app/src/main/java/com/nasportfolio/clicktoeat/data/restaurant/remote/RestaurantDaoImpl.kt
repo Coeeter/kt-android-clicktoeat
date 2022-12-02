@@ -37,11 +37,9 @@ class RestaurantDaoImpl @Inject constructor(
             if (response.code == 200) return Resource.Success(
                 gson.decodeFromJson(json)
             )
-            val errorDto =
-                gson.decodeFromJson<ResourceError.Default>(
-                    json
-                )
-            return Resource.Failure(errorDto)
+            return Resource.Failure(
+                gson.decodeFromJson<ResourceError.Default>(json)
+            )
         } catch (e: IOException) {
             return Resource.Failure(
                 ResourceError.Default(e.message.toString())
@@ -62,10 +60,9 @@ class RestaurantDaoImpl @Inject constructor(
             if (response.code == 200) return Resource.Success(
                 gson.decodeFromJson(json)
             )
-            val errorDto = gson.decodeFromJson<ResourceError.Default>(
-                json
+            return Resource.Failure(
+                gson.decodeFromJson<ResourceError.Default>(json)
             )
-            return Resource.Failure(errorDto)
         } catch (e: IOException) {
             return Resource.Failure(
                 ResourceError.Default(e.message.toString())

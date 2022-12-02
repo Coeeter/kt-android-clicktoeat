@@ -41,14 +41,12 @@ class UserDaoImpl @Inject constructor(
             json ?: return Resource.Failure(
                 ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
             )
-            if (response.code == 200)
-                return Resource.Success(
-                    gson.decodeFromJson(json)
-                )
-            val errorDto = gson.decodeFromJson<ResourceError.Default>(
-                json
+            if (response.code == 200) return Resource.Success(
+                gson.decodeFromJson(json)
             )
-            return Resource.Failure(errorDto)
+            return Resource.Failure(
+                gson.decodeFromJson<ResourceError.Default>(json)
+            )
         } catch (e: IOException) {
             return Resource.Failure(
                 ResourceError.Default(e.message.toString())
@@ -110,10 +108,12 @@ class UserDaoImpl @Inject constructor(
             if (response.code == 200) return Resource.Success(
                 gson.decodeFromJson<TokenDto>(json).token
             )
-            val errorDto = gson.decodeFromJson<ResourceError.Default>(
-                json
+            if (response.code == 400) return Resource.Failure(
+                gson.decodeFromJson<ResourceError.Field>(json)
             )
-            return Resource.Failure(errorDto)
+            return Resource.Failure(
+                gson.decodeFromJson<ResourceError.Default>(json)
+            )
         } catch (e: IOException) {
             return Resource.Failure(
                 ResourceError.Default(e.message.toString())
@@ -128,15 +128,16 @@ class UserDaoImpl @Inject constructor(
             .addFormDataPart("email", signUpDto.email)
             .addFormDataPart("fcmToken", signUpDto.fcmToken)
             .addFormDataPart("password", signUpDto.password)
-            .addFormDataPart(
+        signUpDto.image?.let {
+            body.addFormDataPart(
                 "image",
-                signUpDto.image.name,
-                signUpDto.image.asRequestBody(IMAGE_MEDIA_TYPE)
+                it.name,
+                it.asRequestBody(IMAGE_MEDIA_TYPE)
             )
-            .build()
+        }
         val request = Request.Builder()
             .url("$BASE_URL/$PATH/create-account")
-            .post(body)
+            .post(body.build())
             .build()
         try {
             val response = okHttpClient.newCall(request).await()
@@ -146,16 +147,12 @@ class UserDaoImpl @Inject constructor(
             if (response.code == 200) return Resource.Success(
                 gson.decodeFromJson<TokenDto>(json).token
             )
-            if (response.code == 400) {
-                val fieldErrorDto = gson.decodeFromJson<ResourceError.Field>(
-                    json
-                )
-                return Resource.Failure(fieldErrorDto)
-            }
-            val errorDto = gson.decodeFromJson<ResourceError.Default>(
-                json
+            if (response.code == 400) return Resource.Failure(
+                gson.decodeFromJson<ResourceError.Field>(json)
             )
-            return Resource.Failure(errorDto)
+            return Resource.Failure(
+                gson.decodeFromJson<ResourceError.Default>(json)
+            )
         } catch (e: IOException) {
             return Resource.Failure(
                 ResourceError.Default(e.message.toString())

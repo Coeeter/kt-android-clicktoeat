@@ -6,6 +6,6 @@ data class SignUpDto(
     val username: String,
     val email: String,
     val password: String,
-    val image: File,
     val fcmToken: String,
+    val image: File? = null,
 )
