@@ -3,15 +3,12 @@ package com.nasportfolio.clicktoeat.data.common
 import com.google.gson.Gson
 import com.nasportfolio.clicktoeat.utils.Constants.BASE_URL
 import com.nasportfolio.clicktoeat.utils.await
+import com.nasportfolio.clicktoeat.utils.decodeFromJson
+import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.Response
 import java.io.File
-import kotlin.reflect.full.staticProperties
 
 open class OkHttpDao(
     private val okHttpClient: OkHttpClient,
@@ -23,76 +20,115 @@ open class OkHttpDao(
         val IMAGE_MEDIA_TYPE = "image/*".toMediaTypeOrNull()
     }
 
-    suspend fun get(endpoint: String = "/"): Response {
-        val request = Request.Builder()
-            .url(getUrl(endpoint))
-            .build()
-        return makeRequest(request)
-    }
-
-    suspend fun <T> post(endpoint: String = "/", body: T): Response {
-        val requestBody = gson.toJson(body).toRequestBody(JSON_MEDIA_TYPE)
-        val request = Request.Builder()
-            .url(getUrl(endpoint))
-            .post(requestBody)
-            .build()
-        return makeRequest(request)
+    suspend fun get(
+        endpoint: String = "/",
+        headers: Map<String, String> = mapOf()
+    ): Response {
+        val request = createRequestBuilder(endpoint)
+        setHeaders(request, headers)
+        return makeRequest(request.build())
     }
 
     suspend fun <T> post(
-        endpoint: String,
+        endpoint: String = "/",
         body: T,
-        image: File?,
-        imageName: String
+        headers: Map<String, String> = mapOf()
     ): Response {
-        val multipartBuilder = MultipartBody.Builder()
-        for (member in body!!::class.staticProperties) {
-            var value = member.get()
-            if (value !is String) value = value.toString()
-            multipartBuilder.addFormDataPart(member.name, value)
-        }
-        image?.let {
-            multipartBuilder.addFormDataPart(
-                imageName,
-                it.name,
-                it.asRequestBody(IMAGE_MEDIA_TYPE)
-            )
-        }
-        val request = Request.Builder()
-            .url(getUrl(endpoint))
-            .post(multipartBuilder.build())
-            .build()
-        return makeRequest(request)
+        val request = createRequestBuilder(endpoint).post(
+            createJsonRequestBody(body)
+        )
+        setHeaders(request, headers)
+        return makeRequest(request.build())
     }
 
-    suspend fun post(
-        endpoint: String,
-        map: Map<String, String>,
+    suspend fun <T> post(
+        endpoint: String = "/",
+        body: T,
         image: File?,
         imageName: String,
+        headers: Map<String, String> = mapOf()
     ): Response {
+        val request = createRequestBuilder(endpoint).post(
+            createMultipartRequestBody(body, image, imageName)
+        )
+        setHeaders(request, headers)
+        return makeRequest(request.build())
+    }
+
+    suspend fun <T> put(
+        endpoint: String = "/",
+        body: T,
+        headers: Map<String, String> = mapOf()
+    ): Response {
+        val request = createRequestBuilder(endpoint).put(
+            createJsonRequestBody(body)
+        )
+        setHeaders(request, headers)
+        return makeRequest(request.build())
+    }
+
+    suspend fun <T> put(
+        endpoint: String = "/",
+        body: T,
+        image: File?,
+        imageName: String,
+        headers: Map<String, String> = mapOf()
+    ): Response {
+        val request = createRequestBuilder(endpoint).put(
+            createMultipartRequestBody(body, image, imageName)
+        )
+        setHeaders(request, headers)
+        return makeRequest(request.build())
+    }
+
+    suspend fun <T> delete(
+        endpoint: String = "/",
+        body: T? = null,
+        headers: Map<String, String> = mapOf()
+    ): Response {
+        val request = createRequestBuilder(endpoint).delete(
+            createJsonRequestBody(body)
+        )
+        setHeaders(request, headers)
+        return makeRequest(request.build())
+    }
+
+    private fun <T> createJsonRequestBody(body: T) =
+        gson.toJson(body).toRequestBody(JSON_MEDIA_TYPE)
+
+    private fun <T> createMultipartRequestBody(
+        body: T,
+        image: File? = null,
+        imageName: String = ""
+    ): RequestBody {
+        val map = gson.decodeFromJson<HashMap<String, Any>>(
+            gson.toJson(body)
+        )
         val multipartBuilder = MultipartBody.Builder()
         map.forEach { (key, value) ->
-            multipartBuilder.addFormDataPart(key, value)
+            multipartBuilder.addFormDataPart(key, value.toString())
         }
         image?.let {
             multipartBuilder.addFormDataPart(
                 imageName,
                 it.name,
-                it.asRequestBody(IMAGE_MEDIA_TYPE)
+                image.asRequestBody(IMAGE_MEDIA_TYPE)
             )
         }
-        val request = Request.Builder()
-            .url(getUrl(endpoint))
-            .post(multipartBuilder.build())
-            .build()
-        return makeRequest(request)
+        return multipartBuilder.build()
+    }
+
+    private fun setHeaders(
+        requestBuilder: Request.Builder,
+        headers: Map<String, String> = mapOf()
+    ) = requestBuilder.apply {
+        headers.forEach { addHeader(it.key, it.value) }
     }
 
     private suspend fun makeRequest(request: Request) =
         okHttpClient.newCall(request).await()
 
-    private fun getUrl(endpoint: String) =
-        "$BASE_URL/$path/$endpoint"
+    private fun createRequestBuilder(endpoint: String) =
+        Request.Builder().url("$BASE_URL/$path/$endpoint")
 
 }

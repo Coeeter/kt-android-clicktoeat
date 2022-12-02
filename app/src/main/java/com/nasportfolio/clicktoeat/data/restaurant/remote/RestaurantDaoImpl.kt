@@ -38,7 +38,7 @@ class RestaurantDaoImpl @Inject constructor(
 
     override suspend fun getRestaurantById(id: String): Resource<Restaurant> {
         try {
-            val response = get("/$id")
+            val response = get(endpoint = "/$id")
             val json = response.body?.toJson() ?: return Resource.Failure(
                 ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
             )

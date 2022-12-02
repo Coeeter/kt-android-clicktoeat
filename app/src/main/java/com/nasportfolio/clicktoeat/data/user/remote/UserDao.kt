@@ -2,6 +2,7 @@ package com.nasportfolio.clicktoeat.data.user.remote
 
 import com.google.gson.Gson
 import com.nasportfolio.clicktoeat.data.common.OkHttpDao
+import com.nasportfolio.clicktoeat.data.user.remote.dto.LoginDto
 import com.nasportfolio.clicktoeat.data.user.remote.dto.SignUpDto
 import com.nasportfolio.clicktoeat.data.user.remote.dto.UpdateAccountDto
 import com.nasportfolio.clicktoeat.domain.user.User
@@ -19,6 +20,6 @@ abstract class UserDao(
     abstract suspend fun validateCredential(e: String, c: String): Resource<String>
     abstract suspend fun updateAccount(updateAccountDto: UpdateAccountDto): Resource<String>
     abstract suspend fun deleteAccount(password: String): Resource<String>
-    abstract suspend fun login(email: String, password: String): Resource<String>
+    abstract suspend fun login(loginDto: LoginDto): Resource<String>
     abstract suspend fun signUp(signUpDto: SignUpDto): Resource<String>
 }
