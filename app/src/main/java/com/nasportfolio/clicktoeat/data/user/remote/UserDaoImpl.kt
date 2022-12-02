@@ -5,7 +5,6 @@ import com.nasportfolio.clicktoeat.data.common.dtos.DefaultErrorDto
 import com.nasportfolio.clicktoeat.data.user.User
 import com.nasportfolio.clicktoeat.data.user.remote.dto.SignUpDto
 import com.nasportfolio.clicktoeat.data.user.remote.dto.UpdateAccountDto
-import com.nasportfolio.clicktoeat.domain.common.exceptions.NoNetworkException
 import com.nasportfolio.clicktoeat.utils.Constants.BASE_URL
 import com.nasportfolio.clicktoeat.utils.Constants.UNABLE_GET_BODY_ERROR_MESSAGE
 import com.nasportfolio.clicktoeat.utils.Resource
@@ -14,6 +13,7 @@ import com.nasportfolio.clicktoeat.utils.decodeFromJson
 import com.nasportfolio.clicktoeat.utils.toJson
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import java.io.IOException
 import javax.inject.Inject
 
 class UserDaoImpl @Inject constructor(
@@ -38,7 +38,7 @@ class UserDaoImpl @Inject constructor(
                 )
             val errorDto = gson.decodeFromJson<DefaultErrorDto>(json)
             return Resource.Failure(errorDto.error)
-        } catch (e: NoNetworkException) {
+        } catch (e: IOException) {
             return Resource.Failure(e.message.toString())
         }
     }
@@ -55,7 +55,7 @@ class UserDaoImpl @Inject constructor(
             return Resource.Success(
                 gson.decodeFromJson(json)
             )
-        } catch (e: NoNetworkException) {
+        } catch (e: IOException) {
             return Resource.Failure(e.message.toString())
         }
     }
