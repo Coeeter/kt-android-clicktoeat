@@ -23,12 +23,14 @@ class RestaurantDaoImpl @Inject constructor(
             val json = response.body?.toJson() ?: return Resource.Failure(
                 ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
             )
-            if (response.code == 200) return Resource.Success(
-                gson.decodeFromJson(json)
-            )
-            return Resource.Failure(
-                gson.decodeFromJson<ResourceError.Default>(json)
-            )
+            return when (response.code) {
+                200 -> Resource.Success(
+                    gson.decodeFromJson(json)
+                )
+                else -> Resource.Failure(
+                    gson.decodeFromJson<ResourceError.Default>(json)
+                )
+            }
         } catch (e: IOException) {
             return Resource.Failure(
                 ResourceError.Default(e.message.toString())
@@ -42,12 +44,14 @@ class RestaurantDaoImpl @Inject constructor(
             val json = response.body?.toJson() ?: return Resource.Failure(
                 ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
             )
-            if (response.code == 200) return Resource.Success(
-                gson.decodeFromJson(json)
-            )
-            return Resource.Failure(
-                gson.decodeFromJson<ResourceError.Default>(json)
-            )
+            return when (response.code) {
+                200 -> Resource.Success(
+                    gson.decodeFromJson(json)
+                )
+                else -> Resource.Failure(
+                    gson.decodeFromJson<ResourceError.Default>(json)
+                )
+            }
         } catch (e: IOException) {
             return Resource.Failure(
                 ResourceError.Default(e.message.toString())

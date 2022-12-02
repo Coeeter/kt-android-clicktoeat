@@ -15,6 +15,6 @@ abstract class RestaurantDao(
     abstract suspend fun getAllRestaurants(): Resource<List<Restaurant>>
     abstract suspend fun getRestaurantById(id: String): Resource<Restaurant>
     abstract suspend fun createRestaurant(createRestaurantDto: CreateRestaurantDto): Resource<String>
-    abstract suspend fun deleteRestaurant(id: String): Resource<Unit>
     abstract suspend fun updateRestaurant(updateRestaurantDto: UpdateRestaurantDto): Resource<Restaurant>
+    abstract suspend fun deleteRestaurant(id: String): Resource<Unit>
 }
