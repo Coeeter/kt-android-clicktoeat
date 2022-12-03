@@ -20,6 +20,11 @@ class RemoteUserDaoImpl @Inject constructor(
     okHttpClient: OkHttpClient,
     gson: Gson,
 ) : RemoteUserDao(okHttpClient, gson) {
+    companion object {
+        const val VALIDATE_TOKEN_ENDPOINT = "/validate-token"
+        const val FORGOT_PASSWORD_ENDPOINT = "/forget-password"
+        const val VALIDATE_CREDENTIAL_ENDPOINT = "/validate-credential"
+    }
 
     override suspend fun getAllUsers(): Resource<List<User>> {
         try {
@@ -62,10 +67,8 @@ class RemoteUserDaoImpl @Inject constructor(
     override suspend fun validateToken(token: String): Resource<User> {
         try {
             val response = get(
-                endpoint = "/validate-token",
-                headers = mapOf(
-                    createAuthorizationHeader(token)
-                )
+                endpoint = VALIDATE_TOKEN_ENDPOINT,
+                headers = mapOf(AUTHORIZATION to BEARER + token)
             )
             val json = response.body?.toJson() ?: return Resource.Failure(
                 ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
@@ -88,7 +91,7 @@ class RemoteUserDaoImpl @Inject constructor(
     override suspend fun forgotPassword(email: String): Resource<String> {
         try {
             val response = post(
-                endpoint = "/forget-password",
+                endpoint = FORGOT_PASSWORD_ENDPOINT,
                 body = mapOf("email" to email),
             )
             val json = response.body?.toJson() ?: return Resource.Failure(
@@ -115,7 +118,7 @@ class RemoteUserDaoImpl @Inject constructor(
     override suspend fun validateCredential(e: String, c: String): Resource<String> {
         try {
             val response = post(
-                endpoint = "/validate-credential",
+                endpoint = VALIDATE_CREDENTIAL_ENDPOINT,
                 body = mapOf("email" to e, "credential" to c)
             )
             val json = response.body?.toJson() ?: return Resource.Failure(
@@ -146,11 +149,9 @@ class RemoteUserDaoImpl @Inject constructor(
         try {
             val response = put(
                 body = updateAccountDto.copy(image = null),
-                image = updateAccountDto.image,
-                imageName = "image",
-                headers = mapOf(
-                    createAuthorizationHeader(token)
-                )
+                file = updateAccountDto.image,
+                requestName = "image",
+                headers = mapOf(AUTHORIZATION to BEARER + token)
             )
             val json = response.body?.toJson() ?: return Resource.Failure(
                 ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
@@ -177,9 +178,7 @@ class RemoteUserDaoImpl @Inject constructor(
         try {
             val response = delete(
                 body = mapOf("password" to password),
-                headers = mapOf(
-                    createAuthorizationHeader(token)
-                )
+                headers = mapOf(AUTHORIZATION to BEARER + token)
             )
             val json = response.body?.toJson() ?: return Resource.Failure(
                 ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
@@ -234,8 +233,8 @@ class RemoteUserDaoImpl @Inject constructor(
             val response = post(
                 endpoint = "/create-account",
                 body = signUpDto.copy(image = null),
-                image = signUpDto.image,
-                imageName = "image"
+                file = signUpDto.image,
+                requestName = "image"
             )
             val json = response.body?.toJson() ?: return Resource.Failure(
                 ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)

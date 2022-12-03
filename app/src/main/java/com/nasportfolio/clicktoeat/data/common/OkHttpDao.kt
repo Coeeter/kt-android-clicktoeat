@@ -18,91 +18,141 @@ open class OkHttpDao(
     companion object {
         val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaTypeOrNull()
         val IMAGE_MEDIA_TYPE = "image/*".toMediaTypeOrNull()
+        const val AUTHORIZATION = "Authorization"
+        const val BEARER = "Bearer "
     }
-
-    fun createAuthorizationHeader(token: String) =
-        "Authorization" to "Bearer $token"
 
     suspend fun get(
         endpoint: String = "/",
         headers: Map<String, String> = mapOf()
-    ): Response {
-        val request = createRequestBuilder(endpoint)
-        setHeaders(request, headers)
-        return makeRequest(request.build())
-    }
+    ): Response = makeRequest(
+        endpoint = endpoint,
+        headers = headers,
+        method = HttpMethods.GET,
+    )
 
     suspend fun <T> post(
         endpoint: String = "/",
         body: T,
         headers: Map<String, String> = mapOf()
-    ): Response {
-        val request = createRequestBuilder(endpoint).post(
-            createJsonRequestBody(body)
-        )
-        setHeaders(request, headers)
-        return makeRequest(request.build())
-    }
+    ): Response = makeRequest(
+        endpoint = endpoint,
+        body = body,
+        headers = headers,
+        contentType = ContentType.JSON,
+        method = HttpMethods.POST
+    )
 
     suspend fun <T> post(
         endpoint: String = "/",
         body: T,
-        image: File?,
-        imageName: String,
+        file: File?,
+        requestName: String,
         headers: Map<String, String> = mapOf()
-    ): Response {
-        val request = createRequestBuilder(endpoint).post(
-            createMultipartRequestBody(body, image, imageName)
-        )
-        setHeaders(request, headers)
-        return makeRequest(request.build())
-    }
+    ): Response = makeRequest(
+        endpoint = endpoint,
+        body = body,
+        headers = headers,
+        contentType = ContentType.MULTIPART,
+        method = HttpMethods.POST,
+        fileUpload = FileUpload(
+            file = file,
+            requestName = requestName
+        ),
+    )
 
     suspend fun <T> put(
         endpoint: String = "/",
         body: T,
         headers: Map<String, String> = mapOf()
-    ): Response {
-        val request = createRequestBuilder(endpoint).put(
-            createJsonRequestBody(body)
-        )
-        setHeaders(request, headers)
-        return makeRequest(request.build())
-    }
+    ): Response = makeRequest(
+        endpoint = endpoint,
+        body = body,
+        headers = headers,
+        contentType = ContentType.JSON,
+        method = HttpMethods.PUT,
+    )
 
     suspend fun <T> put(
         endpoint: String = "/",
         body: T,
-        image: File?,
-        imageName: String,
+        file: File?,
+        requestName: String,
         headers: Map<String, String> = mapOf()
-    ): Response {
-        val request = createRequestBuilder(endpoint).put(
-            createMultipartRequestBody(body, image, imageName)
-        )
-        setHeaders(request, headers)
-        return makeRequest(request.build())
-    }
+    ): Response = makeRequest(
+        endpoint = endpoint,
+        body = body,
+        headers = headers,
+        contentType = ContentType.MULTIPART,
+        method = HttpMethods.PUT,
+        fileUpload = FileUpload(
+            file = file,
+            requestName = requestName
+        ),
+    )
 
     suspend fun <T> delete(
         endpoint: String = "/",
         body: T? = null,
         headers: Map<String, String> = mapOf()
+    ): Response = makeRequest(
+        endpoint = endpoint,
+        body = body,
+        headers = headers,
+        contentType = ContentType.JSON,
+        method = HttpMethods.DELETE,
+    )
+
+    @Throws(IllegalArgumentException::class)
+    private suspend fun makeRequest(
+        endpoint: String,
+        method: HttpMethods,
+        body: Any? = null,
+        headers: Map<String, String> = mapOf(),
+        fileUpload: FileUpload = FileUpload(),
+        contentType: ContentType? = null
     ): Response {
-        val request = createRequestBuilder(endpoint).delete(
-            createJsonRequestBody(body)
-        )
-        setHeaders(request, headers)
-        return makeRequest(request.build())
+        val requestBody = body?.let {
+            when (contentType) {
+                ContentType.JSON -> createJsonRequestBody(it)
+                ContentType.MULTIPART -> createMultipartRequestBody(it, fileUpload)
+                else -> null
+            }
+        }
+        val requestBuilder = requestBody?.let {
+            when (method) {
+                HttpMethods.POST -> {
+                    createRequestBuilder(endpoint).post(it)
+                }
+                HttpMethods.PUT -> {
+                    createRequestBuilder(endpoint).put(it)
+                }
+                HttpMethods.DELETE -> {
+                    createRequestBuilder(endpoint).delete(it)
+                }
+                else -> null
+            }
+        } ?: when (method) {
+            HttpMethods.GET -> {
+                createRequestBuilder(endpoint).get()
+            }
+            HttpMethods.DELETE -> {
+                createRequestBuilder(endpoint).delete()
+            }
+            else -> throw IllegalArgumentException(
+                "Unable to create a request. Invalid body and method provided"
+            )
+        }
+        setHeaders(requestBuilder, headers)
+        return okHttpClient.newCall(requestBuilder.build()).await()
     }
 
-    private fun <T> createJsonRequestBody(body: T) =
+    private fun createJsonRequestBody(body: Any): RequestBody =
         gson.toJson(body).toRequestBody(JSON_MEDIA_TYPE)
 
-    private fun <T> createMultipartRequestBody(
-        body: T,
-        image: File? = null,
-        imageName: String = ""
+    private fun createMultipartRequestBody(
+        body: Any,
+        fileUpload: FileUpload = FileUpload(),
     ): RequestBody {
         val map = gson.decodeFromJson<HashMap<String, Any>>(
             gson.toJson(body)
@@ -111,11 +161,11 @@ open class OkHttpDao(
         map.forEach { (key, value) ->
             multipartBuilder.addFormDataPart(key, value.toString())
         }
-        image?.let {
+        fileUpload.file?.let {
             multipartBuilder.addFormDataPart(
-                imageName,
+                fileUpload.requestName,
                 it.name,
-                image.asRequestBody(IMAGE_MEDIA_TYPE)
+                it.asRequestBody(IMAGE_MEDIA_TYPE)
             )
         }
         return multipartBuilder.build()
@@ -124,14 +174,25 @@ open class OkHttpDao(
     private fun setHeaders(
         requestBuilder: Request.Builder,
         headers: Map<String, String> = mapOf()
-    ) = requestBuilder.apply {
+    ): Request.Builder = requestBuilder.apply {
         headers.forEach { addHeader(it.key, it.value) }
     }
 
-    private suspend fun makeRequest(request: Request) =
-        okHttpClient.newCall(request).await()
+    private fun createRequestBuilder(endpoint: String): Request.Builder {
+        val url = "$BASE_URL/$path/$endpoint"
+        return Request.Builder().url(url)
+    }
 
-    private fun createRequestBuilder(endpoint: String) =
-        Request.Builder().url("$BASE_URL/$path/$endpoint")
+    private data class FileUpload(
+        val file: File? = null,
+        val requestName: String = "image"
+    )
 
+    private enum class HttpMethods {
+        GET, POST, PUT, DELETE
+    }
+
+    private enum class ContentType {
+        JSON, MULTIPART
+    }
 }
