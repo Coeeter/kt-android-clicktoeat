@@ -2,8 +2,10 @@ package com.nasportfolio.clicktoeat.di
 
 import com.nasportfolio.clicktoeat.data.restaurant.remote.RestaurantDao
 import com.nasportfolio.clicktoeat.data.restaurant.remote.RestaurantDaoImpl
-import com.nasportfolio.clicktoeat.data.user.remote.UserDao
-import com.nasportfolio.clicktoeat.data.user.remote.UserDaoImpl
+import com.nasportfolio.clicktoeat.data.user.local.SharedPreferenceDao
+import com.nasportfolio.clicktoeat.data.user.local.SharedPreferenceDaoImpl
+import com.nasportfolio.clicktoeat.data.user.remote.RemoteUserDao
+import com.nasportfolio.clicktoeat.data.user.remote.RemoteUserDaoImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -22,8 +24,13 @@ abstract class DaoModule {
 
     @Singleton
     @Binds
-    abstract fun bindsUserDao(
-        userDaoImpl: UserDaoImpl
-    ): UserDao
+    abstract fun bindsRemoteUserDao(
+        userDaoImpl: RemoteUserDaoImpl
+    ): RemoteUserDao
+
+    @Binds
+    abstract fun bindsSharedPreferenceDao(
+        sharedPreferenceDaoImpl: SharedPreferenceDaoImpl
+    ): SharedPreferenceDao
 
 }

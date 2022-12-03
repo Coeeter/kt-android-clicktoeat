@@ -20,6 +20,9 @@ open class OkHttpDao(
         val IMAGE_MEDIA_TYPE = "image/*".toMediaTypeOrNull()
     }
 
+    fun createAuthorizationHeader(token: String) =
+        "Authorization" to "Bearer $token"
+
     suspend fun get(
         endpoint: String = "/",
         headers: Map<String, String> = mapOf()

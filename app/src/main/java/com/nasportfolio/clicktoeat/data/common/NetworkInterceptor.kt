@@ -33,7 +33,7 @@ class NetworkInterceptor(
             val timeOutMs = 1500
             val sock = Socket()
             val socketAddress = InetSocketAddress("8.8.8.8", 53)
-            sock.connect(socketAddress)
+            sock.connect(socketAddress, timeOutMs)
             sock.close()
             true
         } catch (e: IOException) {

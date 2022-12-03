@@ -1,5 +1,5 @@
 package com.nasportfolio.clicktoeat.data.common.dtos
 
-data class DefaultSuccessDto(
+data class DefaultMessageDto(
     val message: String
 )
