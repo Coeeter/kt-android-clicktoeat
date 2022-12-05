@@ -12,7 +12,7 @@ import okhttp3.OkHttpClient
 abstract class RemoteUserDao(
     okHttpClient: OkHttpClient,
     gson: Gson
-) : OkHttpDao(okHttpClient, gson) {
+) : OkHttpDao(okHttpClient, gson, "/api/users") {
     abstract suspend fun getAllUsers(): Resource<List<User>>
     abstract suspend fun getUserById(id: String): Resource<User>
     abstract suspend fun validateToken(token: String): Resource<User>
