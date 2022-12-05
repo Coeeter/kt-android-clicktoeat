@@ -1,6 +1,8 @@
 package com.nasportfolio.clicktoeat.data.restaurant.remote
 
 import com.google.gson.Gson
+import com.nasportfolio.clicktoeat.data.common.dtos.DefaultMessageDto
+import com.nasportfolio.clicktoeat.data.common.dtos.EntityCreatedDto
 import com.nasportfolio.clicktoeat.data.restaurant.remote.dtos.CreateRestaurantDto
 import com.nasportfolio.clicktoeat.data.restaurant.remote.dtos.UpdateRestaurantDto
 import com.nasportfolio.clicktoeat.domain.restaurant.Restaurant
@@ -60,18 +62,89 @@ class RestaurantDaoImpl @Inject constructor(
     }
 
     override suspend fun createRestaurant(
+        token: String,
         createRestaurantDto: CreateRestaurantDto
     ): Resource<String> {
-        TODO("Not yet implemented")
+        try {
+            val response = post(
+                body = createRestaurantDto.copy(image = null),
+                headers = mapOf(AUTHORIZATION to BEARER + token),
+                file = createRestaurantDto.image,
+                requestName = "brandImage"
+            )
+            val json = response.body?.toJson() ?: return Resource.Failure(
+                ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
+            )
+            return when (response.code) {
+                200 -> Resource.Success(
+                    gson.decodeFromJson<EntityCreatedDto>(json).insertId
+                )
+                400 -> Resource.Failure(
+                    gson.decodeFromJson<ResourceError.Field>(json)
+                )
+                else -> Resource.Failure(
+                    gson.decodeFromJson<ResourceError.Default>(json)
+                )
+            }
+        } catch (e: IOException) {
+            return Resource.Failure(
+                ResourceError.Default(e.message.toString())
+            )
+        }
     }
 
     override suspend fun updateRestaurant(
+        token: String,
+        id: String,
         updateRestaurantDto: UpdateRestaurantDto
     ): Resource<Restaurant> {
-        TODO("Not yet implemented")
+        try {
+            val response = put(
+                endpoint = "/$id",
+                body = updateRestaurantDto.copy(image = null),
+                file = updateRestaurantDto.image,
+                requestName = "brandImage",
+                headers = mapOf(AUTHORIZATION to BEARER + token)
+            )
+            val json = response.body?.toJson() ?: return Resource.Failure(
+                ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
+            )
+            return when (response.code) {
+                200 -> Resource.Success(
+                    gson.decodeFromJson(json)
+                )
+                else -> Resource.Failure(
+                    gson.decodeFromJson<ResourceError.Default>(json)
+                )
+            }
+        } catch (e: IOException) {
+            return Resource.Failure(
+                ResourceError.Default(e.message.toString())
+            )
+        }
     }
 
-    override suspend fun deleteRestaurant(id: String): Resource<Unit> {
-        TODO("Not yet implemented")
+    override suspend fun deleteRestaurant(token: String, id: String): Resource<String> {
+        try {
+            val response = delete<Unit>(
+                endpoint = "/$id",
+                headers = mapOf(AUTHORIZATION to BEARER + token),
+            )
+            val json = response.body?.toJson() ?: return Resource.Failure(
+                ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
+            )
+            return when (response.code) {
+                200 -> Resource.Success(
+                    gson.decodeFromJson<DefaultMessageDto>(json).message
+                )
+                else -> Resource.Failure(
+                    gson.decodeFromJson<ResourceError.Default>(json)
+                )
+            }
+        } catch (e: IOException) {
+            return Resource.Failure(
+                ResourceError.Default(e.message.toString())
+            )
+        }
     }
 }

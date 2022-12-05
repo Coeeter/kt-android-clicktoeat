@@ -5,5 +5,5 @@ import java.io.File
 data class CreateRestaurantDto(
     val name: String,
     val description: String,
-    val image: File
+    val image: File?
 )
