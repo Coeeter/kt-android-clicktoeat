@@ -8,7 +8,7 @@ import com.nasportfolio.clicktoeat.domain.restaurant.Restaurant
 import com.nasportfolio.clicktoeat.domain.utils.Resource
 import okhttp3.OkHttpClient
 
-abstract class RestaurantDao(
+abstract class RemoteRestaurantDao(
     okHttpClient: OkHttpClient,
     gson: Gson
 ) : OkHttpDao(okHttpClient, gson, "/api/restaurants") {

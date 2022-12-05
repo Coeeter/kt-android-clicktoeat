@@ -1,7 +1,9 @@
 package com.nasportfolio.clicktoeat.di
 
+import com.nasportfolio.clicktoeat.data.branch.BranchRepositoryImpl
 import com.nasportfolio.clicktoeat.data.restaurant.RestaurantRepositoryImpl
 import com.nasportfolio.clicktoeat.data.user.UserRepositoryImpl
+import com.nasportfolio.clicktoeat.domain.branch.BranchRepository
 import com.nasportfolio.clicktoeat.domain.restaurant.RestaurantRepository
 import com.nasportfolio.clicktoeat.domain.user.UserRepository
 import dagger.Binds
@@ -25,5 +27,11 @@ abstract class RepoModule {
     abstract fun bindsUserRepository(
         userRepositoryImpl: UserRepositoryImpl
     ): UserRepository
+
+    @Singleton
+    @Binds
+    abstract fun bindsBranchRepository(
+        branchRepositoryImpl: BranchRepositoryImpl
+    ): BranchRepository
 
 }

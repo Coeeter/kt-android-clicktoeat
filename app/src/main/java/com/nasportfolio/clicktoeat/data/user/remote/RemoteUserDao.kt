@@ -2,9 +2,9 @@ package com.nasportfolio.clicktoeat.data.user.remote
 
 import com.google.gson.Gson
 import com.nasportfolio.clicktoeat.data.common.OkHttpDao
-import com.nasportfolio.clicktoeat.data.user.remote.dto.LoginDto
-import com.nasportfolio.clicktoeat.data.user.remote.dto.SignUpDto
-import com.nasportfolio.clicktoeat.data.user.remote.dto.UpdateAccountDto
+import com.nasportfolio.clicktoeat.data.user.remote.dtos.LoginDto
+import com.nasportfolio.clicktoeat.data.user.remote.dtos.SignUpDto
+import com.nasportfolio.clicktoeat.data.user.remote.dtos.UpdateAccountDto
 import com.nasportfolio.clicktoeat.domain.user.User
 import com.nasportfolio.clicktoeat.domain.utils.Resource
 import okhttp3.OkHttpClient

@@ -1,4 +1,4 @@
-package com.nasportfolio.clicktoeat.data.user.remote.dto
+package com.nasportfolio.clicktoeat.data.user.remote.dtos
 
 data class LoginDto(
     val email: String,

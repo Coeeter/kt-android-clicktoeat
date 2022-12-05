@@ -1,7 +1,9 @@
 package com.nasportfolio.clicktoeat.di
 
-import com.nasportfolio.clicktoeat.data.restaurant.remote.RestaurantDao
-import com.nasportfolio.clicktoeat.data.restaurant.remote.RestaurantDaoImpl
+import com.nasportfolio.clicktoeat.data.branch.remote.RemoteBranchDao
+import com.nasportfolio.clicktoeat.data.branch.remote.RemoteBranchDaoImpl
+import com.nasportfolio.clicktoeat.data.restaurant.remote.RemoteRestaurantDao
+import com.nasportfolio.clicktoeat.data.restaurant.remote.RemoteRestaurantDaoImpl
 import com.nasportfolio.clicktoeat.data.user.local.SharedPreferenceDao
 import com.nasportfolio.clicktoeat.data.user.local.SharedPreferenceDaoImpl
 import com.nasportfolio.clicktoeat.data.user.remote.RemoteUserDao
@@ -18,19 +20,25 @@ abstract class DaoModule {
 
     @Singleton
     @Binds
-    abstract fun bindsRestaurantDao(
-        restaurantDaoImpl: RestaurantDaoImpl
-    ): RestaurantDao
+    abstract fun bindsRemoteRestaurantDao(
+        remoteRestaurantDaoImpl: RemoteRestaurantDaoImpl
+    ): RemoteRestaurantDao
 
     @Singleton
     @Binds
     abstract fun bindsRemoteUserDao(
-        userDaoImpl: RemoteUserDaoImpl
+        remoteUserDaoImpl: RemoteUserDaoImpl
     ): RemoteUserDao
 
     @Binds
     abstract fun bindsSharedPreferenceDao(
         sharedPreferenceDaoImpl: SharedPreferenceDaoImpl
     ): SharedPreferenceDao
+
+    @Singleton
+    @Binds
+    abstract fun bindsRemoteBranchDao(
+        remoteBranchDaoImpl: RemoteBranchDaoImpl
+    ): RemoteBranchDao
 
 }
