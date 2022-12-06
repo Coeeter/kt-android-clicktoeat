@@ -24,6 +24,8 @@ class RemoteUserDaoImpl @Inject constructor(
         const val VALIDATE_TOKEN_ENDPOINT = "/validate-token"
         const val FORGOT_PASSWORD_ENDPOINT = "/forget-password"
         const val VALIDATE_CREDENTIAL_ENDPOINT = "/validate-credential"
+        const val LOGIN_ENDPOINT = "/login"
+        const val SIGN_UP_ENDPOINT = "/create-account"
     }
 
     override suspend fun getAllUsers(): Resource<List<User>> =
@@ -173,7 +175,7 @@ class RemoteUserDaoImpl @Inject constructor(
     override suspend fun login(loginDto: LoginDto): Resource<String> =
         tryWithIoExceptionHandling {
             val response = post(
-                endpoint = "/login",
+                endpoint = LOGIN_ENDPOINT,
                 body = loginDto
             )
             val json = response.body?.toJson()
@@ -196,7 +198,7 @@ class RemoteUserDaoImpl @Inject constructor(
     override suspend fun signUp(signUpDto: SignUpDto): Resource<String> =
         tryWithIoExceptionHandling {
             val response = post(
-                endpoint = "/create-account",
+                endpoint = SIGN_UP_ENDPOINT,
                 body = signUpDto.copy(image = null),
                 file = signUpDto.image,
                 requestName = "image"

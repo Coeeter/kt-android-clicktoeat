@@ -13,7 +13,7 @@ import java.io.File
 open class OkHttpDao(
     private val okHttpClient: OkHttpClient,
     protected val gson: Gson,
-    private val path: String = "/"
+    private val path: String
 ) {
     companion object {
         val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaTypeOrNull()
@@ -179,7 +179,7 @@ open class OkHttpDao(
     }
 
     private fun createRequestBuilder(endpoint: String): Request.Builder {
-        val url = "$BASE_URL/$path/$endpoint"
+        val url = "$BASE_URL/$path$endpoint"
         return Request.Builder().url(url)
     }
 
