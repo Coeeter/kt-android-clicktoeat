@@ -103,7 +103,6 @@ open class OkHttpDao(
         method = HttpMethods.DELETE,
     )
 
-    @Throws(IllegalArgumentException::class)
     private suspend fun makeRequest(
         endpoint: String,
         method: HttpMethods,
@@ -112,39 +111,56 @@ open class OkHttpDao(
         fileUpload: FileUpload = FileUpload(),
         contentType: ContentType? = null
     ): Response {
-        val requestBody = body?.let {
-            when (contentType) {
-                ContentType.JSON -> createJsonRequestBody(it)
-                ContentType.MULTIPART -> createMultipartRequestBody(it, fileUpload)
-                else -> null
-            }
+        val requestBody = getRequestBody(
+            body = body,
+            contentType = contentType,
+            fileUpload = fileUpload
+        )
+        val requestBuilder = Request.Builder().url(
+            url = "$BASE_URL/$path$endpoint"
+        )
+        setHeaders(
+            requestBuilder = requestBuilder,
+            headers = headers
+        )
+        setHttpMethod(
+            requestBody = requestBody,
+            method = method,
+            requestBuilder = requestBuilder
+        )
+        val request = requestBuilder.build()
+        return okHttpClient.newCall(request = request).await()
+    }
+
+    private fun setHttpMethod(
+        requestBody: RequestBody?,
+        method: HttpMethods,
+        requestBuilder: Request.Builder
+    ) = requestBody?.let {
+        when (method) {
+            HttpMethods.POST -> requestBuilder.post(it)
+            HttpMethods.PUT -> requestBuilder.put(it)
+            HttpMethods.DELETE -> requestBuilder.delete(it)
+            else -> null
         }
-        val requestBuilder = requestBody?.let {
-            when (method) {
-                HttpMethods.POST -> {
-                    createRequestBuilder(endpoint).post(it)
-                }
-                HttpMethods.PUT -> {
-                    createRequestBuilder(endpoint).put(it)
-                }
-                HttpMethods.DELETE -> {
-                    createRequestBuilder(endpoint).delete(it)
-                }
-                else -> null
-            }
-        } ?: when (method) {
-            HttpMethods.GET -> {
-                createRequestBuilder(endpoint).get()
-            }
-            HttpMethods.DELETE -> {
-                createRequestBuilder(endpoint).delete()
-            }
-            else -> throw IllegalArgumentException(
-                "Unable to create a request. Invalid body and method provided"
-            )
+    } ?: when (method) {
+        HttpMethods.GET -> requestBuilder.get()
+        HttpMethods.DELETE -> requestBuilder.delete()
+        else -> throw IllegalArgumentException(
+            "Unable to create a request. Invalid body and method provided"
+        )
+    }
+
+    private fun getRequestBody(
+        body: Any?,
+        contentType: ContentType?,
+        fileUpload: FileUpload
+    ): RequestBody? = body?.let {
+        when (contentType) {
+            ContentType.JSON -> createJsonRequestBody(it)
+            ContentType.MULTIPART -> createMultipartRequestBody(it, fileUpload)
+            else -> null
         }
-        setHeaders(requestBuilder, headers)
-        return okHttpClient.newCall(requestBuilder.build()).await()
     }
 
     private fun createJsonRequestBody(body: Any): RequestBody =
@@ -176,11 +192,6 @@ open class OkHttpDao(
         headers: Map<String, String> = mapOf()
     ): Request.Builder = requestBuilder.apply {
         headers.forEach { addHeader(it.key, it.value) }
-    }
-
-    private fun createRequestBuilder(endpoint: String): Request.Builder {
-        val url = "$BASE_URL/$path$endpoint"
-        return Request.Builder().url(url)
     }
 
     private data class FileUpload(
