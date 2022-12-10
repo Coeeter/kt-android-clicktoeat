@@ -1,4 +1,4 @@
-package com.nasportfolio.clicktoeat.data.common
+package com.nasportfolio.clicktoeat.data.common.interceptors
 
 import android.content.Context
 import android.net.ConnectivityManager

@@ -3,7 +3,9 @@ package com.nasportfolio.clicktoeat.di
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.nasportfolio.clicktoeat.data.common.NetworkInterceptor
+import com.nasportfolio.clicktoeat.data.common.converter.JsonConverter
+import com.nasportfolio.clicktoeat.data.common.converter.JsonConverterImpl
+import com.nasportfolio.clicktoeat.data.common.interceptors.NetworkInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -35,5 +37,10 @@ object NetworkModule {
     fun providesGson(): Gson = GsonBuilder()
         .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
         .create()
+
+    @Provides
+    fun providesJsonConverter(
+        gson: Gson
+    ): JsonConverter = JsonConverterImpl(gson)
 
 }

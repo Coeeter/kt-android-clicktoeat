@@ -4,7 +4,7 @@ import com.nasportfolio.clicktoeat.domain.utils.Resource
 import com.nasportfolio.clicktoeat.domain.utils.ResourceError
 import java.io.IOException
 
-suspend fun <T> tryWithIoExceptionHandling(
+suspend fun <T> tryWithIoHandling(
     callback: suspend () -> Resource<T>
 ): Resource<T> {
     return try {
