@@ -1,4 +1,4 @@
-package com.nasportfolio.clicktoeat.data.favorites.remote
+package com.nasportfolio.clicktoeat.data.favorite.remote
 
 import com.nasportfolio.clicktoeat.domain.restaurant.Restaurant
 import com.nasportfolio.clicktoeat.domain.user.User

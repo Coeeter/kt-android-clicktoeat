@@ -1,4 +1,4 @@
-package com.nasportfolio.clicktoeat.data.favorites.remote
+package com.nasportfolio.clicktoeat.data.dislike.remote
 
 import com.nasportfolio.clicktoeat.data.common.Authorization
 import com.nasportfolio.clicktoeat.data.common.OkHttpDao
@@ -7,7 +7,7 @@ import com.nasportfolio.clicktoeat.data.common.delegations.AuthorizationImpl
 import com.nasportfolio.clicktoeat.data.common.delegations.OkHttpDaoImpl
 import com.nasportfolio.clicktoeat.data.common.dtos.DefaultMessageDto
 import com.nasportfolio.clicktoeat.data.utils.tryWithIoHandling
-import com.nasportfolio.clicktoeat.domain.restaurant.Restaurant
+import com.nasportfolio.clicktoeat.domain.comment.Comment
 import com.nasportfolio.clicktoeat.domain.user.User
 import com.nasportfolio.clicktoeat.domain.utils.Resource
 import com.nasportfolio.clicktoeat.domain.utils.ResourceError
@@ -16,20 +16,20 @@ import com.nasportfolio.clicktoeat.utils.toJson
 import okhttp3.OkHttpClient
 import javax.inject.Inject
 
-class RemoteFavoriteDaoImpl @Inject constructor(
+class RemoteDislikeDaoImpl @Inject constructor(
     okHttpClient: OkHttpClient,
     jsonConverter: JsonConverter
-) : RemoteFavoriteDao,
+) : RemoteDislikeDao,
     Authorization by AuthorizationImpl(),
     OkHttpDao by OkHttpDaoImpl(
         okHttpClient = okHttpClient,
         converter = jsonConverter,
-        path = "/api/favorites"
+        path = "/api/dislikes"
     ) {
 
-    override suspend fun getFavoriteRestaurantsOfUser(userId: String): Resource<List<Restaurant>> =
+    override suspend fun getDislikedCommentsOfUser(userId: String): Resource<List<Comment>> =
         tryWithIoHandling {
-            val response = get(endpoint = "/users/$userId")
+            val response = get(endpoint = "?user=$userId")
             val json = response.body?.toJson() ?: return@tryWithIoHandling Resource.Failure(
                 ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
             )
@@ -43,9 +43,9 @@ class RemoteFavoriteDaoImpl @Inject constructor(
             }
         }
 
-    override suspend fun getUsersWhoFavoriteRestaurant(restaurantId: String): Resource<List<User>> =
+    override suspend fun getUsersWhoDislikedComments(commentId: String): Resource<List<User>> =
         tryWithIoHandling {
-            val response = get(endpoint = "/restaurants/$restaurantId")
+            val response = get(endpoint = "?comment=$commentId")
             val json = response.body?.toJson() ?: return@tryWithIoHandling Resource.Failure(
                 ResourceError.Default(UNABLE_GET_BODY_ERROR_MESSAGE)
             )
@@ -59,12 +59,12 @@ class RemoteFavoriteDaoImpl @Inject constructor(
             }
         }
 
-    override suspend fun addFavorite(
+    override suspend fun createDislike(
         token: String,
-        restaurantId: String
+        commentId: String
     ): Resource<String> = tryWithIoHandling {
         val response = post(
-            endpoint = "/$restaurantId",
+            endpoint = "/$commentId",
             body = emptyMap<Unit, Unit>(),
             headers = createAuthorizationHeader(token)
         )
@@ -81,12 +81,12 @@ class RemoteFavoriteDaoImpl @Inject constructor(
         }
     }
 
-    override suspend fun removeFavorite(
+    override suspend fun deleteDislike(
         token: String,
-        restaurantId: String
+        commentId: String
     ): Resource<String> = tryWithIoHandling {
         val response = delete<Unit>(
-            endpoint = "/$restaurantId",
+            endpoint = "/$commentId",
             headers = createAuthorizationHeader(token)
         )
         val json = response.body?.toJson() ?: return@tryWithIoHandling Resource.Failure(
@@ -101,4 +101,5 @@ class RemoteFavoriteDaoImpl @Inject constructor(
             )
         }
     }
+
 }

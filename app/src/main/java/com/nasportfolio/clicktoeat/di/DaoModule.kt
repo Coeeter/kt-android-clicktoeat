@@ -4,8 +4,12 @@ import com.nasportfolio.clicktoeat.data.branch.remote.RemoteBranchDao
 import com.nasportfolio.clicktoeat.data.branch.remote.RemoteBranchDaoImpl
 import com.nasportfolio.clicktoeat.data.comment.remote.RemoteCommentDao
 import com.nasportfolio.clicktoeat.data.comment.remote.RemoteCommentDaoImpl
-import com.nasportfolio.clicktoeat.data.favorites.remote.RemoteFavoriteDao
-import com.nasportfolio.clicktoeat.data.favorites.remote.RemoteFavoriteDaoImpl
+import com.nasportfolio.clicktoeat.data.dislike.remote.RemoteDislikeDao
+import com.nasportfolio.clicktoeat.data.dislike.remote.RemoteDislikeDaoImpl
+import com.nasportfolio.clicktoeat.data.favorite.remote.RemoteFavoriteDao
+import com.nasportfolio.clicktoeat.data.favorite.remote.RemoteFavoriteDaoImpl
+import com.nasportfolio.clicktoeat.data.like.remote.RemoteLikeDao
+import com.nasportfolio.clicktoeat.data.like.remote.RemoteLikeDaoImpl
 import com.nasportfolio.clicktoeat.data.restaurant.remote.RemoteRestaurantDao
 import com.nasportfolio.clicktoeat.data.restaurant.remote.RemoteRestaurantDaoImpl
 import com.nasportfolio.clicktoeat.data.user.local.SharedPreferenceDao
@@ -50,5 +54,15 @@ abstract class DaoModule {
     abstract fun bindsRemoteFavoriteDao(
         remoteFavoriteDaoImpl: RemoteFavoriteDaoImpl
     ): RemoteFavoriteDao
+
+    @Binds
+    abstract fun bindsRemoteLikeDao(
+        remoteLikeDaoImpl: RemoteLikeDaoImpl
+    ): RemoteLikeDao
+
+    @Binds
+    abstract fun bindsRemoteDislikeDao(
+        remoteDislikeDaoImpl: RemoteDislikeDaoImpl
+    ): RemoteDislikeDao
 
 }
