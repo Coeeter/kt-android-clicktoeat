@@ -4,6 +4,8 @@ import com.nasportfolio.clicktoeat.data.branch.remote.RemoteBranchDao
 import com.nasportfolio.clicktoeat.data.branch.remote.RemoteBranchDaoImpl
 import com.nasportfolio.clicktoeat.data.comment.remote.RemoteCommentDao
 import com.nasportfolio.clicktoeat.data.comment.remote.RemoteCommentDaoImpl
+import com.nasportfolio.clicktoeat.data.favorites.remote.RemoteFavoriteDao
+import com.nasportfolio.clicktoeat.data.favorites.remote.RemoteFavoriteDaoImpl
 import com.nasportfolio.clicktoeat.data.restaurant.remote.RemoteRestaurantDao
 import com.nasportfolio.clicktoeat.data.restaurant.remote.RemoteRestaurantDaoImpl
 import com.nasportfolio.clicktoeat.data.user.local.SharedPreferenceDao
@@ -14,19 +16,16 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class DaoModule {
 
-    @Singleton
     @Binds
     abstract fun bindsRemoteRestaurantDao(
         remoteRestaurantDaoImpl: RemoteRestaurantDaoImpl
     ): RemoteRestaurantDao
 
-    @Singleton
     @Binds
     abstract fun bindsRemoteUserDao(
         remoteUserDaoImpl: RemoteUserDaoImpl
@@ -37,16 +36,19 @@ abstract class DaoModule {
         sharedPreferenceDaoImpl: SharedPreferenceDaoImpl
     ): SharedPreferenceDao
 
-    @Singleton
     @Binds
     abstract fun bindsRemoteBranchDao(
         remoteBranchDaoImpl: RemoteBranchDaoImpl
     ): RemoteBranchDao
 
-    @Singleton
     @Binds
     abstract fun bindsRemoteCommentDao(
         remoteCommentDaoImpl: RemoteCommentDaoImpl
     ): RemoteCommentDao
+
+    @Binds
+    abstract fun bindsRemoteFavoriteDao(
+        remoteFavoriteDaoImpl: RemoteFavoriteDaoImpl
+    ): RemoteFavoriteDao
 
 }
