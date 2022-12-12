@@ -14,5 +14,6 @@ dependencyResolutionManagement {
 }
 rootProject.name = "ClickToEat"
 include ':app'
-include 'core:data'
-include 'core:network'
+include ':core:network'
+include ':core:data'
+include ':core:domain'
