@@ -1,5 +1,7 @@
 package com.nasportfolio.data.favorite.remote
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.nasportfolio.data.common.DefaultMessageDto
 import com.nasportfolio.data.utils.Constants.NO_RESPONSE
 import com.nasportfolio.data.utils.tryWithIoHandling
@@ -8,7 +10,6 @@ import com.nasportfolio.domain.user.User
 import com.nasportfolio.domain.utils.Resource
 import com.nasportfolio.domain.utils.ResourceError
 import com.nasportfolio.network.Authorization
-import com.nasportfolio.network.JsonConverter
 import com.nasportfolio.network.OkHttpDao
 import com.nasportfolio.network.delegations.AuthorizationImpl
 import com.nasportfolio.network.delegations.OkHttpDaoImpl
@@ -17,12 +18,12 @@ import javax.inject.Inject
 
 class RemoteFavoriteDaoImpl @Inject constructor(
     okHttpClient: OkHttpClient,
-    jsonConverter: JsonConverter
+    gson: Gson
 ) : RemoteFavoriteDao,
     Authorization by AuthorizationImpl(),
     OkHttpDao by OkHttpDaoImpl(
         okHttpClient = okHttpClient,
-        converter = jsonConverter,
+        gson = gson,
         path = "/api/favorites"
     ) {
 
@@ -34,10 +35,16 @@ class RemoteFavoriteDaoImpl @Inject constructor(
             )
             return@tryWithIoHandling when (code) {
                 200 -> Resource.Success(
-                    converter.fromJson(json)
+                    gson.fromJson(
+                        json,
+                        object : TypeToken<List<Restaurant>>() {}.type
+                    )
                 )
                 else -> Resource.Failure(
-                    converter.fromJson<ResourceError.DefaultError>(json)
+                    gson.fromJson<ResourceError.DefaultError>(
+                        json,
+                        object : TypeToken<ResourceError.DefaultError>() {}.type
+                    )
                 )
             }
         }
@@ -50,10 +57,16 @@ class RemoteFavoriteDaoImpl @Inject constructor(
             )
             return@tryWithIoHandling when (code) {
                 200 -> Resource.Success(
-                    converter.fromJson(json)
+                    gson.fromJson(
+                        json,
+                        object : TypeToken<List<User>>() {}.type
+                    )
                 )
                 else -> Resource.Failure(
-                    converter.fromJson<ResourceError.DefaultError>(json)
+                    gson.fromJson<ResourceError.DefaultError>(
+                        json,
+                        object : TypeToken<ResourceError.DefaultError>() {}.type
+                    )
                 )
             }
         }
@@ -72,10 +85,16 @@ class RemoteFavoriteDaoImpl @Inject constructor(
         )
         return@tryWithIoHandling when (code) {
             200 -> Resource.Success(
-                converter.fromJson<DefaultMessageDto>(json).message
+                gson.fromJson<DefaultMessageDto>(
+                    json,
+                    object : TypeToken<DefaultMessageDto>() {}.type
+                ).message
             )
             else -> Resource.Failure(
-                converter.fromJson<ResourceError.DefaultError>(json)
+                gson.fromJson<ResourceError.DefaultError>(
+                    json,
+                    object : TypeToken<ResourceError.DefaultError>() {}.type
+                )
             )
         }
     }
@@ -93,10 +112,16 @@ class RemoteFavoriteDaoImpl @Inject constructor(
         )
         return@tryWithIoHandling when (code) {
             200 -> Resource.Success(
-                converter.fromJson<DefaultMessageDto>(json).message
+                gson.fromJson<DefaultMessageDto>(
+                    json,
+                    object : TypeToken<DefaultMessageDto>() {}.type
+                ).message
             )
             else -> Resource.Failure(
-                converter.fromJson<ResourceError.DefaultError>(json)
+                gson.fromJson<ResourceError.DefaultError>(
+                    json,
+                    object : TypeToken<ResourceError.DefaultError>() {}.type
+                )
             )
         }
     }

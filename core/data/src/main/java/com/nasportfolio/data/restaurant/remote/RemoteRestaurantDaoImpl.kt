@@ -1,5 +1,7 @@
 package com.nasportfolio.data.restaurant.remote
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.nasportfolio.data.common.DefaultMessageDto
 import com.nasportfolio.data.common.EntityCreatedDto
 import com.nasportfolio.data.restaurant.remote.dtos.CreateRestaurantDto
@@ -10,7 +12,6 @@ import com.nasportfolio.domain.restaurant.Restaurant
 import com.nasportfolio.domain.utils.Resource
 import com.nasportfolio.domain.utils.ResourceError
 import com.nasportfolio.network.Authorization
-import com.nasportfolio.network.JsonConverter
 import com.nasportfolio.network.OkHttpDao
 import com.nasportfolio.network.delegations.AuthorizationImpl
 import com.nasportfolio.network.delegations.OkHttpDaoImpl
@@ -19,11 +20,11 @@ import javax.inject.Inject
 
 class RemoteRestaurantDaoImpl @Inject constructor(
     okHttpClient: OkHttpClient,
-    converter: JsonConverter,
+    gson: Gson,
 ) : RemoteRestaurantDao,
     Authorization by AuthorizationImpl(),
     OkHttpDao by OkHttpDaoImpl(
-        converter = converter,
+        gson = gson,
         okHttpClient = okHttpClient,
         path = "/api/restaurants"
     ) {
@@ -36,10 +37,16 @@ class RemoteRestaurantDaoImpl @Inject constructor(
             )
             return@tryWithIoHandling when (code) {
                 200 -> Resource.Success(
-                    converter.fromJson(json)
+                    gson.fromJson(
+                        json,
+                        object : TypeToken<List<Restaurant>>() {}.type
+                    )
                 )
                 else -> Resource.Failure(
-                    converter.fromJson<ResourceError.DefaultError>(json)
+                    gson.fromJson<ResourceError.DefaultError>(
+                        json,
+                        object : TypeToken<ResourceError.DefaultError>() {}.type
+                    )
                 )
             }
         }
@@ -52,10 +59,16 @@ class RemoteRestaurantDaoImpl @Inject constructor(
             )
             return@tryWithIoHandling when (code) {
                 200 -> Resource.Success(
-                    converter.fromJson(json)
+                    gson.fromJson(
+                        json,
+                        object : TypeToken<Restaurant>() {}.type
+                    )
                 )
                 else -> Resource.Failure(
-                    converter.fromJson<ResourceError.DefaultError>(json)
+                    gson.fromJson<ResourceError.DefaultError>(
+                        json,
+                        object : TypeToken<ResourceError.DefaultError>() {}.type
+                    )
                 )
             }
         }
@@ -75,13 +88,22 @@ class RemoteRestaurantDaoImpl @Inject constructor(
         )
         return@tryWithIoHandling when (code) {
             200 -> Resource.Success(
-                converter.fromJson<EntityCreatedDto>(json).insertId
+                gson.fromJson<EntityCreatedDto>(
+                    json,
+                    object : TypeToken<EntityCreatedDto>() {}.type
+                ).insertId
             )
             400 -> Resource.Failure(
-                converter.fromJson<ResourceError.FieldError>(json)
+                gson.fromJson<ResourceError.FieldError>(
+                    json,
+                    object : TypeToken<ResourceError.FieldError>() {}.type
+                )
             )
             else -> Resource.Failure(
-                converter.fromJson<ResourceError.DefaultError>(json)
+                gson.fromJson<ResourceError.DefaultError>(
+                    json,
+                    object : TypeToken<ResourceError.DefaultError>() {}.type
+                )
             )
         }
     }
@@ -103,10 +125,16 @@ class RemoteRestaurantDaoImpl @Inject constructor(
         )
         return@tryWithIoHandling when (code) {
             200 -> Resource.Success(
-                converter.fromJson(json)
+                gson.fromJson(
+                    json,
+                    object : TypeToken<Restaurant>() {}.type
+                )
             )
             else -> Resource.Failure(
-                converter.fromJson<ResourceError.DefaultError>(json)
+                gson.fromJson<ResourceError.DefaultError>(
+                    json,
+                    object : TypeToken<ResourceError.DefaultError>() {}.type
+                )
             )
         }
     }
@@ -124,10 +152,16 @@ class RemoteRestaurantDaoImpl @Inject constructor(
         )
         return@tryWithIoHandling when (code) {
             200 -> Resource.Success(
-                converter.fromJson<DefaultMessageDto>(json).message
+                gson.fromJson<DefaultMessageDto>(
+                    json,
+                    object : TypeToken<DefaultMessageDto>() {}.type
+                ).message
             )
             else -> Resource.Failure(
-                converter.fromJson<ResourceError.DefaultError>(json)
+                gson.fromJson<ResourceError.DefaultError>(
+                    json,
+                    object : TypeToken<ResourceError.DefaultError>() {}.type
+                )
             )
         }
     }

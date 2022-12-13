@@ -96,4 +96,7 @@ dependencies {
 
     // for splash
     implementation("androidx.core:core-splashscreen:1.0.0")
+
+    implementation(project(":core:domain"))
+    implementation(project(":core:data"))
 }

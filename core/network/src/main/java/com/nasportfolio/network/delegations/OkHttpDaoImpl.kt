@@ -1,19 +1,23 @@
 package com.nasportfolio.network.delegations
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.nasportfolio.network.OkHttpDao
-import com.nasportfolio.network.utils.await
-import com.nasportfolio.network.JsonConverter
 import com.nasportfolio.network.mappers.toTransformedResponse
 import com.nasportfolio.network.models.TransformedResponse
 import com.nasportfolio.network.utils.Constants.BASE_URL
-import okhttp3.*
+import com.nasportfolio.network.utils.await
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 
 class OkHttpDaoImpl(
-    override val converter: JsonConverter,
+    override val gson: Gson,
     private val okHttpClient: OkHttpClient,
     private val path: String
 ) : OkHttpDao {
@@ -118,7 +122,7 @@ class OkHttpDaoImpl(
             fileUpload = fileUpload
         )
         val requestBuilder = Request.Builder().url(
-            url = "${BASE_URL}/$path$endpoint"
+            url = "${BASE_URL}$path$endpoint"
         )
         setHeaders(
             requestBuilder = requestBuilder,
@@ -167,14 +171,15 @@ class OkHttpDaoImpl(
     }
 
     private fun createJsonRequestBody(body: Any): RequestBody =
-        converter.toJson(body).toRequestBody(JSON_MEDIA_TYPE)
+        gson.toJson(body).toRequestBody(JSON_MEDIA_TYPE)
 
     private fun createMultipartRequestBody(
         body: Any,
         fileUpload: FileUpload = FileUpload(),
     ): RequestBody {
-        val map = converter.fromJson<HashMap<String, Any>>(
-            converter.toJson(body)
+        val map = gson.fromJson<HashMap<String, Any>>(
+            gson.toJson(body),
+            object : TypeToken<HashMap<String, Any>>() {}.type
         )
         val multipartBuilder = MultipartBody.Builder()
         map.forEach { (key, value) ->

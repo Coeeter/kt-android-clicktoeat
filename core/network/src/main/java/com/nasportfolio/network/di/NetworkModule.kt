@@ -3,8 +3,6 @@ package com.nasportfolio.network.di
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.nasportfolio.network.JsonConverter
-import com.nasportfolio.network.converter.JsonConverterImpl
 import com.nasportfolio.network.interceptor.NetworkInterceptor
 import dagger.Module
 import dagger.Provides
@@ -38,8 +36,4 @@ object NetworkModule {
         .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
         .create()
 
-    @Provides
-    fun providesJsonConverter(
-        gson: Gson
-    ): JsonConverter = JsonConverterImpl(gson)
 }

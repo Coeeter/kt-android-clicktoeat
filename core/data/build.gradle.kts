@@ -36,11 +36,10 @@ android {
 
 dependencies {
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.4")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.0")
 
     // for api calls
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("com.google.code.gson:gson:2.8.0")
 
     // for dagger hilt
     implementation("com.google.dagger:hilt-android:2.38.1")
