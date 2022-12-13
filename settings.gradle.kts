@@ -12,8 +12,12 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
+
 rootProject.name = "ClickToEat"
-include ':app'
-include ':core:network'
-include ':core:data'
-include ':core:domain'
+
+include(
+    ":app",
+    ":core:network",
+    ":core:data",
+    ":core:domain"
+)
