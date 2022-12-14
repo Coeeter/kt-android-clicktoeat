@@ -1,4 +1,4 @@
-package com.nasportfolio.clicktoeat.ui.theme
+package com.nasportfolio.clicktoeat.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Shapes

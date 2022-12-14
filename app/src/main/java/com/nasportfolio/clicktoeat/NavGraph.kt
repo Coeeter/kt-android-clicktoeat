@@ -1,4 +1,4 @@
-package com.nasportfolio.clicktoeat.ui
+package com.nasportfolio.clicktoeat
 
 import android.content.Intent
 import androidx.compose.runtime.Composable
@@ -8,19 +8,23 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
-import com.nasportfolio.clicktoeat.ui.screens.auth.AuthScreen
-import com.nasportfolio.clicktoeat.ui.screens.auth.ResetPasswordFromEmailScreen
-import com.nasportfolio.clicktoeat.ui.screens.home.HomeScreen
-import com.nasportfolio.clicktoeat.ui.utils.Screen
+import com.nasportfolio.clicktoeat.screens.auth.AuthScreen
+import com.nasportfolio.clicktoeat.screens.auth.ResetPasswordFromEmailScreen
+import com.nasportfolio.clicktoeat.screens.home.HomeScreen
+import com.nasportfolio.clicktoeat.screens.splash.SplashScreen
+import com.nasportfolio.clicktoeat.utils.Screen
 
 @Composable
 fun NavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Screen.AuthScreen.route
+        startDestination = Screen.SplashScreen.route
     ) {
+        composable(Screen.SplashScreen.route) {
+            SplashScreen(navController = navController)
+        }
         composable(Screen.AuthScreen.route) {
-            AuthScreen()
+            AuthScreen(navController = navController)
         }
         composable(
             route = Screen.ResetPasswordFromLinkScreen.route,

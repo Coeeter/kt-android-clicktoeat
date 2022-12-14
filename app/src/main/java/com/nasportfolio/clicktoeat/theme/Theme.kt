@@ -1,4 +1,4 @@
-package com.nasportfolio.clicktoeat.ui.theme
+package com.nasportfolio.clicktoeat.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
@@ -7,14 +7,14 @@ import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 
 private val DarkColorPalette = darkColors(
-    primary = Orange200,
-    primaryVariant = Orange700,
+    primary = lightOrange,
+    primaryVariant = darkOrange,
     secondary = Blue200
 )
 
 private val LightColorPalette = lightColors(
-    primary = Orange500,
-    primaryVariant = Orange700,
+    primary = mediumOrange,
+    primaryVariant = darkOrange,
     secondary = Blue200
 
     /* Other default colors to override

@@ -1,4 +1,4 @@
-package com.nasportfolio.clicktoeat.ui
+package com.nasportfolio.clicktoeat
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,7 +8,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import com.nasportfolio.clicktoeat.ui.theme.ClickToEatTheme
+import com.nasportfolio.clicktoeat.theme.ClickToEatTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
