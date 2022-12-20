@@ -73,14 +73,18 @@ class LoginViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    private suspend fun handleDefaultError(defaultError: ResourceError.DefaultError) {
+    private suspend fun handleDefaultError(
+        defaultError: ResourceError.DefaultError
+    ) {
         _errorChannel.send(defaultError.error)
         _loginState.update {
             it.copy(isLoading = false)
         }
     }
 
-    private fun handleFieldError(fieldError: ResourceError.FieldError) {
+    private fun handleFieldError(
+        fieldError: ResourceError.FieldError
+    ) {
         _loginState.update { state ->
             state.copy(
                 isLoading = false,
