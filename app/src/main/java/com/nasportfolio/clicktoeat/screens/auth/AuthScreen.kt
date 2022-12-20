@@ -1,44 +1,50 @@
 package com.nasportfolio.clicktoeat.screens.auth
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
-import com.nasportfolio.clicktoeat.utils.Screen
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.nasportfolio.clicktoeat.screens.auth.login.LoginForm
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AuthScreen(
-    navController: NavHostController,
-    authViewModel: AuthViewModel = hiltViewModel(),
+    navController: NavHostController
 ) {
-    val lifecycleOwner = LocalLifecycleOwner.current
+    val scaffoldState = rememberScaffoldState()
+    val authNavController = rememberNavController()
 
-    LaunchedEffect(true) {
-        lifecycleOwner.lifecycleScope.launch {
-            lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                authViewModel.isLoggedIn.collect {
-                    if (!it) return@collect
-                    navController.navigate(Screen.HomeScreen.route)
+    Scaffold(scaffoldState = scaffoldState) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            NavHost(
+                navController = authNavController,
+                startDestination = "/login"
+            ) {
+                composable("/login") {
+                    LoginForm(
+                        scaffoldState = scaffoldState,
+                        navController = navController,
+                        changePage = {
+                            navController.navigate("/sign-up")
+                        }
+                    )
+                }
+                composable("/sign-up") {
+                    Text(text = "Sign Up")
                 }
             }
         }
-    }
-
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "Testing test")
     }
 }

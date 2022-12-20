@@ -54,14 +54,19 @@ android {
 }
 
 dependencies {
+    // Other Modules
+    implementation(project(":core:domain"))
+    implementation(project(":core:data"))
+
+    // androidx
     implementation("androidx.core:core-ktx:1.7.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0")
+
+    // compose
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.material:material:$composeVersion")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0")
     implementation("androidx.activity:activity-compose:1.3.1")
-
-    // compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0-beta01")
     implementation("androidx.navigation:navigation-compose:2.4.0-alpha09")
     implementation("androidx.compose.material:material-icons-extended:$composeVersion")
@@ -80,6 +85,10 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.38.1")
     kapt("com.google.dagger:hilt-android-compiler:2.37")
 
+    // for notifications
+    implementation(platform("com.google.firebase:firebase-bom:30.4.1"))
+    implementation("com.google.firebase:firebase-messaging-ktx:23.0.5")
+
     // For testing
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.mockito:mockito-core:4.5.1")
@@ -89,14 +98,4 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
     debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")
-
-    // for notifications
-    implementation(platform("com.google.firebase:firebase-bom:30.4.1"))
-    implementation("com.google.firebase:firebase-messaging-ktx:23.0.5")
-
-    // for splash
-    implementation("androidx.core:core-splashscreen:1.0.0")
-
-    implementation(project(":core:domain"))
-    implementation(project(":core:data"))
 }

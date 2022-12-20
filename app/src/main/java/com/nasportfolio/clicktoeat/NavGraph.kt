@@ -56,7 +56,7 @@ fun NavGraph(navController: NavHostController) {
             )
         }
         composable(Screen.HomeScreen.route) {
-            HomeScreen()
+            HomeScreen(navController = navController)
         }
     }
 }

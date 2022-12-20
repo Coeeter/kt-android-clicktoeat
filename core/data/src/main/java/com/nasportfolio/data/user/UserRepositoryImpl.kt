@@ -21,6 +21,9 @@ class UserRepositoryImpl @Inject constructor(
     override fun saveToken(token: String) =
         sharedPreferenceDao.saveToken(token)
 
+    override fun removeToken() =
+        sharedPreferenceDao.removeToken()
+
     override suspend fun getAllUsers(): Resource<List<User>> =
         remoteUserDao.getAllUsers()
 

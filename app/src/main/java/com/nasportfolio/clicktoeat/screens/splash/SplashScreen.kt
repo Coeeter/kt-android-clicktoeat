@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.nasportfolio.clicktoeat.R
 import com.nasportfolio.clicktoeat.theme.FreeStyleScript
@@ -29,17 +30,23 @@ import com.nasportfolio.clicktoeat.theme.lightOrange
 import com.nasportfolio.clicktoeat.theme.mediumOrange
 import com.nasportfolio.clicktoeat.utils.Screen
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun SplashScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    splashViewModel: SplashViewModel = hiltViewModel()
 ) {
+    val isLoggedIn by splashViewModel.isLoggedIn.collectAsState()
     val heightOfScreen = with(LocalDensity.current) {
         LocalConfiguration.current.screenHeightDp.dp.toPx()
     }
 
+    var isAnimationDone by remember {
+        mutableStateOf(false)
+    }
     var canvasCenterY by remember {
         mutableStateOf(0f)
     }
@@ -72,9 +79,17 @@ fun SplashScreen(
                 ),
             )
             delay(1000)
-            navController.navigate(Screen.AuthScreen.route)
+            isAnimationDone = true
         }
         showTitleAndLogo = true
+    }
+
+    LaunchedEffect(isAnimationDone, isLoggedIn) {
+        if (!isAnimationDone) return@LaunchedEffect
+        if (isLoggedIn) return@LaunchedEffect navController.navigate(
+            Screen.HomeScreen.route
+        )
+        navController.navigate(Screen.AuthScreen.route)
     }
 
     Box(

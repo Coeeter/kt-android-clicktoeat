@@ -6,6 +6,7 @@ import java.io.File
 interface UserRepository {
     fun getToken(): Resource<String>
     fun saveToken(token: String)
+    fun removeToken()
 
     suspend fun getAllUsers(): Resource<List<User>>
     suspend fun getUserById(id: String): Resource<User>
