@@ -19,5 +19,7 @@ include(
     ":app",
     ":core:network",
     ":core:data",
-    ":core:domain"
+    ":core:domain",
+    ":feature:auth",
+    ":feature:common"
 )

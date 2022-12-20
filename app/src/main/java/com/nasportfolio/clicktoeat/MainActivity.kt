@@ -8,7 +8,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import com.nasportfolio.clicktoeat.theme.ClickToEatTheme
+import com.nasportfolio.common.theme.ClickToEatTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
