@@ -58,8 +58,12 @@ class LoginViewModel @Inject constructor(
                 }
                 is Resource.Failure -> {
                     when (result.error) {
-                        is ResourceError.FieldError -> handleFieldError(result)
-                        is ResourceError.DefaultError -> handleDefaultError(result)
+                        is ResourceError.FieldError -> handleFieldError(
+                            result.error as ResourceError.FieldError
+                        )
+                        is ResourceError.DefaultError -> handleDefaultError(
+                            result.error as ResourceError.DefaultError
+                        )
                     }
                 }
                 is Resource.Loading -> _loginState.update { state ->
@@ -69,21 +73,19 @@ class LoginViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    private suspend fun handleDefaultError(result: Resource.Failure<Unit>) {
-        val error = (result.error as ResourceError.DefaultError).error
-        _errorChannel.send(error)
+    private suspend fun handleDefaultError(defaultError: ResourceError.DefaultError) {
+        _errorChannel.send(defaultError.error)
         _loginState.update {
             it.copy(isLoading = false)
         }
     }
 
-    private fun handleFieldError(result: Resource.Failure<Unit>) {
-        val errors = (result.error as ResourceError.FieldError).errors
+    private fun handleFieldError(fieldError: ResourceError.FieldError) {
         _loginState.update { state ->
             state.copy(
                 isLoading = false,
-                emailError = errors.find { it.field == "email" }?.error,
-                passwordError = errors.find { it.field == "password" }?.error
+                emailError = fieldError.errors.find { it.field == "email" }?.error,
+                passwordError = fieldError.errors.find { it.field == "password" }?.error
             )
         }
     }

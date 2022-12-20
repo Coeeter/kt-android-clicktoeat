@@ -30,7 +30,6 @@ import com.nasportfolio.clicktoeat.theme.lightOrange
 import com.nasportfolio.clicktoeat.theme.mediumOrange
 import com.nasportfolio.clicktoeat.utils.Screen
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalAnimationApi::class)

@@ -2,7 +2,6 @@ package com.nasportfolio.clicktoeat.screens.auth.login
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -15,7 +14,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -32,7 +30,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import com.nasportfolio.clicktoeat.components.CltButton
 import com.nasportfolio.clicktoeat.components.CltInput
-import com.nasportfolio.clicktoeat.theme.lightOrange
 import com.nasportfolio.clicktoeat.theme.mediumOrange
 import com.nasportfolio.clicktoeat.utils.Screen
 import kotlinx.coroutines.flow.collect
