@@ -3,7 +3,6 @@ package com.nasportfolio.auth
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -13,6 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.nasportfolio.auth.animations.SplashToAuthAnimation
 import com.nasportfolio.auth.login.LoginForm
+import com.nasportfolio.auth.signup.SignUpForm
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -23,7 +23,7 @@ internal fun AuthScreen(
     val authNavController = rememberNavController()
 
     Scaffold(scaffoldState = scaffoldState) {
-        SplashToAuthAnimation { alignment ->
+        SplashToAuthAnimation {
             NavHost(
                 modifier = Modifier.fillMaxSize(),
                 navController = authNavController,
@@ -33,14 +33,19 @@ internal fun AuthScreen(
                     LoginForm(
                         scaffoldState = scaffoldState,
                         navController = navController,
-                        alignment = alignment,
                         changePage = {
                             authNavController.navigate("/sign-up")
                         }
                     )
                 }
                 composable("/sign-up") {
-                    Text(text = "Sign Up")
+                    SignUpForm(
+                        scaffoldState = scaffoldState,
+                        navController = navController,
+                        changePage = {
+                            authNavController.navigate("/login")
+                        }
+                    )
                 }
             }
         }

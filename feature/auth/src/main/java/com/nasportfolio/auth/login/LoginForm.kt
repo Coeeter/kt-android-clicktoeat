@@ -38,11 +38,10 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 internal fun LoginForm(
+    modifier: Modifier = Modifier,
     scaffoldState: ScaffoldState,
     navController: NavHostController,
     changePage: () -> Unit,
-    alignment: Alignment = Alignment.Center,
-    modifier: Modifier = Modifier,
     loginViewModel: LoginViewModel = hiltViewModel()
 ) {
     val focusManager = LocalFocusManager.current
@@ -65,67 +64,62 @@ internal fun LoginForm(
         navController.navigate(Screen.HomeScreen.route)
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = alignment
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp),
+        shape = RoundedCornerShape(15.dp),
+        elevation = 4.dp,
     ) {
-        Surface(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp),
-            shape = RoundedCornerShape(15.dp),
-            elevation = 4.dp,
+        Column(
+            modifier = Modifier.padding(
+                horizontal = 20.dp,
+                vertical = 15.dp
+            )
         ) {
-            Column(
-                modifier = Modifier.padding(
-                    horizontal = 20.dp,
-                    vertical = 15.dp
-                )
+            CltHeading(
+                text = "Login",
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            LoginInputs(
+                state = state,
+                focusManager = focusManager,
+                loginViewModel = loginViewModel
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.CenterEnd
             ) {
-                CltHeading(
-                    text = "Login",
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-                LoginInputs(
-                    state = state,
-                    focusManager = focusManager,
-                    loginViewModel = loginViewModel
-                )
-                Spacer(modifier = Modifier.height(5.dp))
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.CenterEnd
+                TextButton(
+                    contentPadding = PaddingValues(
+                        vertical = 8.dp,
+                        horizontal = 5.dp
+                    ),
+                    onClick = { /*TODO*/ },
                 ) {
-                    TextButton(
-                        contentPadding = PaddingValues(
-                            vertical = 8.dp,
-                            horizontal = 5.dp
-                        ),
-                        onClick = { /*TODO*/ },
-                    ) {
-                        Text(text = "Forgot password?")
-                    }
+                    Text(text = "Forgot password?")
                 }
-                Spacer(modifier = Modifier.height(5.dp))
-                CltButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = "Login",
-                    withLoading = true,
-                    enabled = !state.isLoading,
-                    onClick = {
-                        focusManager.clearFocus()
-                        loginViewModel.onEvent(LoginEvent.OnSubmit)
-                    },
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    TextButton(onClick = changePage) {
-                        Text(text = "Don't have an account? Sign up here", fontSize = 15.sp)
-                    }
+            }
+            Spacer(modifier = Modifier.height(5.dp))
+            CltButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = "Login",
+                withLoading = true,
+                enabled = !state.isLoading,
+                onClick = {
+                    focusManager.clearFocus()
+                    loginViewModel.onEvent(LoginEvent.OnSubmit)
+                },
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                TextButton(onClick = changePage) {
+                    Text(text = "Don't have an account? Sign up here", fontSize = 15.sp)
                 }
             }
         }

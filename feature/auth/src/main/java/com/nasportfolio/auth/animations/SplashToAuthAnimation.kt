@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun SplashToAuthAnimation(
     modifier: Modifier = Modifier,
-    content: @Composable (Alignment) -> Unit
+    content: @Composable () -> Unit
 ) {
     ForegroundAnimation(modifier = modifier) {
         FormAnimation(
@@ -117,7 +117,7 @@ private fun ForegroundAnimation(
 @Composable
 private fun FormAnimation(
     modifier: Modifier,
-    content: @Composable (Alignment) -> Unit
+    content: @Composable () -> Unit
 ) {
     var parentSize by remember {
         mutableStateOf(IntSize(0, 0))
@@ -140,16 +140,15 @@ private fun FormAnimation(
                 .fillMaxSize()
                 .onGloballyPositioned {
                     parentSize = it.size
-                }
+                },
+            contentAlignment = { size, _, _ ->
+                IntOffset(
+                    x = (parentSize.width - size.width) / 2,
+                    y = (parentSize.height * 0.45).toInt()
+                )
+            }
         ) {
-            content(
-                Alignment { size, space, layoutDirection ->
-                    IntOffset(
-                        x = (parentSize.width - size.width) / 2,
-                        y = (parentSize.height * 0.45).toInt()
-                    )
-                }
-            )
+            content()
         }
     }
 }
