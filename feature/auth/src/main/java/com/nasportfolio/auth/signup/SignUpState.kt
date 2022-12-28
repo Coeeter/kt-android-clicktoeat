@@ -1,6 +1,6 @@
 package com.nasportfolio.auth.signup
 
-internal data class SignUpState(
+data class SignUpState(
     val email: String = "",
     val username: String = "",
     val password: String = "",
@@ -14,6 +14,6 @@ internal data class SignUpState(
     val isCreated: Boolean = false,
 )
 
-internal enum class SignUpStage {
+enum class SignUpStage {
     NAME, PASSWORD
 }
