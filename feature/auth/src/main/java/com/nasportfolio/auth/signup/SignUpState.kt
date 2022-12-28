@@ -14,6 +14,6 @@ internal data class SignUpState(
     val isCreated: Boolean = false,
 )
 
-enum class SignUpStage {
+internal enum class SignUpStage {
     NAME, PASSWORD
 }

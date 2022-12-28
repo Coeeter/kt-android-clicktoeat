@@ -2,8 +2,7 @@ package com.nasportfolio.auth.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nasportfolio.domain.user.UserRepository
-import com.nasportfolio.domain.utils.Resource
+import com.nasportfolio.domain.user.usecases.ValidateTokenUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,7 +11,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class SplashViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val validateTokenUseCase: ValidateTokenUseCase
 ) : ViewModel() {
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn = _isLoggedIn.asStateFlow()
@@ -23,15 +22,7 @@ internal class SplashViewModel @Inject constructor(
 
     private fun checkIfLoggedIn() {
         viewModelScope.launch {
-            when (val tokenResource = userRepository.getToken()) {
-                is Resource.Success -> {
-                    when (userRepository.validateToken(tokenResource.result)) {
-                        is Resource.Success -> _isLoggedIn.value = true
-                        else -> Unit
-                    }
-                }
-                else -> Unit
-            }
+            _isLoggedIn.value = validateTokenUseCase()
         }
     }
 }

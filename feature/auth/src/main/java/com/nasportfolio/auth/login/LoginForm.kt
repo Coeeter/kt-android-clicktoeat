@@ -41,6 +41,7 @@ internal fun LoginForm(
     scaffoldState: ScaffoldState,
     navController: NavHostController,
     changePage: () -> Unit,
+    alignment: Alignment = Alignment.Center,
     modifier: Modifier = Modifier,
     loginViewModel: LoginViewModel = hiltViewModel()
 ) {
@@ -64,7 +65,10 @@ internal fun LoginForm(
         navController.navigate(Screen.HomeScreen.route)
     }
 
-    Box(contentAlignment = Alignment.Center) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = alignment
+    ) {
         Surface(
             modifier = modifier
                 .fillMaxWidth()

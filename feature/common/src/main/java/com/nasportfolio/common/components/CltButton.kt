@@ -3,6 +3,7 @@ package com.nasportfolio.common.components
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -22,13 +23,16 @@ fun CltButton(
     onClick: () -> Unit,
     shape: Shape = RoundedCornerShape(10.dp),
     enabled: Boolean = true,
-    disabledColor: Color = Color.LightGray,
+    disabledLightModeColor: Color = Color.LightGray,
+    disabledDarkModeColor: Color = Color.DarkGray,
     gradient: Brush = Brush.horizontalGradient(
         colors = listOf(lightOrange, mediumOrange)
     ),
     content: @Composable () -> Unit,
 ) {
     var boxModifier = Modifier.fillMaxWidth()
+    val disabledColor = if (isSystemInDarkTheme()) disabledDarkModeColor
+    else disabledLightModeColor
     if (enabled) boxModifier = boxModifier.background(gradient, shape = shape)
     if (!enabled) boxModifier = boxModifier.background(disabledColor, shape = shape)
 
@@ -62,12 +66,15 @@ fun CltButton(
     enabled: Boolean,
     onClick: () -> Unit,
     shape: Shape = RoundedCornerShape(10.dp),
-    disabledColor: Color = Color.LightGray,
+    disabledLightModeColor: Color = Color.LightGray,
+    disabledDarkModeColor: Color = Color.DarkGray,
     gradient: Brush = Brush.horizontalGradient(
         colors = listOf(lightOrange, mediumOrange)
     ),
 ) {
     var boxModifier = Modifier.fillMaxWidth()
+    val disabledColor = if (isSystemInDarkTheme()) disabledDarkModeColor
+    else disabledLightModeColor
     if (enabled) boxModifier = boxModifier.background(gradient, shape = shape)
     if (!enabled) boxModifier = boxModifier.background(disabledColor, shape = shape)
 

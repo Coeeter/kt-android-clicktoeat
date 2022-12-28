@@ -31,7 +31,6 @@ import com.nasportfolio.common.theme.lightOrange
 import com.nasportfolio.common.theme.mediumOrange
 import com.nasportfolio.common.utils.Screen
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -70,18 +69,16 @@ internal fun SplashScreen(
                 stiffness = Spring.StiffnessLow
             )
         )
-        launch {
-            size.animateTo(
-                targetValue = heightOfScreen * 2,
-                animationSpec = tween(
-                    durationMillis = 1000,
-                    delayMillis = 500
-                ),
-            )
-            delay(1000)
-            isAnimationDone = true
-        }
         showTitleAndLogo = true
+        size.animateTo(
+            targetValue = heightOfScreen * 2,
+            animationSpec = tween(
+                durationMillis = 1000,
+                delayMillis = 500
+            ),
+        )
+        delay(1000)
+        isAnimationDone = true
     }
 
     LaunchedEffect(isAnimationDone, isLoggedIn) {

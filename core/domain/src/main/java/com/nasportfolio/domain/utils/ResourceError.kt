@@ -8,7 +8,7 @@ sealed class ResourceError {
         val error: String
     ) : ResourceError()
 
-   data class FieldError(
+    data class FieldError(
         val message: String,
         val errors: List<FieldErrorItem>
     ) : ResourceError()
