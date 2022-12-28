@@ -8,7 +8,6 @@ import com.nasportfolio.domain.utils.ResourceError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -63,40 +62,38 @@ class SignUpViewModel @Inject constructor(
     }
 
     private fun signUp() {
-        viewModelScope.launch {
-            _signUpState.update { state ->
-                state.copy(isLoading = true)
-            }
-            createAccountUseCase(
-                username = _signUpState.value.username,
-                email = _signUpState.value.email,
-                password = _signUpState.value.password,
-                confirmPassword = _signUpState.value.confirmPassword,
-                fcmToken = TODO("Need get FCM TOKEN")
-            ).onEach {
-                when (it) {
-                    is Resource.Loading -> _signUpState.update { state ->
-                        state.copy(isLoading = it.isLoading)
-                    }
-                    is Resource.Success -> _signUpState.update { state ->
-                        state.copy(
-                            isLoading = false,
-                            isCreated = true
+        _signUpState.update { state ->
+            state.copy(isLoading = true)
+        }
+        createAccountUseCase(
+            username = _signUpState.value.username,
+            email = _signUpState.value.email,
+            password = _signUpState.value.password,
+            confirmPassword = _signUpState.value.confirmPassword,
+            fcmToken = TODO("Need get FCM TOKEN")
+        ).onEach {
+            when (it) {
+                is Resource.Loading -> _signUpState.update { state ->
+                    state.copy(isLoading = it.isLoading)
+                }
+                is Resource.Success -> _signUpState.update { state ->
+                    state.copy(
+                        isLoading = false,
+                        isCreated = true
+                    )
+                }
+                is Resource.Failure -> {
+                    when (it.error) {
+                        is ResourceError.DefaultError -> handleDefaultError(
+                            it.error as ResourceError.DefaultError
+                        )
+                        is ResourceError.FieldError -> handleFieldError(
+                            it.error as ResourceError.FieldError
                         )
                     }
-                    is Resource.Failure -> {
-                        when (it.error) {
-                            is ResourceError.DefaultError -> handleDefaultError(
-                                it.error as ResourceError.DefaultError
-                            )
-                            is ResourceError.FieldError -> handleFieldError(
-                                it.error as ResourceError.FieldError
-                            )
-                        }
-                    }
                 }
-            }.launchIn(viewModelScope)
-        }
+            }
+        }.launchIn(viewModelScope)
     }
 
     private suspend fun handleDefaultError(defaultError: ResourceError.DefaultError) {
