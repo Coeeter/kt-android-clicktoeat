@@ -29,7 +29,7 @@ class CreateAccountUseCase @Inject constructor(
     ): Flow<Resource<Unit>> = flow {
         when (val error = validateFields(username, email, password, confirmPassword)) {
             is Resource.Failure -> return@flow emit(error)
-            else -> emit(Resource.Loading(isLoading = true))
+            else -> emit(Resource.Loading<Unit>(isLoading = true))
         }
         val signUpResult = userRepository.signUp(
             username = username,
