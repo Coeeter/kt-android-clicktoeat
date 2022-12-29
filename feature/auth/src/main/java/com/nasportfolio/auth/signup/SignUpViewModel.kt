@@ -107,6 +107,9 @@ class SignUpViewModel @Inject constructor(
             if (it.exception != null) return@addOnCompleteListener runBlocking {
                 it.exception!!.printStackTrace()
                 _errorChannel.send(it.exception!!.message.toString())
+                _signUpState.update { state ->
+                    state.copy(isLoading = false)
+                }
             }
             callback(it.result)
         }
