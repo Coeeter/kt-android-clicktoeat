@@ -84,9 +84,15 @@ internal fun SplashScreen(
     LaunchedEffect(isAnimationDone, isLoggedIn) {
         if (!isAnimationDone) return@LaunchedEffect
         if (isLoggedIn) return@LaunchedEffect navController.navigate(
-            Screen.HomeScreen.route
+            Screen.HomeScreen.route,
+        ) {
+            popUpTo("/splash") {
+                inclusive = true
+            }
+        }
+        navController.navigateToAuthScreen(
+            shouldPopBackStack = true
         )
-        navController.navigateToAuthScreen()
     }
 
     Box(

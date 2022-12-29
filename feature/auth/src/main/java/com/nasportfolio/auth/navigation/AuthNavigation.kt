@@ -13,8 +13,13 @@ internal const val resetPasswordFromEmailRoute = "/reset-password"
 internal const val resetPasswordFromEmailDeepLink =
     "https://clicktoeat.nasportfolio.com/reset-password"
 
-fun NavHostController.navigateToAuthScreen() {
-    navigate(authScreenRoute)
+fun NavHostController.navigateToAuthScreen(shouldPopBackStack: Boolean = false) {
+    navigate(authScreenRoute) {
+        if (!shouldPopBackStack) return@navigate
+        popUpTo(splashScreenRoute) {
+            inclusive = true
+        }
+    }
 }
 
 fun NavGraphBuilder.authScreenComposable(navController: NavHostController) {
