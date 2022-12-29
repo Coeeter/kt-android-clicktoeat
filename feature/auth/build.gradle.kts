@@ -63,4 +63,8 @@ dependencies {
     // for dagger hilt
     implementation("com.google.dagger:hilt-android:2.38.1")
     kapt("com.google.dagger:hilt-android-compiler:2.37")
+
+    // for notifications
+    implementation(platform("com.google.firebase:firebase-bom:30.4.1"))
+    implementation("com.google.firebase:firebase-messaging-ktx:23.0.5")
 }

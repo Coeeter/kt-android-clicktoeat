@@ -2,17 +2,21 @@ package com.nasportfolio.auth.signup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.messaging.FirebaseMessaging
 import com.nasportfolio.domain.user.usecases.CreateAccountUseCase
 import com.nasportfolio.domain.utils.Resource
 import com.nasportfolio.domain.utils.ResourceError
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
-    private val createAccountUseCase: CreateAccountUseCase
+    private val createAccountUseCase: CreateAccountUseCase,
+    private val firebaseMessaging: FirebaseMessaging
 ) : ViewModel() {
     private val _errorChannel = Channel<String>()
     val errorChannel = _errorChannel.receiveAsFlow()
@@ -65,35 +69,47 @@ class SignUpViewModel @Inject constructor(
         _signUpState.update { state ->
             state.copy(isLoading = true)
         }
-        createAccountUseCase(
-            username = _signUpState.value.username,
-            email = _signUpState.value.email,
-            password = _signUpState.value.password,
-            confirmPassword = _signUpState.value.confirmPassword,
-            fcmToken = TODO("Need get FCM TOKEN")
-        ).onEach {
-            when (it) {
-                is Resource.Loading -> _signUpState.update { state ->
-                    state.copy(isLoading = it.isLoading)
-                }
-                is Resource.Success -> _signUpState.update { state ->
-                    state.copy(
-                        isLoading = false,
-                        isCreated = true
-                    )
-                }
-                is Resource.Failure -> {
-                    when (it.error) {
-                        is ResourceError.DefaultError -> handleDefaultError(
-                            it.error as ResourceError.DefaultError
-                        )
-                        is ResourceError.FieldError -> handleFieldError(
-                            it.error as ResourceError.FieldError
+        getToken { token ->
+            createAccountUseCase(
+                username = _signUpState.value.username,
+                email = _signUpState.value.email,
+                password = _signUpState.value.password,
+                confirmPassword = _signUpState.value.confirmPassword,
+                fcmToken = token
+            ).onEach {
+                when (it) {
+                    is Resource.Loading -> _signUpState.update { state ->
+                        state.copy(isLoading = it.isLoading)
+                    }
+                    is Resource.Success -> _signUpState.update { state ->
+                        state.copy(
+                            isLoading = false,
+                            isCreated = true
                         )
                     }
+                    is Resource.Failure -> {
+                        when (it.error) {
+                            is ResourceError.DefaultError -> handleDefaultError(
+                                it.error as ResourceError.DefaultError
+                            )
+                            is ResourceError.FieldError -> handleFieldError(
+                                it.error as ResourceError.FieldError
+                            )
+                        }
+                    }
                 }
+            }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
+        }
+    }
+
+    private fun getToken(callback: (String) -> Unit) {
+        firebaseMessaging.token.addOnCompleteListener {
+            if (it.exception != null) return@addOnCompleteListener runBlocking {
+                it.exception!!.printStackTrace()
+                _errorChannel.send(it.exception!!.message.toString())
             }
-        }.launchIn(viewModelScope)
+            callback(it.result)
+        }
     }
 
     private suspend fun handleDefaultError(defaultError: ResourceError.DefaultError) {
