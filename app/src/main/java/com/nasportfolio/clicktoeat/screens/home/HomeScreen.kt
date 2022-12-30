@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.nasportfolio.auth.navigation.navigateToAuthScreen
+import com.nasportfolio.common.utils.Screen
 
 @Composable
 fun HomeScreen(
@@ -22,7 +23,10 @@ fun HomeScreen(
     ) {
         Button(onClick = {
             homeViewModel.logout()
-            navController.navigateToAuthScreen()
+            navController.navigateToAuthScreen(
+                shouldPopBackStack = true,
+                popUpTo = Screen.HomeScreen.route
+            )
         }) {
             Text(text = "Log Out")
         }

@@ -34,6 +34,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
+import com.nasportfolio.auth.navigation.authScreenRoute
 import com.nasportfolio.common.components.CltButton
 import com.nasportfolio.common.components.CltHeading
 import com.nasportfolio.common.components.CltInput
@@ -67,7 +68,11 @@ fun SignUpForm(
 
     LaunchedEffect(state.isCreated) {
         if (!state.isCreated) return@LaunchedEffect
-        navController.navigate(Screen.HomeScreen.route)
+        navController.navigate(Screen.HomeScreen.route) {
+            popUpTo(authScreenRoute) {
+                inclusive = true
+            }
+        }
     }
 
     AnimatedContent(
@@ -173,7 +178,7 @@ private fun FirstSignUpFormStage(
                     )
                 }
             )
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(30.dp))
             CltButton(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
@@ -280,7 +285,7 @@ private fun SecondSignUpFormStage(
                     )
                 }
             )
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(30.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
                 CltButton(
                     modifier = Modifier.weight(1f),

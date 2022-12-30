@@ -28,6 +28,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
+import com.nasportfolio.auth.navigation.authScreenRoute
 import com.nasportfolio.common.components.CltButton
 import com.nasportfolio.common.components.CltHeading
 import com.nasportfolio.common.components.CltInput
@@ -61,7 +62,11 @@ internal fun LoginForm(
 
     LaunchedEffect(state.isLoggedIn) {
         if (!state.isLoggedIn) return@LaunchedEffect
-        navController.navigate(Screen.HomeScreen.route)
+        navController.navigate(Screen.HomeScreen.route) {
+            popUpTo(authScreenRoute) {
+                inclusive = true
+            }
+        }
     }
 
     Surface(
