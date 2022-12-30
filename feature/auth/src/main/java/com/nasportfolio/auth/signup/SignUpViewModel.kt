@@ -28,7 +28,7 @@ class SignUpViewModel @Inject constructor(
         when (event) {
             is SignUpEvent.OnUsernameChange -> _signUpState.update { state ->
                 state.copy(
-                    username = state.username,
+                    username = event.username,
                     usernameError = null
                 )
             }
@@ -123,13 +123,21 @@ class SignUpViewModel @Inject constructor(
     }
 
     private fun handleFieldError(fieldError: ResourceError.FieldError) {
+        val usernameError = fieldError.errors.find { it.field == "username" }?.error
+        val emailError = fieldError.errors.find { it.field == "email" }?.error
+        val passwordError = fieldError.errors.find { it.field == "password" }?.error
+        val confirmPasswordError = fieldError.errors.find { it.field == "confirmPassword" }?.error
+        val signUpStage = if (usernameError != null || emailError != null) SignUpStage.NAME
+        else SignUpStage.PASSWORD
+
         _signUpState.update { state ->
             state.copy(
                 isLoading = false,
-                usernameError = fieldError.errors.find { it.field == "username" }?.error,
-                emailError = fieldError.errors.find { it.field == "email" }?.error,
-                passwordError = fieldError.errors.find { it.field == "password" }?.error,
-                confirmPasswordError = fieldError.errors.find { it.field == "confirmPassword" }?.error
+                usernameError = usernameError,
+                emailError = emailError,
+                passwordError = passwordError,
+                confirmPasswordError = confirmPasswordError,
+                signUpStage = signUpStage
             )
         }
     }

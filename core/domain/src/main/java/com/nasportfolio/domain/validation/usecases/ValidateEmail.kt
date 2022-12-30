@@ -9,7 +9,7 @@ class ValidateEmail @Inject constructor() {
         val regex = """^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}${'$'}""".toRegex(
             RegexOption.IGNORE_CASE
         )
-        if (error.isEmpty()) error = "Email required!"
+        if (value.isEmpty()) error = "Email required!"
         if (regex.matches(value)) return null
         return ResourceError.FieldErrorItem(field, error)
     }

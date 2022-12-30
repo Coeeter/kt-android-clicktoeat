@@ -15,7 +15,7 @@ class ValidatePassword @Inject constructor() {
         when (flag) {
             CREATE_FLAG -> {
                 isValidated = regex.toRegex().matches(value)
-                error = "Invalid password provided"
+                error = "Password should be 8 letters long, contain one special character, number, lowercase and uppercase characters"
             }
             LOGIN_FLAG -> {
                 isValidated = value.isNotEmpty() && value.isNotBlank()

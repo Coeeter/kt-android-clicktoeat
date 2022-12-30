@@ -1,5 +1,10 @@
 package com.nasportfolio.auth.signup
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.with
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -15,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -35,6 +41,7 @@ import com.nasportfolio.common.utils.Screen
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun SignUpForm(
     modifier: Modifier = Modifier,
@@ -63,16 +70,44 @@ fun SignUpForm(
         navController.navigate(Screen.HomeScreen.route)
     }
 
-    when (state.signUpStage) {
-        SignUpStage.NAME -> FirstSignUpFormStage(
-            modifier = modifier,
-            state = state,
-            focusManager = focusManager,
-            signUpViewModel = signUpViewModel,
-            changePage = changePage
-        )
-        SignUpStage.PASSWORD -> Text(text = "Second")
+    AnimatedContent(
+        targetState = state.signUpStage,
+        transitionSpec = {
+            val direction = when (targetState) {
+                SignUpStage.NAME -> AnimatedContentScope.SlideDirection.Right
+                SignUpStage.PASSWORD -> AnimatedContentScope.SlideDirection.Left
+            }
+            slideIntoContainer(
+                towards = direction,
+                animationSpec = tween(durationMillis = 500)
+            ) with slideOutOfContainer(
+                towards = direction,
+                animationSpec = tween(durationMillis = 500)
+            )
+        }
+    ) { targetState ->
+        when (targetState) {
+            SignUpStage.NAME -> {
+                FirstSignUpFormStage(
+                    modifier = modifier,
+                    state = state,
+                    focusManager = focusManager,
+                    signUpViewModel = signUpViewModel,
+                    changePage = changePage
+                )
+            }
+            SignUpStage.PASSWORD -> {
+                SecondSignUpFormStage(
+                    modifier = modifier,
+                    state = state,
+                    focusManager = focusManager,
+                    signUpViewModel = signUpViewModel,
+                    changePage = changePage
+                )
+            }
+        }
     }
+
 }
 
 @Composable
@@ -138,7 +173,7 @@ private fun FirstSignUpFormStage(
                     )
                 }
             )
-            Spacer(modifier = Modifier.height(56.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             CltButton(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
@@ -166,6 +201,111 @@ private fun FirstSignUpFormStage(
                         modifier = Modifier.size(24.dp)
                     )
                 }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                TextButton(onClick = changePage) {
+                    Text(text = "Already have an account? Login here", fontSize = 15.sp)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SecondSignUpFormStage(
+    modifier: Modifier,
+    state: SignUpState,
+    focusManager: FocusManager,
+    signUpViewModel: SignUpViewModel,
+    changePage: () -> Unit
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp),
+        shape = RoundedCornerShape(15.dp),
+        elevation = 4.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(
+                horizontal = 20.dp,
+                vertical = 15.dp
+            )
+        ) {
+            CltHeading(
+                text = "Secure your Account",
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            CltInput(
+                modifier = Modifier.fillMaxWidth(),
+                value = state.password,
+                label = "Password",
+                error = state.passwordError,
+                isPassword = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                ),
+                onValueChange = {
+                    signUpViewModel.onEvent(
+                        SignUpEvent.OnPasswordChange(password = it)
+                    )
+                }
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            CltInput(
+                modifier = Modifier.fillMaxWidth(),
+                value = state.confirmPassword,
+                label = "Confirm password",
+                error = state.confirmPasswordError,
+                isPassword = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = { focusManager.clearFocus() }
+                ),
+                onValueChange = {
+                    signUpViewModel.onEvent(
+                        SignUpEvent.OnConfirmPasswordChange(confirmPassword = it)
+                    )
+                }
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            Row(modifier = Modifier.fillMaxWidth()) {
+                CltButton(
+                    modifier = Modifier.weight(1f),
+                    text = "Cancel",
+                    withLoading = true,
+                    enabled = true,
+                    gradient = Brush.horizontalGradient(
+                        colors = listOf(Color(0xFFE60000), Color(0xFFFF5E5E))
+                    ),
+                    onClick = {
+                        focusManager.clearFocus()
+                        signUpViewModel.onEvent(SignUpEvent.ProceedPrevStage)
+                    }
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                CltButton(
+                    modifier = Modifier.weight(1f),
+                    text = "Sign Up",
+                    withLoading = true,
+                    enabled = !state.isLoading,
+                    onClick = {
+                        focusManager.clearFocus()
+                        signUpViewModel.onEvent(SignUpEvent.OnSubmit)
+                    }
+                )
             }
             Spacer(modifier = Modifier.height(10.dp))
             Box(
