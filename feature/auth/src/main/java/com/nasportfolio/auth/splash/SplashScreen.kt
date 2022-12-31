@@ -26,10 +26,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.nasportfolio.auth.R
 import com.nasportfolio.auth.navigation.navigateToAuthScreen
+import com.nasportfolio.auth.navigation.splashScreenRoute
+import com.nasportfolio.common.navigation.navigateToHomeScreen
 import com.nasportfolio.common.theme.FreeStyleScript
 import com.nasportfolio.common.theme.lightOrange
 import com.nasportfolio.common.theme.mediumOrange
-import com.nasportfolio.common.utils.Screen
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -83,15 +84,13 @@ internal fun SplashScreen(
 
     LaunchedEffect(isAnimationDone, isLoggedIn) {
         if (!isAnimationDone) return@LaunchedEffect
-        if (isLoggedIn) return@LaunchedEffect navController.navigate(
-            Screen.HomeScreen.route,
-        ) {
-            popUpTo("/splash") {
-                inclusive = true
-            }
+        if (isLoggedIn) {
+            return@LaunchedEffect navController.navigateToHomeScreen(
+                popUpTo = splashScreenRoute
+            )
         }
         navController.navigateToAuthScreen(
-            shouldPopBackStack = true
+            popUpTo = splashScreenRoute
         )
     }
 

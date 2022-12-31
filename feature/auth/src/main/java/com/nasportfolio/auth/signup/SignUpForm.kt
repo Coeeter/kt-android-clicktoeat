@@ -38,7 +38,7 @@ import com.nasportfolio.auth.navigation.authScreenRoute
 import com.nasportfolio.common.components.CltButton
 import com.nasportfolio.common.components.CltHeading
 import com.nasportfolio.common.components.CltInput
-import com.nasportfolio.common.utils.Screen
+import com.nasportfolio.common.navigation.navigateToHomeScreen
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -68,11 +68,9 @@ fun SignUpForm(
 
     LaunchedEffect(state.isCreated) {
         if (!state.isCreated) return@LaunchedEffect
-        navController.navigate(Screen.HomeScreen.route) {
-            popUpTo(authScreenRoute) {
-                inclusive = true
-            }
-        }
+        navController.navigateToHomeScreen(
+            popUpTo = authScreenRoute
+        )
     }
 
     AnimatedContent(
