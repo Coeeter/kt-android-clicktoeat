@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
@@ -27,7 +28,7 @@ internal fun AuthScreen(
     val authNavController = rememberAnimatedNavController()
 
     Scaffold(scaffoldState = scaffoldState) { padding ->
-        SplashToAuthAnimation {
+        SplashToAuthAnimation(modifier = Modifier.padding(padding)) {
             AnimatedNavHost(
                 modifier = Modifier.fillMaxSize(),
                 navController = authNavController,
@@ -44,12 +45,6 @@ internal fun AuthScreen(
                     exitTransition = {
                         slideOutOfContainer(
                             towards = AnimatedContentScope.SlideDirection.Left,
-                            animationSpec = tween(durationMillis = TransitionDurationMillis)
-                        )
-                    },
-                    popEnterTransition = {
-                        slideIntoContainer(
-                            towards = AnimatedContentScope.SlideDirection.Right,
                             animationSpec = tween(durationMillis = TransitionDurationMillis)
                         )
                     },
@@ -76,12 +71,6 @@ internal fun AuthScreen(
                             animationSpec = tween(durationMillis = TransitionDurationMillis)
                         )
                     },
-                    popExitTransition = {
-                        slideOutOfContainer(
-                            towards = AnimatedContentScope.SlideDirection.Right,
-                            animationSpec = tween(durationMillis = TransitionDurationMillis)
-                        )
-                    }
                 ) {
                     SignUpForm(
                         scaffoldState = scaffoldState,
