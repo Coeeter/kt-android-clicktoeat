@@ -1,11 +1,19 @@
 package com.nasportfolio.clicktoeat.screens.home
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.GridCells
+import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -20,12 +28,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import com.nasportfolio.auth.navigation.navigateToAuthScreen
-import com.nasportfolio.common.components.CltButton
+import com.nasportfolio.clicktoeat.screens.home.components.RestaurantCard
 import com.nasportfolio.common.navigation.homeScreenRoute
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
     navController: NavHostController,
@@ -48,7 +56,27 @@ fun HomeScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        scaffoldState = scaffoldState
+        scaffoldState = scaffoldState,
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "Home") },
+                actions = {
+                    IconButton(onClick = {
+                        homeViewModel.logout()
+                        navController.navigateToAuthScreen(
+                            popUpTo = homeScreenRoute
+                        )
+                    }) {
+                        Icon(imageVector = Icons.Default.Logout, contentDescription = null)
+                    }
+                },
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { /*TODO*/ }) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = null)
+            }
+        }
     ) { padding ->
         Box(
             modifier = Modifier
@@ -69,38 +97,13 @@ fun HomeScreen(
                         CircularProgressIndicator()
                     }
                 if (!isLoading)
-                    LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        items(state.restaurantList) { restaurant ->
-                            Column(modifier = Modifier.clickable { }) {
-                                Text(
-                                    text = restaurant.name,
-                                    modifier = Modifier.padding(5.dp)
-                                )
-                                Divider(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(2.dp)
-                                )
-                            }
-                        }
-                        item {
-                            Box(
-                                modifier = Modifier.fillMaxWidth(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CltButton(
-                                    modifier = Modifier.fillMaxWidth(0.5f),
-                                    text = "Log Out",
-                                    withLoading = true,
-                                    enabled = true,
-                                    onClick = {
-                                        homeViewModel.logout()
-                                        navController.navigateToAuthScreen(
-                                            popUpTo = homeScreenRoute
-                                        )
-                                    }
-                                )
-                            }
+                    LazyVerticalGrid(
+                        modifier = Modifier.fillMaxSize(),
+                        cells = GridCells.Fixed(2),
+                        contentPadding = PaddingValues(5.dp),
+                    ) {
+                        items(state.restaurantList) {
+                            RestaurantCard(restaurant = it)
                         }
                     }
             }
