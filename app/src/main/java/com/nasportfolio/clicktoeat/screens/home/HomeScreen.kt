@@ -19,6 +19,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -28,8 +29,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import com.nasportfolio.auth.navigation.navigateToAuthScreen
 import com.nasportfolio.clicktoeat.screens.home.components.RestaurantCard
+import com.nasportfolio.common.components.CltFloatingActionButton
 import com.nasportfolio.common.navigation.homeScreenRoute
-import com.nasportfolio.common.theme.mediumOrange
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -67,15 +68,20 @@ fun HomeScreen(
                             popUpTo = homeScreenRoute
                         )
                     }) {
-                        Icon(imageVector = Icons.Default.Logout, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.Default.Logout,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
                     }
                 },
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                backgroundColor = mediumOrange,
-                onClick = { /*TODO*/ }
+            CltFloatingActionButton(
+                onClick = { setIsClicked ->
+                    /* TODO */
+                }
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = null)
             }
