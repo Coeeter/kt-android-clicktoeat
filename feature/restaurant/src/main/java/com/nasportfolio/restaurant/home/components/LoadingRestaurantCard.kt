@@ -56,7 +56,7 @@ fun LoadingRestaurantCard(
                 CltShimmer(
                     modifier = Modifier
                         .fillMaxWidth(0.5f)
-                        .height(20.dp)
+                        .height(25.dp)
                 )
             }
         }

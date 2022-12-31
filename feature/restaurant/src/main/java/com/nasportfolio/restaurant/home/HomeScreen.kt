@@ -1,6 +1,6 @@
 package com.nasportfolio.restaurant.home
 
-import androidx.compose.animation.*
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -91,37 +91,25 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            AnimatedContent(
-                targetState = state.isLoading,
-                transitionSpec = {
-                    fadeIn() with fadeOut()
-                }
-            ) { isLoading ->
-                if (isLoading)
-                    LazyVerticalGrid(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .scrollEnabled(enabled = false),
-                        cells = GridCells.Fixed(2)
-                    ) {
-                        items(10) {
-                            LoadingRestaurantCard()
-                        }
+            LazyVerticalGrid(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .scrollEnabled(enabled = !state.isLoading),
+                cells = GridCells.Fixed(2),
+                contentPadding = PaddingValues(5.dp)
+            ) {
+                if (state.isLoading)
+                    items(10) {
+                        LoadingRestaurantCard()
                     }
-                if (!isLoading)
-                    LazyVerticalGrid(
-                        modifier = Modifier.fillMaxSize(),
-                        cells = GridCells.Fixed(2),
-                        contentPadding = PaddingValues(5.dp),
-                    ) {
-                        items(state.restaurantList) {
-                            RestaurantCard(
-                                restaurant = it,
-                                toggleFavorite = { restaurantId ->
-                                    homeViewModel.toggleFavorite(restaurantId)
-                                }
-                            )
-                        }
+                if (!state.isLoading)
+                    items(state.restaurantList) {
+                        RestaurantCard(
+                            restaurant = it,
+                            toggleFavorite = { restaurantId ->
+                                homeViewModel.toggleFavorite(restaurantId)
+                            }
+                        )
                     }
             }
         }
