@@ -1,4 +1,4 @@
-package com.nasportfolio.clicktoeat.screens.home.components
+package com.nasportfolio.restaurant.home.components
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*

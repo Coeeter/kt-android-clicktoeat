@@ -20,6 +20,7 @@ include(
     ":core:network",
     ":core:data",
     ":core:domain",
+    ":feature:common",
     ":feature:auth",
-    ":feature:common"
+    ":feature:restaurant"
 )

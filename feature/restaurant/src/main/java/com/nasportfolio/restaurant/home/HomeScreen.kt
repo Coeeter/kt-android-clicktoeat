@@ -1,4 +1,4 @@
-package com.nasportfolio.clicktoeat.screens.home
+package com.nasportfolio.restaurant.home
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -27,10 +27,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
-import com.nasportfolio.auth.navigation.navigateToAuthScreen
-import com.nasportfolio.clicktoeat.screens.home.components.RestaurantCard
 import com.nasportfolio.common.components.CltFloatingActionButton
 import com.nasportfolio.common.navigation.homeScreenRoute
+import com.nasportfolio.common.navigation.navigateToAuthScreen
+import com.nasportfolio.restaurant.home.components.RestaurantCard
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -79,9 +79,7 @@ fun HomeScreen(
         },
         floatingActionButton = {
             CltFloatingActionButton(
-                onClick = { setIsClicked ->
-                    /* TODO */
-                }
+                onClick = {/* TODO */ }
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = null)
             }

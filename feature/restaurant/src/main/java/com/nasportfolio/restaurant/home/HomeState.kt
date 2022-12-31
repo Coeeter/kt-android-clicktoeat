@@ -1,4 +1,4 @@
-package com.nasportfolio.clicktoeat.screens.home
+package com.nasportfolio.restaurant.home
 
 import com.nasportfolio.domain.restaurant.TransformedRestaurant
 

@@ -1,8 +1,7 @@
-package com.nasportfolio.clicktoeat.screens.home
+package com.nasportfolio.restaurant.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nasportfolio.domain.favorites.FavoriteRepository
 import com.nasportfolio.domain.favorites.usecases.ToggleFavoriteUseCase
 import com.nasportfolio.domain.restaurant.usecases.GetAllRestaurantsUseCase
 import com.nasportfolio.domain.user.UserRepository

@@ -6,12 +6,10 @@ import androidx.navigation.compose.composable
 import com.nasportfolio.auth.AuthScreen
 import com.nasportfolio.auth.resetpassword.ResetPasswordFromEmailScreen
 import com.nasportfolio.auth.splash.SplashScreen
-
-const val splashScreenRoute = "/splash"
-internal const val authScreenRoute = "/auth"
-internal const val resetPasswordFromEmailRoute = "/reset-password"
-internal const val resetPasswordFromEmailDeepLink =
-    "https://clicktoeat.nasportfolio.com/reset-password"
+import com.nasportfolio.common.navigation.authScreenRoute
+import com.nasportfolio.common.navigation.resetPasswordFromEmailDeepLink
+import com.nasportfolio.common.navigation.resetPasswordFromEmailRoute
+import com.nasportfolio.common.navigation.splashScreenRoute
 
 fun NavHostController.navigateToAuthScreen(
     popUpTo: String? = null

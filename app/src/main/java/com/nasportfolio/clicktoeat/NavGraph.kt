@@ -5,9 +5,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.nasportfolio.auth.navigation.authScreenComposable
-import com.nasportfolio.auth.navigation.splashScreenRoute
-import com.nasportfolio.clicktoeat.screens.home.HomeScreen
 import com.nasportfolio.common.navigation.homeScreenRoute
+import com.nasportfolio.common.navigation.splashScreenRoute
+import com.nasportfolio.restaurant.home.HomeScreen
 
 @Composable
 fun NavGraph(navController: NavHostController) {

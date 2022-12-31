@@ -27,7 +27,7 @@ fun CltFloatingActionButton(
     animatedBackgroundColor: Color = Color.White,
     durationMillis: Int = 500,
     easing: Easing = FastOutSlowInEasing,
-    onClick: (setIsClicked: (Boolean) -> Unit) -> Unit,
+    onClick: () -> Unit,
     content: @Composable () -> Unit
 ) {
     val configuration = LocalConfiguration.current
@@ -114,7 +114,7 @@ fun CltFloatingActionButton(
 
         onClick = {
             setIsClicked(withNavigation)
-            onClick(setIsClicked)
+            onClick()
         }
     ) {
         AnimatedVisibility(

@@ -39,19 +39,17 @@ class GetAllRestaurantsUseCase @Inject constructor(
         if (comments !is Resource.Success) return@flow emit(
             Resource.Failure((comments as Resource.Failure).error)
         )
-        val transformedRestaurants = restaurants.result.map {
+        val transformedRestaurants = restaurants.result.map { restaurant ->
             val commentsOfRestaurant = comments.result.filter { comment ->
-                comment.restaurant.id == it.id
+                comment.restaurant.id == restaurant.id
             }
-            val isFavorited = favoriteRestaurants.result.map { restaurant ->
-                restaurant.id
-            }.contains(it.id)
+            val isFavorited = favoriteRestaurants.result.map { it.id }.contains(restaurant.id)
             TransformedRestaurant(
-                id = it.id,
-                name = it.name,
-                description = it.description,
-                imageUrl = it.image.url,
-                branches = it.branches,
+                id = restaurant.id,
+                name = restaurant.name,
+                description = restaurant.description,
+                imageUrl = restaurant.image.url,
+                branches = restaurant.branches,
                 comments = commentsOfRestaurant,
                 isFavoriteByCurrentUser = isFavorited,
                 averageRating = getAverageRating(commentsOfRestaurant),
