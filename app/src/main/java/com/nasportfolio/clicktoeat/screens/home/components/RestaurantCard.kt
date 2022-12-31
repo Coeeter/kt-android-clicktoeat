@@ -22,7 +22,8 @@ import com.nasportfolio.domain.restaurant.TransformedRestaurant
 
 @Composable
 fun RestaurantCard(
-    restaurant: TransformedRestaurant
+    restaurant: TransformedRestaurant,
+    toggleFavorite: (String) -> Unit,
 ) {
     Card(
         modifier = Modifier
@@ -67,7 +68,7 @@ fun RestaurantCard(
                             .offset(x = 5.dp)
                             .clip(CircleShape)
                             .size(40.dp),
-                        onClick = { /*TODO*/ }
+                        onClick = { toggleFavorite(restaurant.id) }
                     ) {
                         Box(
                             modifier = Modifier.fillMaxSize(),

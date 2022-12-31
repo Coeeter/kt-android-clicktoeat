@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -30,6 +29,7 @@ import androidx.navigation.NavHostController
 import com.nasportfolio.auth.navigation.navigateToAuthScreen
 import com.nasportfolio.clicktoeat.screens.home.components.RestaurantCard
 import com.nasportfolio.common.navigation.homeScreenRoute
+import com.nasportfolio.common.theme.mediumOrange
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -73,7 +73,10 @@ fun HomeScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { /*TODO*/ }) {
+            FloatingActionButton(
+                backgroundColor = mediumOrange,
+                onClick = { /*TODO*/ }
+            ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = null)
             }
         }
@@ -103,7 +106,12 @@ fun HomeScreen(
                         contentPadding = PaddingValues(5.dp),
                     ) {
                         items(state.restaurantList) {
-                            RestaurantCard(restaurant = it)
+                            RestaurantCard(
+                                restaurant = it,
+                                toggleFavorite = { restaurantId ->
+                                    homeViewModel.toggleFavorite(restaurantId)
+                                }
+                            )
                         }
                     }
             }
