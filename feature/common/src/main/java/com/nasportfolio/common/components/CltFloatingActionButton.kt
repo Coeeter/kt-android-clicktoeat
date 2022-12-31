@@ -25,6 +25,8 @@ fun CltFloatingActionButton(
     withNavigation: Boolean = true,
     backgroundColor: Color = mediumOrange,
     animatedBackgroundColor: Color = Color.White,
+    durationMillis: Int = 500,
+    easing: Easing = FastOutSlowInEasing,
     onClick: (setIsClicked: (Boolean) -> Unit) -> Unit,
     content: @Composable () -> Unit
 ) {
@@ -38,12 +40,12 @@ fun CltFloatingActionButton(
         label = "fab-clicked",
     )
 
-    val size by transition.animateDp(
-        label = "size",
+    val height by transition.animateDp(
+        label = "height",
         transitionSpec = {
             tween(
-                durationMillis = 500,
-                easing = FastOutSlowInEasing
+                durationMillis = durationMillis,
+                easing = easing
             )
         }
     ) {
@@ -51,12 +53,25 @@ fun CltFloatingActionButton(
         return@animateDp 56.dp
     }
 
+    val width by transition.animateDp(
+        label = "width",
+        transitionSpec = {
+            tween(
+                durationMillis = durationMillis,
+                easing = easing
+            )
+        }
+    ) {
+        if (it) return@animateDp configuration.screenWidthDp.dp
+        return@animateDp 56.dp
+    }
+
     val corner by transition.animateInt(
         label = "corner",
         transitionSpec = {
             tween(
-                durationMillis = 500,
-                easing = FastOutSlowInEasing
+                durationMillis = durationMillis,
+                easing = easing
             )
         }
     ) {
@@ -68,8 +83,8 @@ fun CltFloatingActionButton(
         label = "offset",
         transitionSpec = {
             tween(
-                durationMillis = 500,
-                easing = FastOutSlowInEasing
+                durationMillis = durationMillis,
+                easing = easing
             )
         }
     ) {
@@ -81,8 +96,8 @@ fun CltFloatingActionButton(
         label = "color",
         transitionSpec = {
             tween(
-                durationMillis = 500,
-                easing = FastOutSlowInEasing
+                durationMillis = durationMillis,
+                easing = easing
             )
         }
     ) {
@@ -92,7 +107,7 @@ fun CltFloatingActionButton(
 
     FloatingActionButton(
         modifier = modifier
-            .size(size)
+            .size(width = width, height = height)
             .offset(x = offset, y = offset),
         backgroundColor = color,
         shape = RoundedCornerShape(corner),
@@ -106,14 +121,14 @@ fun CltFloatingActionButton(
             visible = !isClicked,
             enter = fadeIn(
                 animationSpec = tween(
-                    durationMillis = 200,
-                    easing = FastOutSlowInEasing
+                    durationMillis = (durationMillis * 0.4).toInt(),
+                    easing = easing
                 )
             ),
             exit = fadeOut(
                 animationSpec = tween(
-                    durationMillis = 200,
-                    easing = FastOutSlowInEasing
+                    durationMillis = (durationMillis * 0.4).toInt(),
+                    easing = easing
                 )
             )
         ) {
