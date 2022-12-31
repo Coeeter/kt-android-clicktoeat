@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -28,8 +27,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.CltFloatingActionButton
+import com.nasportfolio.common.modifier.scrollEnabled
 import com.nasportfolio.common.navigation.homeScreenRoute
 import com.nasportfolio.common.navigation.navigateToAuthScreen
+import com.nasportfolio.restaurant.home.components.LoadingRestaurantCard
 import com.nasportfolio.restaurant.home.components.RestaurantCard
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -97,11 +98,15 @@ fun HomeScreen(
                 }
             ) { isLoading ->
                 if (isLoading)
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                    LazyVerticalGrid(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .scrollEnabled(enabled = false),
+                        cells = GridCells.Fixed(2)
                     ) {
-                        CircularProgressIndicator()
+                        items(10) {
+                            LoadingRestaurantCard()
+                        }
                     }
                 if (!isLoading)
                     LazyVerticalGrid(

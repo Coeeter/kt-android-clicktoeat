@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.FloatingActionButtonDefaults
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,7 +26,7 @@ fun CltFloatingActionButton(
     modifier: Modifier = Modifier,
     withNavigation: Boolean = true,
     backgroundColor: Color = mediumOrange,
-    animatedBackgroundColor: Color = Color.White,
+    animatedBackgroundColor: Color = MaterialTheme.colors.background,
     durationMillis: Int = 500,
     easing: Easing = FastOutSlowInEasing,
     onClick: () -> Unit,
@@ -105,13 +107,28 @@ fun CltFloatingActionButton(
         return@animateColor backgroundColor
     }
 
+    val elevation by transition.animateDp(
+        label = "elevation",
+        transitionSpec = {
+            tween(
+                durationMillis = durationMillis,
+                easing = easing
+            )
+        }
+    ) {
+        if (it) return@animateDp 0.dp
+        return@animateDp 6.dp
+    }
+
     FloatingActionButton(
         modifier = modifier
             .size(width = width, height = height)
             .offset(x = offset, y = offset),
         backgroundColor = color,
         shape = RoundedCornerShape(corner),
-
+        elevation = FloatingActionButtonDefaults.elevation(
+            defaultElevation = elevation
+        ),
         onClick = {
             setIsClicked(withNavigation)
             onClick()

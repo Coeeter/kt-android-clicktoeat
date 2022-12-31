@@ -17,16 +17,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nasportfolio.common.components.CltImageFromNetwork
+import com.nasportfolio.common.components.CltShimmer
 import com.nasportfolio.common.theme.mediumOrange
 import com.nasportfolio.domain.restaurant.TransformedRestaurant
 
 @Composable
 fun RestaurantCard(
+    modifier: Modifier = Modifier,
     restaurant: TransformedRestaurant,
     toggleFavorite: (String) -> Unit,
 ) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(5.dp),
         elevation = 4.dp
@@ -35,9 +37,7 @@ fun RestaurantCard(
             CltImageFromNetwork(
                 url = restaurant.imageUrl,
                 placeholder = {
-                    Box(contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
+                    CltShimmer(modifier = Modifier.fillMaxSize())
                 },
                 contentDescription = null,
                 modifier = Modifier
@@ -51,8 +51,7 @@ fun RestaurantCard(
                     .padding(top = 5.dp, bottom = 10.dp, start = 10.dp, end = 10.dp),
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
