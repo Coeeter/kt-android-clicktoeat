@@ -15,12 +15,10 @@ dependencyResolutionManagement {
 
 rootProject.name = "ClickToEat"
 
-include(
-    ":app",
-    ":core:network",
-    ":core:data",
-    ":core:domain",
-    ":feature:common",
-    ":feature:auth",
-    ":feature:restaurant"
-)
+include(":app")
+include(":core:network")
+include(":core:data")
+include(":core:domain")
+include(":feature:common")
+include(":feature:auth")
+include(":feature:restaurant")

@@ -7,14 +7,11 @@ import com.nasportfolio.network.mappers.toTransformedResponse
 import com.nasportfolio.network.models.TransformedResponse
 import com.nasportfolio.network.utils.Constants.BASE_URL
 import com.nasportfolio.network.utils.await
+import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import java.io.File
+import java.util.*
+import kotlin.collections.HashMap
 
 class OkHttpDaoImpl(
     override val gson: Gson,
@@ -51,7 +48,7 @@ class OkHttpDaoImpl(
     override suspend fun <T> post(
         endpoint: String,
         body: T,
-        file: File?,
+        file: ByteArray?,
         requestName: String,
         headers: Map<String, String>
     ): TransformedResponse = makeRequest(
@@ -61,7 +58,7 @@ class OkHttpDaoImpl(
         contentType = ContentType.MULTIPART,
         method = HttpMethods.POST,
         fileUpload = FileUpload(
-            file = file,
+            byteArray = file,
             requestName = requestName
         ),
     )
@@ -81,7 +78,7 @@ class OkHttpDaoImpl(
     override suspend fun <T> put(
         endpoint: String,
         body: T,
-        file: File?,
+        file: ByteArray?,
         requestName: String,
         headers: Map<String, String>
     ): TransformedResponse = makeRequest(
@@ -91,7 +88,7 @@ class OkHttpDaoImpl(
         contentType = ContentType.MULTIPART,
         method = HttpMethods.PUT,
         fileUpload = FileUpload(
-            file = file,
+            byteArray = file,
             requestName = requestName
         ),
     )
@@ -186,11 +183,11 @@ class OkHttpDaoImpl(
         map.forEach { (key, value) ->
             multipartBuilder.addFormDataPart(key, value.toString())
         }
-        fileUpload.file?.let {
+        fileUpload.byteArray?.let {
             multipartBuilder.addFormDataPart(
                 fileUpload.requestName,
-                it.name,
-                it.asRequestBody(IMAGE_MEDIA_TYPE)
+                UUID.randomUUID().toString(),
+                it.toRequestBody(IMAGE_MEDIA_TYPE, 0, it.size)
             )
         }
         return multipartBuilder.build()
@@ -206,9 +203,30 @@ class OkHttpDaoImpl(
     }
 
     private data class FileUpload(
-        val file: File? = null,
+        val byteArray: ByteArray? = null,
         val requestName: String = "image"
-    )
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as FileUpload
+
+            if (byteArray != null) {
+                if (other.byteArray == null) return false
+                if (!byteArray.contentEquals(other.byteArray)) return false
+            } else if (other.byteArray != null) return false
+            if (requestName != other.requestName) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = byteArray?.contentHashCode() ?: 0
+            result = 31 * result + requestName.hashCode()
+            return result
+        }
+    }
 
     private enum class HttpMethods {
         GET, POST, PUT, DELETE

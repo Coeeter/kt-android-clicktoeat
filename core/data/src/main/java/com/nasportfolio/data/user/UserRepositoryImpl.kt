@@ -8,7 +8,6 @@ import com.nasportfolio.data.user.remote.dtos.UpdateAccountDto
 import com.nasportfolio.domain.user.User
 import com.nasportfolio.domain.user.UserRepository
 import com.nasportfolio.domain.utils.Resource
-import java.io.File
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
@@ -57,7 +56,7 @@ class UserRepositoryImpl @Inject constructor(
         username: String?,
         email: String?,
         password: String?,
-        image: File?,
+        image: ByteArray?,
         fcmToken: String?,
         deleteImage: Boolean?
     ): Resource<String> = remoteUserDao.updateAccount(
@@ -87,7 +86,7 @@ class UserRepositoryImpl @Inject constructor(
         email: String,
         password: String,
         fcmToken: String,
-        image: File?
+        image: ByteArray?
     ): Resource<String> = remoteUserDao.signUp(
         signUpDto = SignUpDto(
             username = username,

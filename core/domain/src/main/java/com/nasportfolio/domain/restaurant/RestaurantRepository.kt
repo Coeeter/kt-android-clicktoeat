@@ -1,7 +1,6 @@
 package com.nasportfolio.domain.restaurant
 
 import com.nasportfolio.domain.utils.Resource
-import java.io.File
 
 interface RestaurantRepository {
     suspend fun getAllRestaurants(): Resource<List<Restaurant>>
@@ -12,7 +11,7 @@ interface RestaurantRepository {
         token: String,
         name: String,
         description: String,
-        image: File
+        image: ByteArray
     ): Resource<String>
 
     suspend fun updateRestaurant(
@@ -20,7 +19,7 @@ interface RestaurantRepository {
         restaurantId: String,
         name: String? = null,
         description: String? = null,
-        image: File? = null
+        image: ByteArray? = null
     ): Resource<Restaurant>
 
     suspend fun deleteRestaurant(

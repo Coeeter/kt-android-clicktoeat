@@ -11,15 +11,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.FloatingActionButtonDefaults
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.nasportfolio.common.theme.mediumOrange
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun CltFloatingActionButton(
@@ -32,8 +31,9 @@ fun CltFloatingActionButton(
     onClick: () -> Unit,
     content: @Composable () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
-    val (isClicked, setIsClicked) = remember {
+    var isClicked by remember {
         mutableStateOf(false)
     }
 
@@ -130,8 +130,11 @@ fun CltFloatingActionButton(
             defaultElevation = elevation
         ),
         onClick = {
-            setIsClicked(withNavigation)
-            onClick()
+            isClicked = withNavigation
+            scope.launch {
+                delay(durationMillis.toLong())
+                onClick()
+            }
         }
     ) {
         AnimatedVisibility(

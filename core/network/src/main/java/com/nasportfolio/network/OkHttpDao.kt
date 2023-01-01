@@ -10,8 +10,7 @@ interface OkHttpDao {
 
     suspend fun get(
         endpoint: String = "/",
-        headers:
-        Map<String, String> = mapOf()
+        headers: Map<String, String> = mapOf()
     ): TransformedResponse
 
     suspend fun <T> post(
@@ -23,7 +22,7 @@ interface OkHttpDao {
     suspend fun <T> post(
         endpoint: String = "/",
         body: T,
-        file: File?,
+        file: ByteArray?,
         requestName: String,
         headers: Map<String, String> = mapOf()
     ): TransformedResponse
@@ -37,7 +36,7 @@ interface OkHttpDao {
     suspend fun <T> put(
         endpoint: String = "/",
         body: T,
-        file: File?,
+        file: ByteArray?,
         requestName: String,
         headers: Map<String, String> = mapOf()
     ): TransformedResponse

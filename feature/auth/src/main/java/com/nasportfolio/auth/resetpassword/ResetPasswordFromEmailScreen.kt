@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import com.nasportfolio.auth.navigation.navigateToAuthScreen
+import com.nasportfolio.common.navigation.navigateToAuthScreen
 
 @Composable
 internal fun ResetPasswordFromEmailScreen(

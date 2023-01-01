@@ -11,17 +11,6 @@ import com.nasportfolio.common.navigation.resetPasswordFromEmailDeepLink
 import com.nasportfolio.common.navigation.resetPasswordFromEmailRoute
 import com.nasportfolio.common.navigation.splashScreenRoute
 
-fun NavHostController.navigateToAuthScreen(
-    popUpTo: String? = null
-) {
-    navigate(authScreenRoute) {
-        popUpTo ?: return@navigate
-        popUpTo(popUpTo) {
-            inclusive = true
-        }
-    }
-}
-
 fun NavGraphBuilder.authScreenComposable(navController: NavHostController) {
     composable(splashScreenRoute) {
         SplashScreen(navController = navController)

@@ -1,7 +1,6 @@
 package com.nasportfolio.domain.user
 
 import com.nasportfolio.domain.utils.Resource
-import java.io.File
 
 interface UserRepository {
     fun getToken(): Resource<String>
@@ -19,7 +18,7 @@ interface UserRepository {
         token: String, username: String? = null,
         email: String? = null,
         password: String? = null,
-        image: File? = null,
+        image: ByteArray? = null,
         fcmToken: String? = null,
         deleteImage: Boolean? = null,
     ): Resource<String>
@@ -34,6 +33,6 @@ interface UserRepository {
         email: String,
         password: String,
         fcmToken: String,
-        image: File? = null,
+        image: ByteArray? = null,
     ): Resource<String>
 }

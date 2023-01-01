@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.nasportfolio.auth.R
-import com.nasportfolio.auth.navigation.navigateToAuthScreen
+import com.nasportfolio.common.navigation.navigateToAuthScreen
 import com.nasportfolio.common.navigation.navigateToHomeScreen
 import com.nasportfolio.common.navigation.splashScreenRoute
 import com.nasportfolio.common.theme.FreeStyleScript

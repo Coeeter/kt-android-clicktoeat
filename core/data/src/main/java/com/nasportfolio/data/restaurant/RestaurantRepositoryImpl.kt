@@ -6,7 +6,6 @@ import com.nasportfolio.data.restaurant.remote.dtos.UpdateRestaurantDto
 import com.nasportfolio.domain.restaurant.Restaurant
 import com.nasportfolio.domain.restaurant.RestaurantRepository
 import com.nasportfolio.domain.utils.Resource
-import java.io.File
 import javax.inject.Inject
 
 class RestaurantRepositoryImpl @Inject constructor(
@@ -22,7 +21,7 @@ class RestaurantRepositoryImpl @Inject constructor(
         token: String,
         name: String,
         description: String,
-        image: File
+        image: ByteArray
     ): Resource<String> = remoteRestaurantDao.createRestaurant(
         token = token,
         createRestaurantDto = CreateRestaurantDto(
@@ -37,7 +36,7 @@ class RestaurantRepositoryImpl @Inject constructor(
         restaurantId: String,
         name: String?,
         description: String?,
-        image: File?
+        image: ByteArray?
     ): Resource<Restaurant> = remoteRestaurantDao.updateRestaurant(
         token = token,
         id = restaurantId,

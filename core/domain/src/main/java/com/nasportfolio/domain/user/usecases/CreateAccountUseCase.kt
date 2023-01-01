@@ -9,7 +9,6 @@ import com.nasportfolio.domain.validation.usecases.ValidatePassword
 import com.nasportfolio.domain.validation.usecases.ValidateUsername
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import java.io.File
 import javax.inject.Inject
 
 class CreateAccountUseCase @Inject constructor(
@@ -25,7 +24,7 @@ class CreateAccountUseCase @Inject constructor(
         password: String,
         confirmPassword: String,
         fcmToken: String,
-        image: File? = null,
+        image: ByteArray? = null,
     ): Flow<Resource<Unit>> = flow {
         when (val error = validateFields(username, email, password, confirmPassword)) {
             is Resource.Failure -> return@flow emit(error)

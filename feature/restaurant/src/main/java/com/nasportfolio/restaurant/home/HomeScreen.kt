@@ -30,6 +30,7 @@ import com.nasportfolio.common.components.CltFloatingActionButton
 import com.nasportfolio.common.modifier.scrollEnabled
 import com.nasportfolio.common.navigation.homeScreenRoute
 import com.nasportfolio.common.navigation.navigateToAuthScreen
+import com.nasportfolio.common.navigation.navigateToCreateRestaurant
 import com.nasportfolio.restaurant.home.components.LoadingRestaurantCard
 import com.nasportfolio.restaurant.home.components.RestaurantCard
 import kotlinx.coroutines.flow.collect
@@ -63,12 +64,14 @@ fun HomeScreen(
             TopAppBar(
                 title = { Text(text = "Home") },
                 actions = {
-                    IconButton(onClick = {
-                        homeViewModel.logout()
-                        navController.navigateToAuthScreen(
-                            popUpTo = homeScreenRoute
-                        )
-                    }) {
+                    IconButton(
+                        onClick = {
+                            homeViewModel.logout()
+                            navController.navigateToAuthScreen(
+                                popUpTo = homeScreenRoute
+                            )
+                        }
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Logout,
                             contentDescription = null,
@@ -80,7 +83,7 @@ fun HomeScreen(
         },
         floatingActionButton = {
             CltFloatingActionButton(
-                onClick = {/* TODO */ }
+                onClick = navController::navigateToCreateRestaurant
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = null)
             }
