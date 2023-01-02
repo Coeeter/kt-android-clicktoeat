@@ -36,14 +36,14 @@ fun RestaurantCard(
         Column {
             CltImageFromNetwork(
                 url = restaurant.imageUrl,
-                placeholder = {
-                    CltShimmer(modifier = Modifier.fillMaxSize())
-                },
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1f)
-                    .border(width = 2.dp, color = mediumOrange)
+                    .border(width = 2.dp, color = mediumOrange),
+                placeholder = {
+                    CltShimmer(modifier = Modifier.fillMaxSize())
+                },
             )
             Column(
                 modifier = Modifier

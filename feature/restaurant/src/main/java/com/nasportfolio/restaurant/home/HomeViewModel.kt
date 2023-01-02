@@ -60,7 +60,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getRestaurants() {
+    private fun getRestaurants() {
         getAllRestaurantsUseCase().onEach {
             when (it) {
                 is Resource.Success -> _state.update { state ->
