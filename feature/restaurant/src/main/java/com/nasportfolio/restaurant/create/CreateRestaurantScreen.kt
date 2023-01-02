@@ -6,15 +6,18 @@ import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -22,13 +25,15 @@ import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -43,6 +48,7 @@ import com.nasportfolio.common.theme.mediumOrange
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CreateRestaurantScreen(
     navController: NavHostController,
@@ -50,6 +56,7 @@ fun CreateRestaurantScreen(
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
     val scaffoldState = rememberScaffoldState()
     val state by createRestaurantViewModel.state.collectAsState()
     var bitmap by remember {
@@ -123,90 +130,111 @@ fun CreateRestaurantScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .clickable {
-                            pickImage.launch("image/*")
-                        },
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth(0.6f)
+                    .aspectRatio(1f)
+                    .border(width = 2.dp, color = mediumOrange),
+                elevation = 10.dp
+            ) {
+                Box(contentAlignment = Alignment.Center) {
                     bitmap?.let {
                         Image(
                             bitmap = it,
                             contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxWidth(0.5f)
-                                .aspectRatio(1f)
-                                .border(width = 2.dp, color = mediumOrange, shape = CircleShape)
-                                .clip(CircleShape),
+                            modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
                         )
-                    }
-                    bitmap ?: Box(
-                        modifier = Modifier
-                            .fillMaxWidth(0.5f)
-                            .aspectRatio(1f)
-                            .border(width = 2.dp, color = mediumOrange, shape = CircleShape)
-                            .clip(CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            modifier = Modifier.fillMaxSize(0.5f),
-                            imageVector = Icons.Default.PhotoCamera,
-                            contentDescription = null
-                        )
-                    }
-                    AnimatedVisibility(
-                        visible = state.imageError != null,
-                        enter = fadeIn() + slideInHorizontally(animationSpec = spring()),
-                    ) {
-                        state.imageError?.let {
-                            Text(
-                                text = it,
-                                color = MaterialTheme.colors.error,
-                                style = MaterialTheme.typography.body1,
-                            )
-                        }
-                    }
+                    } ?: Icon(
+                        modifier = Modifier.fillMaxSize(0.5f),
+                        imageVector = Icons.Default.PhotoCamera,
+                        contentDescription = null,
+                        tint = mediumOrange
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            CltButton(
+                modifier = Modifier.fillMaxWidth(0.6f),
+                text = bitmap?.let { "Change picture" } ?: "Choose picture",
+                withLoading = true,
+                enabled = true,
+                onClick = { pickImage.launch("image/*") }
+            )
+            AnimatedVisibility(
+                visible = state.imageError != null,
+                enter = fadeIn() + slideInHorizontally(animationSpec = spring()),
+            ) {
+                state.imageError?.let {
+                    Text(
+                        text = it,
+                        color = MaterialTheme.colors.error,
+                        style = MaterialTheme.typography.body1,
+                    )
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
-            CltInput(
-                value = state.name,
-                label = "Name",
-                error = state.nameError,
-                onValueChange = {
-                    createRestaurantViewModel.onEvent(
-                        CreateRestaurantEvent.OnNameChanged(name = it)
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = 4.dp,
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(10.dp)
+                ) {
+                    CltInput(
+                        value = state.name,
+                        label = "Name",
+                        error = state.nameError,
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                        ),
+                        onValueChange = {
+                            createRestaurantViewModel.onEvent(
+                                CreateRestaurantEvent.OnNameChanged(name = it)
+                            )
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    CltInput(
+                        value = state.description,
+                        label = "Description",
+                        error = state.descriptionError,
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = { focusManager.clearFocus() }
+                        ),
+                        onValueChange = {
+                            createRestaurantViewModel.onEvent(
+                                CreateRestaurantEvent.OnDescriptionChanged(description = it)
+                            )
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(30.dp))
+                    CltButton(
+                        text = "Submit",
+                        withLoading = true,
+                        enabled = !state.isLoading,
+                        onClick = {
+                            focusManager.clearFocus()
+                            createRestaurantViewModel.onEvent(
+                                CreateRestaurantEvent.OnSubmit
+                            )
+                        }
                     )
                 }
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            CltInput(
-                value = state.description,
-                label = "Description",
-                error = state.descriptionError,
-                onValueChange = {
-                    createRestaurantViewModel.onEvent(
-                        CreateRestaurantEvent.OnDescriptionChanged(description = it)
-                    )
-                }
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            CltButton(
-                text = "Submit",
-                withLoading = true,
-                enabled = !state.isLoading,
-                onClick = {
-                    createRestaurantViewModel.onEvent(
-                        CreateRestaurantEvent.OnSubmit
-                    )
-                }
-            )
+            }
         }
     }
 }
