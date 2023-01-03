@@ -1,8 +1,7 @@
-package com.nasportfolio.restaurant.create
+package com.nasportfolio.restaurant.create.restaurant
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nasportfolio.domain.branch.BranchRepository
 import com.nasportfolio.domain.restaurant.usecases.CreateRestaurantUseCase
 import com.nasportfolio.domain.utils.Resource
 import com.nasportfolio.domain.utils.ResourceError
@@ -14,8 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CreateRestaurantViewModel @Inject constructor(
-    private val createRestaurantUseCase: CreateRestaurantUseCase,
-    private val branchRepository: BranchRepository,
+    private val createRestaurantUseCase: CreateRestaurantUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(CreateRestaurantState())
     val state = _state.asStateFlow()
@@ -57,7 +55,7 @@ class CreateRestaurantViewModel @Inject constructor(
                 is Resource.Success -> _state.update { state ->
                     state.copy(
                         isLoading = false,
-                        isCreated = true
+                        insertId = it.result
                     )
                 }
                 is Resource.Loading -> _state.update { state ->

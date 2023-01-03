@@ -30,6 +30,7 @@ fun CltInput(
     error: String?,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
+    maxLines: Int = 1,
     isPassword: Boolean = false,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default
@@ -46,7 +47,8 @@ fun CltInput(
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(10.dp),
-            singleLine = true,
+            singleLine = maxLines == 1,
+            maxLines = maxLines,
             value = value,
             label = { Text(text = label) },
             onValueChange = onValueChange,

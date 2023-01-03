@@ -61,6 +61,10 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0-alpha03")
     implementation("com.google.accompanist:accompanist-navigation-animation:0.23.0")
 
+    // for google maps
+    implementation("com.google.maps.android:maps-compose:2.5.0")
+    implementation("com.google.android.gms:play-services-maps:18.0.2")
+
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1")

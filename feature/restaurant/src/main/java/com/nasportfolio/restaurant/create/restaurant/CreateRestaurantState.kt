@@ -1,4 +1,4 @@
-package com.nasportfolio.restaurant.create
+package com.nasportfolio.restaurant.create.restaurant
 
 import android.graphics.Bitmap
 
@@ -10,5 +10,5 @@ data class CreateRestaurantState(
     val descriptionError: String? = null,
     val imageError: String? = null,
     val isLoading: Boolean = false,
-    val isCreated: Boolean = false,
+    val insertId: String? = null,
 )

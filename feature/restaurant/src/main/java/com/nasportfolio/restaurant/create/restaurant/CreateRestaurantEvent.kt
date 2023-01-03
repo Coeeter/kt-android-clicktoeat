@@ -1,4 +1,4 @@
-package com.nasportfolio.restaurant.create
+package com.nasportfolio.restaurant.create.restaurant
 
 import android.graphics.Bitmap
 

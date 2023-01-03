@@ -1,10 +1,9 @@
-package com.nasportfolio.restaurant.create
+package com.nasportfolio.restaurant.create.restaurant
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -18,7 +17,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -32,8 +30,7 @@ import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.CltButton
 import com.nasportfolio.common.components.CltImagePicker
 import com.nasportfolio.common.components.CltInput
-import com.nasportfolio.common.navigation.createRestaurantScreenRoute
-import com.nasportfolio.common.navigation.navigateToHomeScreen
+import com.nasportfolio.common.navigation.navigateToCreateBranch
 import com.nasportfolio.common.theme.mediumOrange
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -64,10 +61,10 @@ fun CreateRestaurantScreen(
         }
     }
 
-    LaunchedEffect(state.isCreated) {
-        if (!state.isCreated) return@LaunchedEffect
-        navController.navigateToHomeScreen(
-            popUpTo = createRestaurantScreenRoute
+    LaunchedEffect(state.insertId) {
+        state.insertId ?: return@LaunchedEffect
+        navController.navigateToCreateBranch(
+            restaurantId = state.insertId!!
         )
     }
 
@@ -98,8 +95,7 @@ fun CreateRestaurantScreen(
                 modifier = Modifier
                     .fillMaxWidth(0.6f)
                     .aspectRatio(1f)
-                    .border(width = 2.dp, color = mediumOrange, shape = CircleShape)
-                    .clip(CircleShape),
+                    .border(width = 2.dp, color = mediumOrange),
                 value = state.image,
                 onValueChange = {
                     createRestaurantViewModel.onEvent(
@@ -140,6 +136,7 @@ fun CreateRestaurantScreen(
                         value = state.description,
                         label = "Description",
                         error = state.descriptionError,
+                        maxLines = 5,
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Done
                         ),
