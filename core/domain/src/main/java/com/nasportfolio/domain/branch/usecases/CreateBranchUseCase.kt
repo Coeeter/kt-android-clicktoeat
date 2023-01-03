@@ -11,7 +11,7 @@ class CreateBranchUseCase @Inject constructor(
     private val userRepository: UserRepository,
     private val branchRepository: BranchRepository,
 ) {
-    suspend operator fun invoke(
+    operator fun invoke(
         restaurantId: String,
         address: String,
         latitude: Double?,
@@ -26,6 +26,7 @@ class CreateBranchUseCase @Inject constructor(
                 Resource.Failure(error = it)
             )
         }
+        emit(Resource.Loading(isLoading = true))
         val tokenResource = userRepository.getToken()
         if (tokenResource !is Resource.Success) return@flow emit(
             Resource.Failure(

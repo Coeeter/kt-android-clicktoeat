@@ -14,5 +14,5 @@ fun CreateBranchScreen(
 ) {
     val state by createBranchViewModel.state.collectAsState()
 
-    Text(text = state)
+    Text(text = state.restaurantId!!)
 }
