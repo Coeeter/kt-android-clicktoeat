@@ -1,5 +1,6 @@
 package com.nasportfolio.restaurant.navigation
 
+import androidx.activity.compose.BackHandler
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -8,6 +9,7 @@ import androidx.navigation.navArgument
 import com.nasportfolio.common.navigation.createBranchScreenRoute
 import com.nasportfolio.common.navigation.createRestaurantScreenRoute
 import com.nasportfolio.common.navigation.homeScreenRoute
+import com.nasportfolio.common.navigation.navigateToHomeScreen
 import com.nasportfolio.restaurant.create.branch.CreateBranchScreen
 import com.nasportfolio.restaurant.create.restaurant.CreateRestaurantScreen
 import com.nasportfolio.restaurant.home.HomeScreen
@@ -31,6 +33,11 @@ fun NavGraphBuilder.restaurantComposable(
             }
         )
     ) {
+        BackHandler(enabled = true) {
+            navController.navigateToHomeScreen(
+                popUpTo = "$createBranchScreenRoute/{restaurantId}"
+            )
+        }
         CreateBranchScreen(navController = navController)
     }
 }

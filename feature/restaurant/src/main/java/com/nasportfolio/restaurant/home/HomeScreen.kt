@@ -2,10 +2,7 @@ package com.nasportfolio.restaurant.home
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
@@ -13,13 +10,16 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -31,6 +31,8 @@ import com.nasportfolio.common.modifier.scrollEnabled
 import com.nasportfolio.common.navigation.homeScreenRoute
 import com.nasportfolio.common.navigation.navigateToAuthScreen
 import com.nasportfolio.common.navigation.navigateToCreateRestaurant
+import com.nasportfolio.common.theme.lightOrange
+import com.nasportfolio.common.theme.mediumOrange
 import com.nasportfolio.restaurant.home.components.LoadingRestaurantCard
 import com.nasportfolio.restaurant.home.components.RestaurantCard
 import kotlinx.coroutines.flow.collect
@@ -115,6 +117,31 @@ fun HomeScreen(
                         )
                     }
             }
+            if (!state.isLoading)
+                state.restaurantList.firstOrNull() ?: Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        modifier = Modifier.size(250.dp),
+                        imageVector = Icons.Outlined.Info,
+                        contentDescription = null,
+                        tint = lightOrange
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Text(
+                        text = "Wow such empty...",
+                        style = MaterialTheme.typography.h5
+                    )
+                    Text(
+                        text = "Try creating a restaurant!",
+                        style = MaterialTheme.typography.h6.copy(
+                            fontWeight = FontWeight.Light
+                        )
+                    )
+                }
         }
     }
 }

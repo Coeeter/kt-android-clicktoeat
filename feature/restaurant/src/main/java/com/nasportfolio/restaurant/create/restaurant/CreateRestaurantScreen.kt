@@ -30,6 +30,7 @@ import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.CltButton
 import com.nasportfolio.common.components.CltImagePicker
 import com.nasportfolio.common.components.CltInput
+import com.nasportfolio.common.navigation.createRestaurantScreenRoute
 import com.nasportfolio.common.navigation.navigateToCreateBranch
 import com.nasportfolio.common.theme.mediumOrange
 import kotlinx.coroutines.flow.collect
@@ -64,7 +65,8 @@ fun CreateRestaurantScreen(
     LaunchedEffect(state.insertId) {
         state.insertId ?: return@LaunchedEffect
         navController.navigateToCreateBranch(
-            restaurantId = state.insertId!!
+            restaurantId = state.insertId!!,
+            popUpTo = createRestaurantScreenRoute
         )
     }
 
