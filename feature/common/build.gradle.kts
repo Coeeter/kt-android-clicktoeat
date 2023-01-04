@@ -52,6 +52,7 @@ dependencies {
     // compose
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.material:material:$composeVersion")
+    implementation("androidx.compose.runtime:runtime:1.2.0")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
     implementation("androidx.activity:activity-compose:1.3.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0-beta01")

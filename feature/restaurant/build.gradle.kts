@@ -53,6 +53,7 @@ dependencies {
     // compose
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.material:material:$composeVersion")
+    implementation("androidx.compose.runtime:runtime:1.2.0")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
     implementation("androidx.activity:activity-compose:1.3.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0-beta01")
@@ -64,6 +65,7 @@ dependencies {
     // for google maps
     implementation("com.google.maps.android:maps-compose:2.5.0")
     implementation("com.google.android.gms:play-services-maps:18.0.2")
+    implementation("com.google.android.gms:play-services-location:19.0.1")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")

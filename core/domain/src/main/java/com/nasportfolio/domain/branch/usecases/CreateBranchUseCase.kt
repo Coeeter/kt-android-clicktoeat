@@ -22,6 +22,7 @@ class CreateBranchUseCase @Inject constructor(
             latitude = latitude,
             longitude = longitude
         )?.let {
+            print("debug: Hello got error")
             return@flow emit(
                 Resource.Failure(error = it)
             )
@@ -53,21 +54,29 @@ class CreateBranchUseCase @Inject constructor(
         latitude: Double?,
         longitude: Double?
     ): ResourceError.FieldError? {
-        val fieldError = ResourceError.FieldError(
+        var fieldError = ResourceError.FieldError(
             message = "Errors in fields provided",
             errors = emptyList()
         )
-        if (address.isEmpty()) fieldError.errors.toMutableList().add(
-            ResourceError.FieldErrorItem(
-                field = "address",
-                error = "Address required!"
-            )
+        if (address.isEmpty()) fieldError = fieldError.copy(
+            errors = fieldError.errors.toMutableList().apply {
+                add(
+                    ResourceError.FieldErrorItem(
+                        field = "address",
+                        error = "Address required!"
+                    )
+                )
+            }
         )
-        if (latitude == null || longitude == null) fieldError.errors.toMutableList().add(
-            ResourceError.FieldErrorItem(
-                field = "mapError",
-                error = "Please select the location of the restaurant"
-            )
+        if (latitude == null || longitude == null) fieldError = fieldError.copy(
+            errors = fieldError.errors.toMutableList().apply {
+                add(
+                    ResourceError.FieldErrorItem(
+                        field = "mapError",
+                        error = "Please select the location of the restaurant"
+                    )
+                )
+            }
         )
         if (fieldError.errors.isEmpty()) return null
         return fieldError

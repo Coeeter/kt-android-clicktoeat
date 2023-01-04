@@ -32,10 +32,8 @@ import com.nasportfolio.common.navigation.homeScreenRoute
 import com.nasportfolio.common.navigation.navigateToAuthScreen
 import com.nasportfolio.common.navigation.navigateToCreateRestaurant
 import com.nasportfolio.common.theme.lightOrange
-import com.nasportfolio.common.theme.mediumOrange
 import com.nasportfolio.restaurant.home.components.LoadingRestaurantCard
 import com.nasportfolio.restaurant.home.components.RestaurantCard
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalFoundationApi::class)
