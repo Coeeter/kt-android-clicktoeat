@@ -6,12 +6,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.nasportfolio.common.navigation.createBranchScreenRoute
-import com.nasportfolio.common.navigation.createRestaurantScreenRoute
-import com.nasportfolio.common.navigation.homeScreenRoute
-import com.nasportfolio.common.navigation.navigateToHomeScreen
+import com.nasportfolio.common.navigation.*
 import com.nasportfolio.restaurant.create.branch.CreateBranchScreen
 import com.nasportfolio.restaurant.create.restaurant.CreateRestaurantScreen
+import com.nasportfolio.restaurant.details.RestaurantDetailsScreen
 import com.nasportfolio.restaurant.home.HomeScreen
 
 fun NavGraphBuilder.restaurantComposable(
@@ -39,5 +37,17 @@ fun NavGraphBuilder.restaurantComposable(
             )
         }
         CreateBranchScreen(navController = navController)
+    }
+    composable(
+        route = "$restaurantDetailScreenRoute/{restaurantId}",
+        arguments = listOf(
+            navArgument(name = "restaurantId") {
+                defaultValue = ""
+                type = NavType.StringType
+                nullable = false
+            }
+        )
+    ) {
+        RestaurantDetailsScreen(navController = navController)
     }
 }

@@ -3,7 +3,7 @@ package com.nasportfolio.restaurant.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nasportfolio.domain.favorites.usecases.ToggleFavoriteUseCase
-import com.nasportfolio.domain.restaurant.usecases.GetAllRestaurantsUseCase
+import com.nasportfolio.domain.restaurant.usecases.GetRestaurantsUseCase
 import com.nasportfolio.domain.user.UserRepository
 import com.nasportfolio.domain.utils.Resource
 import com.nasportfolio.domain.utils.ResourceError
@@ -17,7 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val getAllRestaurantsUseCase: GetAllRestaurantsUseCase,
+    private val getRestaurantsUseCase: GetRestaurantsUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeState())
@@ -61,7 +61,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getRestaurants() {
-        getAllRestaurantsUseCase().onEach {
+        getRestaurantsUseCase().onEach {
             when (it) {
                 is Resource.Success -> _state.update { state ->
                     state.copy(

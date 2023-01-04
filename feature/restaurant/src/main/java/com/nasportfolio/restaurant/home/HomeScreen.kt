@@ -31,6 +31,7 @@ import com.nasportfolio.common.modifier.scrollEnabled
 import com.nasportfolio.common.navigation.homeScreenRoute
 import com.nasportfolio.common.navigation.navigateToAuthScreen
 import com.nasportfolio.common.navigation.navigateToCreateRestaurant
+import com.nasportfolio.common.navigation.navigateToRestaurantDetails
 import com.nasportfolio.common.theme.lightOrange
 import com.nasportfolio.restaurant.home.components.LoadingRestaurantCard
 import com.nasportfolio.restaurant.home.components.RestaurantCard
@@ -111,6 +112,11 @@ fun HomeScreen(
                             restaurant = it,
                             toggleFavorite = { restaurantId ->
                                 homeViewModel.toggleFavorite(restaurantId)
+                            },
+                            onClick = { restaurantId ->
+                                navController.navigateToRestaurantDetails(
+                                    restaurantId = restaurantId
+                                )
                             }
                         )
                     }
