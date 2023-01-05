@@ -1,11 +1,9 @@
 package com.nasportfolio.restaurant.details
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -16,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -149,16 +148,25 @@ private fun AppBar(
         derivedStateOf {
             val percent = transformedHeight / height
             with(density) {
-                (percent * (-50).dp.toPx()).toDp()
+                (percent * (-64).dp.toPx()).toDp()
             }
         }
     }
 
     val imageAlpha by remember {
         derivedStateOf {
-            if (scrollState.value >= with(density) { height.toPx() } - 56)
-                return@derivedStateOf 0f
-            transformedHeight / height
+            var percent = transformedHeight / height
+            if (percent < 0.2) percent = 0f
+            percent
+        }
+    }
+
+    val color by remember {
+        derivedStateOf {
+            var percent = 1 - transformedHeight / height
+            if (percent == Float.NEGATIVE_INFINITY) return@derivedStateOf Color.Black
+            if (percent > 0.85) percent = 1f
+            Color.Black.copy(green = percent, red = percent, blue = percent)
         }
     }
 
@@ -173,7 +181,11 @@ private fun AppBar(
             },
         elevation = if (scrollState.value > 0) 4.dp else 0.dp,
         contentPadding = PaddingValues(),
-        backgroundColor = MaterialTheme.colors.background,
+        backgroundColor = if (isSystemInDarkTheme()) {
+            MaterialTheme.colors.background
+        } else {
+            state.restaurant?.let { mediumOrange } ?: Color.White
+        }
     ) {
         Box {
             state.restaurant?.let {
@@ -183,7 +195,21 @@ private fun AppBar(
                         .alpha(imageAlpha)
                         .height(transformedHeight),
                     url = it.imageUrl,
-                    placeholder = { CltShimmer() },
+                    placeholder = {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    if (isSystemInDarkTheme()) {
+                                        Color.Transparent
+                                    } else {
+                                        Color.White
+                                    }
+                                )
+                        ) {
+                            CltShimmer()
+                        }
+                    },
                     contentDescription = null,
                 )
             } ?: CltShimmer(
@@ -200,9 +226,9 @@ private fun AppBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    AppBarIconButton(
+                    IconButton(
                         onClick = {
-                            if (!state.isUpdated) return@AppBarIconButton run {
+                            if (!state.isUpdated) return@IconButton run {
                                 navController.popBackStack()
                             }
                             navController.navigateToHomeScreen(
@@ -213,10 +239,10 @@ private fun AppBar(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = null,
-                            tint = mediumOrange
+                            tint = color
                         )
                     }
-                    Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(30.dp))
                     state.restaurant?.let {
                         Text(
                             text = it.name,
@@ -225,7 +251,7 @@ private fun AppBar(
                                 x = offsetX,
                             ),
                             style = MaterialTheme.typography.h6.copy(
-                                color = mediumOrange
+                                color = color
                             )
                         )
                     } ?: CltShimmer(
@@ -238,9 +264,9 @@ private fun AppBar(
                             )
                     )
                 }
-                AppBarIconButton(
+                IconButton(
                     onClick = {
-                        state.restaurant ?: return@AppBarIconButton
+                        state.restaurant ?: return@IconButton
                         toggleFavorite()
                     }
                 ) {
@@ -251,7 +277,7 @@ private fun AppBar(
                             } else {
                                 Icons.Default.FavoriteBorder
                             },
-                            tint = mediumOrange,
+                            tint = color,
                             contentDescription = null
                         )
                     } ?: CltShimmer(
@@ -261,27 +287,6 @@ private fun AppBar(
                     )
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun AppBarIconButton(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-    content: @Composable () -> Unit
-) {
-    TextButton(
-        modifier = modifier
-            .size(48.dp)
-            .clip(CircleShape),
-        onClick = onClick
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            content()
         }
     }
 }
