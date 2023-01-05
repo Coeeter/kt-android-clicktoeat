@@ -18,16 +18,21 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.CltImageFromNetwork
 import com.nasportfolio.common.components.CltShimmer
 import com.nasportfolio.common.navigation.navigateToHomeScreen
 import com.nasportfolio.common.navigation.restaurantDetailScreenRoute
 import com.nasportfolio.common.theme.mediumOrange
+import kotlinx.coroutines.launch
 
 private const val popUpToRoute = "$restaurantDetailScreenRoute/{restaurantId}"
 
@@ -36,7 +41,20 @@ fun RestaurantDetailsScreen(
     navController: NavHostController,
     restaurantDetailsViewModel: RestaurantDetailsViewModel = hiltViewModel()
 ) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val scaffoldState = rememberScaffoldState()
     val state by restaurantDetailsViewModel.state.collectAsState()
+
+    LaunchedEffect(true) {
+        lifecycleOwner.lifecycleScope.launch {
+            lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                restaurantDetailsViewModel.errorChannel.collect {
+                    scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
+                    scaffoldState.snackbarHostState.showSnackbar(it, "Okay")
+                }
+            }
+        }
+    }
 
     BackHandler(enabled = true) {
         if (!state.isUpdated) return@BackHandler run {
@@ -47,10 +65,15 @@ fun RestaurantDetailsScreen(
         )
     }
 
-    Scaffold {
+    Scaffold(
+        scaffoldState = scaffoldState
+    ) {
         ParallaxToolbar(
             state = state,
-            navController = navController
+            navController = navController,
+            toggleFavorite = {
+                restaurantDetailsViewModel.toggleFavorite()
+            }
         ) {
             repeat(100) {
                 state.restaurant?.let {
@@ -66,6 +89,7 @@ private fun ParallaxToolbar(
     modifier: Modifier = Modifier,
     state: RestaurantsDetailState,
     navController: NavHostController,
+    toggleFavorite: () -> Unit,
     content: @Composable () -> Unit
 ) {
     val scrollState = rememberScrollState()
@@ -75,7 +99,8 @@ private fun ParallaxToolbar(
             modifier = Modifier.zIndex(10f),
             state = state,
             scrollState = scrollState,
-            navController = navController
+            navController = navController,
+            toggleFavorite = toggleFavorite
         )
         Column(
             modifier = Modifier
@@ -98,6 +123,7 @@ private fun AppBar(
     state: RestaurantsDetailState,
     scrollState: ScrollState,
     navController: NavHostController,
+    toggleFavorite: () -> Unit
 ) {
     val density = LocalDensity.current
 
@@ -215,6 +241,7 @@ private fun AppBar(
                 AppBarIconButton(
                     onClick = {
                         state.restaurant ?: return@AppBarIconButton
+                        toggleFavorite()
                     }
                 ) {
                     state.restaurant?.let {

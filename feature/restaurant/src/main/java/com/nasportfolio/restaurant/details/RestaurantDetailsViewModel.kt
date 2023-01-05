@@ -3,6 +3,7 @@ package com.nasportfolio.restaurant.details
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nasportfolio.domain.favorites.usecases.ToggleFavoriteUseCase
 import com.nasportfolio.domain.restaurant.usecases.GetRestaurantsUseCase
 import com.nasportfolio.domain.utils.Resource
 import com.nasportfolio.domain.utils.ResourceError
@@ -10,12 +11,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
 class RestaurantDetailsViewModel @Inject constructor(
     private val getRestaurantsUseCase: GetRestaurantsUseCase,
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _state = MutableStateFlow(RestaurantsDetailState())
@@ -52,5 +55,33 @@ class RestaurantDetailsViewModel @Inject constructor(
                 }
             }
         }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
+    }
+
+    fun toggleFavorite() {
+        _state.value.restaurant ?: return
+        viewModelScope.launch {
+            val restaurant = state.value.restaurant!!
+            lateinit var oldState: RestaurantsDetailState
+            _state.update { state ->
+                oldState = state
+                state.copy(
+                    restaurant = state.restaurant!!.copy(
+                        isFavoriteByCurrentUser = !state.restaurant.isFavoriteByCurrentUser
+                    )
+                )
+            }
+            when (val resource = toggleFavoriteUseCase(restaurant)) {
+                is Resource.Failure -> {
+                    _state.value = oldState
+                    if (resource.error !is ResourceError.DefaultError) return@launch
+                    val defaultError = resource.error as ResourceError.DefaultError
+                    _errorChannel.send(defaultError.error)
+                }
+                is Resource.Success -> _state.update { state ->
+                    state.copy(isUpdated = true)
+                }
+                else -> Unit
+            }
+        }
     }
 }
