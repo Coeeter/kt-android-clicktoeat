@@ -3,13 +3,12 @@ package com.nasportfolio.common.components
 import android.graphics.BitmapFactory
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.DefaultAlpha
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,6 +21,7 @@ fun CltImageFromNetwork(
     url: String,
     placeholder: @Composable () -> Unit,
     contentDescription: String?,
+    backgroundColor: Color = Color.White,
     alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Fit,
     alpha: Float = DefaultAlpha,
@@ -49,16 +49,17 @@ fun CltImageFromNetwork(
         }
     ) { targetState ->
         targetState?.let {
-            Image(
-                bitmap = it,
-                modifier = modifier,
-                contentDescription = contentDescription,
-                alignment = alignment,
-                contentScale = contentScale,
-                alpha = alpha,
-                colorFilter = colorFilter
-            )
-        }
-        targetState ?: placeholder()
+            Box(modifier = Modifier.background(backgroundColor)) {
+                Image(
+                    bitmap = it,
+                    modifier = modifier,
+                    contentDescription = contentDescription,
+                    alignment = alignment,
+                    contentScale = contentScale,
+                    alpha = alpha,
+                    colorFilter = colorFilter
+                )
+            }
+        } ?: placeholder()
     }
 }
