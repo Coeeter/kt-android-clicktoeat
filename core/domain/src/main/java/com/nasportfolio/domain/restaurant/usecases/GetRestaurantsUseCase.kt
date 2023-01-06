@@ -9,6 +9,8 @@ import com.nasportfolio.domain.restaurant.TransformedRestaurant
 import com.nasportfolio.domain.user.usecases.GetCurrentLoggedInUser
 import com.nasportfolio.domain.utils.Resource
 import com.nasportfolio.domain.utils.ResourceError
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.last
 import javax.inject.Inject
@@ -21,76 +23,113 @@ class GetRestaurantsUseCase @Inject constructor(
 ) {
     operator fun invoke() = flow<Resource<List<TransformedRestaurant>>> {
         emit(Resource.Loading(isLoading = true))
-        val otherData = getOtherData()
-        if (otherData !is Resource.Success) return@flow emit(
-            Resource.Failure((otherData as Resource.Failure).error)
-        )
-        val restaurants = restaurantRepository.getAllRestaurants()
-        if (restaurants !is Resource.Success) return@flow emit(
-            Resource.Failure((restaurants as Resource.Failure).error)
-        )
-        val transformedRestaurants = restaurants.result.map { restaurant ->
-            transformData(
-                restaurant = restaurant,
-                favoritesOfUser = otherData.result.favorites,
-                comments = otherData.result.comments
+        val transformedRestaurants = coroutineScope {
+            val deferredOtherData = async {
+                getOtherData()
+            }
+            val deferredRestaurants = async {
+                restaurantRepository.getAllRestaurants()
+            }
+            transformMultipleData(
+                restaurants = when (val restaurants = deferredRestaurants.await()) {
+                    is Resource.Success -> restaurants.result
+                    is Resource.Failure -> {
+                        emit(Resource.Failure(restaurants.error))
+                        return@coroutineScope null
+                    }
+                    else -> throw IllegalStateException()
+                },
+                otherData = when (val otherData = deferredOtherData.await()) {
+                    is Resource.Success -> otherData.result
+                    is Resource.Failure -> {
+                        emit(Resource.Failure(otherData.error))
+                        return@coroutineScope null
+                    }
+                    else -> throw IllegalStateException()
+                }
             )
-        }
+        } ?: return@flow
         emit(Resource.Success(transformedRestaurants))
     }
 
     fun getById(restaurantId: String) = flow<Resource<TransformedRestaurant>> {
         emit(Resource.Loading(isLoading = true))
-        val otherData = getOtherData()
-        if (otherData !is Resource.Success) return@flow emit(
-            Resource.Failure((otherData as Resource.Failure).error)
-        )
-        val restaurant = restaurantRepository.getRestaurantById(id = restaurantId)
-        if (restaurant !is Resource.Success) return@flow emit(
-            Resource.Failure((restaurant as Resource.Failure).error)
-        )
-        emit(
-            Resource.Success(
-                transformData(
-                    restaurant = restaurant.result,
-                    comments = otherData.result.comments,
-                    favoritesOfUser = otherData.result.favorites
-                )
+        val transformedRestaurant = coroutineScope {
+            val deferredOtherData = async {
+                getOtherData()
+            }
+            val deferredRestaurant = async {
+                restaurantRepository.getRestaurantById(id = restaurantId)
+            }
+            transformData(
+                restaurant = when (val restaurant = deferredRestaurant.await()) {
+                    is Resource.Success -> restaurant.result
+                    is Resource.Failure -> {
+                        emit(Resource.Failure(restaurant.error))
+                        return@coroutineScope null
+                    }
+                    else -> throw IllegalStateException()
+                },
+                otherData = when (val otherData = deferredOtherData.await()) {
+                    is Resource.Success -> otherData.result
+                    is Resource.Failure -> {
+                        emit(Resource.Failure(otherData.error))
+                        return@coroutineScope null
+                    }
+                    else -> throw IllegalStateException()
+                }
+            )
+        } ?: return@flow
+        emit(Resource.Success(transformedRestaurant))
+    }
+
+    private suspend fun getOtherData(): Resource<OtherData> = coroutineScope {
+        val deferredFavRestaurants = async {
+            val userId = getUserId() ?: return@async Resource.Failure<List<Restaurant>>(
+                ResourceError.DefaultError("Must be logged in to do this action")
+            )
+            favoriteRepository.getFavoriteRestaurantsOfUser(
+                userId = userId
+            )
+        }
+        val deferredComments = async {
+            commentRepository.getAllComments()
+        }
+        return@coroutineScope Resource.Success(
+            OtherData(
+                comments = when (val comments = deferredComments.await()) {
+                    is Resource.Success -> comments.result
+                    is Resource.Failure -> return@coroutineScope Resource.Failure(
+                        comments.error
+                    )
+                    else -> throw IllegalStateException()
+                },
+                favorites = when (val favorites = deferredFavRestaurants.await()) {
+                    is Resource.Success -> favorites.result
+                    is Resource.Failure -> return@coroutineScope Resource.Failure(
+                        favorites.error
+                    )
+                    else -> throw IllegalStateException()
+                }
             )
         )
     }
 
-    private suspend fun getOtherData(): Resource<OtherData> {
-        val userId = getUserId() ?: return Resource.Failure(
-            ResourceError.DefaultError("Must be logged in to do this action")
-        )
-        val favoriteRestaurants = favoriteRepository.getFavoriteRestaurantsOfUser(
-            userId = userId
-        )
-        if (favoriteRestaurants !is Resource.Success) return Resource.Failure(
-            (favoriteRestaurants as Resource.Failure).error
-        )
-        val comments = commentRepository.getAllComments()
-        if (comments !is Resource.Success) return Resource.Failure(
-            (comments as Resource.Failure).error
-        )
-        return Resource.Success(
-            OtherData(
-                comments = comments.result,
-                favorites = favoriteRestaurants.result
-            )
-        )
+    private fun transformMultipleData(
+        restaurants: List<Restaurant>,
+        otherData: OtherData
+    ): List<TransformedRestaurant> = restaurants.map {
+        transformData(restaurant = it, otherData = otherData)
     }
 
     private fun transformData(
         restaurant: Restaurant,
-        favoritesOfUser: List<Restaurant>,
-        comments: List<Comment>,
+        otherData: OtherData
     ): TransformedRestaurant {
-        val commentsOfRestaurant = comments.filter { comment ->
+        val commentsOfRestaurant = otherData.comments.filter { comment ->
             comment.restaurant.id == restaurant.id
         }
-        val isFavorited = favoritesOfUser.map { it.id }.contains(restaurant.id)
+        val isFavorited = otherData.favorites.map { it.id }.contains(restaurant.id)
         return TransformedRestaurant(
             id = restaurant.id,
             name = restaurant.name,

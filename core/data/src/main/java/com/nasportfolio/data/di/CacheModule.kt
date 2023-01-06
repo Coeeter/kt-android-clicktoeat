@@ -18,7 +18,7 @@ object CacheModule {
     fun providesLruCache(
         runtime: Runtime
     ): LruCache<String, Bitmap> = object : LruCache<String, Bitmap>(
-        runtime.maxMemory().toInt() / 8192
+        (runtime.maxMemory().toInt() / 1024) / 2
     ) {
         override fun sizeOf(key: String, value: Bitmap) = value.byteCount / 1024
     }

@@ -28,12 +28,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.CltImageFromNetwork
 import com.nasportfolio.common.components.CltShimmer
+import com.nasportfolio.common.navigation.homeScreenRoute
 import com.nasportfolio.common.navigation.navigateToHomeScreen
-import com.nasportfolio.common.navigation.restaurantDetailScreenRoute
 import com.nasportfolio.common.theme.mediumOrange
 import kotlinx.coroutines.launch
-
-private const val popUpToRoute = "$restaurantDetailScreenRoute/{restaurantId}"
 
 @Composable
 fun RestaurantDetailsScreen(
@@ -60,7 +58,7 @@ fun RestaurantDetailsScreen(
             navController.popBackStack()
         }
         navController.navigateToHomeScreen(
-            popUpTo = popUpToRoute
+            popUpTo = homeScreenRoute
         )
     }
 
@@ -232,7 +230,7 @@ private fun AppBar(
                                 navController.popBackStack()
                             }
                             navController.navigateToHomeScreen(
-                                popUpTo = popUpToRoute
+                                popUpTo = homeScreenRoute
                             )
                         }
                     ) {
