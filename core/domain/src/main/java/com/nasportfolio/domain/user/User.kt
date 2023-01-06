@@ -1,6 +1,6 @@
 package com.nasportfolio.domain.user
 
-import com.nasportfolio.domain.common.Image
+import com.nasportfolio.domain.image.Image
 
 data class User(
     val id: String,

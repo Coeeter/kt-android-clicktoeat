@@ -4,6 +4,7 @@ import com.nasportfolio.data.branch.BranchRepositoryImpl
 import com.nasportfolio.data.comment.CommentRepositoryImpl
 import com.nasportfolio.data.dislike.DislikeRepositoryImpl
 import com.nasportfolio.data.favorite.FavoriteRepositoryImpl
+import com.nasportfolio.data.image.ImageRepositoryImpl
 import com.nasportfolio.data.like.LikeRepositoryImpl
 import com.nasportfolio.data.restaurant.RestaurantRepositoryImpl
 import com.nasportfolio.data.user.UserRepositoryImpl
@@ -11,6 +12,7 @@ import com.nasportfolio.domain.branch.BranchRepository
 import com.nasportfolio.domain.comment.CommentRepository
 import com.nasportfolio.domain.dislike.DislikeRepository
 import com.nasportfolio.domain.favorites.FavoriteRepository
+import com.nasportfolio.domain.image.ImageRepository
 import com.nasportfolio.domain.like.LikeRepository
 import com.nasportfolio.domain.restaurant.RestaurantRepository
 import com.nasportfolio.domain.user.UserRepository
@@ -58,5 +60,10 @@ abstract class RepoModule {
     abstract fun bindsDislikeRepository(
         dislikeRepositoryImpl: DislikeRepositoryImpl
     ): DislikeRepository
+
+    @Binds
+    abstract fun bindsImageRepository(
+        imageRepositoryImpl: ImageRepositoryImpl
+    ): ImageRepository
 
 }

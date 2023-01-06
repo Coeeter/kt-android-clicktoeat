@@ -1,7 +1,7 @@
 package com.nasportfolio.domain.restaurant
 
 import com.nasportfolio.domain.branch.Branch
-import com.nasportfolio.domain.common.Image
+import com.nasportfolio.domain.image.Image
 
 data class Restaurant(
     val id: String,

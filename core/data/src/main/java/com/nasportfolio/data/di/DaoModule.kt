@@ -8,6 +8,10 @@ import com.nasportfolio.data.dislike.remote.RemoteDislikeDao
 import com.nasportfolio.data.dislike.remote.RemoteDislikeDaoImpl
 import com.nasportfolio.data.favorite.remote.RemoteFavoriteDao
 import com.nasportfolio.data.favorite.remote.RemoteFavoriteDaoImpl
+import com.nasportfolio.data.image.local.LocalImageDao
+import com.nasportfolio.data.image.local.LocalImageDaoImpl
+import com.nasportfolio.data.image.remote.RemoteImageDao
+import com.nasportfolio.data.image.remote.RemoteImageDaoImpl
 import com.nasportfolio.data.like.remote.RemoteLikeDao
 import com.nasportfolio.data.like.remote.RemoteLikeDaoImpl
 import com.nasportfolio.data.restaurant.remote.RemoteRestaurantDao
@@ -64,5 +68,15 @@ abstract class DaoModule {
     abstract fun bindsRemoteDislikeDao(
         remoteDislikeDaoImpl: RemoteDislikeDaoImpl
     ): RemoteDislikeDao
+
+    @Binds
+    abstract fun bindsLocalImageDao(
+        localImageDaoImpl: LocalImageDaoImpl
+    ): LocalImageDao
+
+    @Binds
+    abstract fun bindsRemoteImageDao(
+        remoteImageDaoImpl: RemoteImageDaoImpl
+    ): RemoteImageDao
 
 }

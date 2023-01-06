@@ -1,4 +1,4 @@
-package com.nasportfolio.domain.common
+package com.nasportfolio.domain.image
 
 data class Image(
     val id: Int,

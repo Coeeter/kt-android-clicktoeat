@@ -259,8 +259,8 @@ private fun AppBar(
                             .width(150.dp)
                             .height(24.dp)
                             .offset(
-                                y = height - 55.dp,
-                                x = (-50).dp
+                                y = height - 56.dp,
+                                x = (-64).dp
                             )
                     )
                 }
