@@ -65,7 +65,7 @@ class HomeViewModel @Inject constructor(
             when (it) {
                 is Resource.Success -> _state.update { state ->
                     state.copy(
-                        restaurantList = it.result,
+                        restaurantList = it.result.sortedBy { it.name },
                         isLoading = false
                     )
                 }

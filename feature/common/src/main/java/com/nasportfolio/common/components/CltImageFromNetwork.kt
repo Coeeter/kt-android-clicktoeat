@@ -1,5 +1,6 @@
 package com.nasportfolio.common.components
 
+import android.graphics.Bitmap
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,6 +15,7 @@ import androidx.lifecycle.ViewModel
 import com.nasportfolio.domain.image.ImageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -46,7 +48,7 @@ fun CltImageFromNetwork(
         }
     }
 
-    Box(modifier = modifier,) {
+    Box(modifier = modifier) {
         image?.let {
             Box(modifier = Modifier.background(backgroundColor)) {
                 Image(
@@ -69,5 +71,9 @@ fun CltImageFromNetwork(
 class CltImageViewModel @Inject constructor(
     private val imageRepository: ImageRepository
 ) : ViewModel() {
-    fun getImage(url: String) = imageRepository.getImage(url)
+    suspend fun getImage(url: String): Bitmap = coroutineScope {
+        withContext(Dispatchers.IO) {
+            imageRepository.getImage(url)
+        }
+    }
 }
