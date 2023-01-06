@@ -33,19 +33,12 @@ fun CltImageFromNetwork(
     colorFilter: ColorFilter? = null,
     cltImageViewModel: CltImageViewModel = hiltViewModel()
 ) {
-    var isLoading by remember {
-        mutableStateOf(true)
-    }
     var image by remember {
         mutableStateOf<ImageBitmap?>(null)
     }
 
     LaunchedEffect(true) {
-        isLoading = true
-        withContext(Dispatchers.IO) {
-            image = cltImageViewModel.getImage(url).asImageBitmap()
-            isLoading = false
-        }
+        image = cltImageViewModel.getImage(url).asImageBitmap()
     }
 
     Box(modifier = modifier) {
@@ -61,9 +54,7 @@ fun CltImageFromNetwork(
                     colorFilter = colorFilter
                 )
             }
-        }
-        if (isLoading)
-            placeholder()
+        } ?: placeholder()
     }
 }
 
