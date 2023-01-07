@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nasportfolio.domain.favorites.usecases.ToggleFavoriteUseCase
 import com.nasportfolio.domain.restaurant.usecases.GetRestaurantsUseCase
+import com.nasportfolio.domain.user.usecases.GetCurrentLoggedInUser
 import com.nasportfolio.domain.utils.Resource
 import com.nasportfolio.domain.utils.ResourceError
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,6 +20,7 @@ import javax.inject.Inject
 class RestaurantDetailsViewModel @Inject constructor(
     private val getRestaurantsUseCase: GetRestaurantsUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
+    private val getCurrentLoggedInUser: GetCurrentLoggedInUser,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _state = MutableStateFlow(RestaurantsDetailState())
@@ -66,7 +68,12 @@ class RestaurantDetailsViewModel @Inject constructor(
                 oldState = state
                 state.copy(
                     restaurant = state.restaurant!!.copy(
-                        isFavoriteByCurrentUser = !state.restaurant.isFavoriteByCurrentUser
+                        isFavoriteByCurrentUser = !state.restaurant.isFavoriteByCurrentUser,
+                        favoriteSize = if (state.restaurant.isFavoriteByCurrentUser) {
+                            state.restaurant.favoriteSize - 1
+                        } else {
+                            state.restaurant.favoriteSize + 1
+                        }
                     )
                 )
             }

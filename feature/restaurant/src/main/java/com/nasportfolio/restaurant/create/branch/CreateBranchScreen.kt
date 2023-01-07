@@ -37,6 +37,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.nasportfolio.common.components.CltButton
 import com.nasportfolio.common.components.CltInput
+import com.nasportfolio.common.navigation.homeScreenRoute
 import com.nasportfolio.common.navigation.navigateToHomeScreen
 import com.nasportfolio.common.theme.mediumOrange
 import kotlinx.coroutines.launch
@@ -76,7 +77,7 @@ fun CreateBranchScreen(
     LaunchedEffect(state.isError, state.isCreated) {
         if (!state.isError && !state.isCreated) return@LaunchedEffect
         navController.navigateToHomeScreen(
-            popUpTo = "$createBranchViewModel/{restaurantId}"
+            popUpTo = homeScreenRoute
         )
     }
 
@@ -89,7 +90,7 @@ fun CreateBranchScreen(
                     IconButton(
                         onClick = {
                             navController.navigateToHomeScreen(
-                                popUpTo = "$createBranchViewModel/{restaurantId}"
+                                popUpTo = homeScreenRoute
                             )
                         }
                     ) {

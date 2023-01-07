@@ -6,10 +6,12 @@ import com.nasportfolio.domain.favorites.FavoriteRepository
 import com.nasportfolio.domain.restaurant.Restaurant
 import com.nasportfolio.domain.restaurant.RestaurantRepository
 import com.nasportfolio.domain.restaurant.TransformedRestaurant
+import com.nasportfolio.domain.user.User
 import com.nasportfolio.domain.user.usecases.GetCurrentLoggedInUser
 import com.nasportfolio.domain.utils.Resource
 import com.nasportfolio.domain.utils.ResourceError
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.last
@@ -28,17 +30,29 @@ class GetRestaurantsUseCase @Inject constructor(
                 getOtherData()
             }
             val deferredRestaurants = async {
-                restaurantRepository.getAllRestaurants()
+                val restaurants = restaurantRepository.getAllRestaurants()
+                if (restaurants !is Resource.Success) {
+                    emit(Resource.Failure((restaurants as Resource.Failure).error))
+                    return@async null
+                }
+                val deferredFavorites = restaurants.result.map {
+                    async {
+                        favoriteRepository.getUsersWhoFavoriteRestaurant(it.id)
+                    }
+                }
+                val favorites = deferredFavorites.awaitAll().map {
+                    if (it !is Resource.Success) {
+                        emit(Resource.Failure((it as Resource.Failure).error))
+                        return@async null
+                    }
+                    it.result
+                }
+                RestaurantsWithFav(
+                    restaurants = restaurants.result,
+                    favoriteUsers = favorites
+                )
             }
             transformMultipleData(
-                restaurants = when (val restaurants = deferredRestaurants.await()) {
-                    is Resource.Success -> restaurants.result
-                    is Resource.Failure -> {
-                        emit(Resource.Failure(restaurants.error))
-                        return@coroutineScope null
-                    }
-                    else -> throw IllegalStateException()
-                },
                 otherData = when (val otherData = deferredOtherData.await()) {
                     is Resource.Success -> otherData.result
                     is Resource.Failure -> {
@@ -46,7 +60,8 @@ class GetRestaurantsUseCase @Inject constructor(
                         return@coroutineScope null
                     }
                     else -> throw IllegalStateException()
-                }
+                },
+                restaurantsWithFav = deferredRestaurants.await() ?: return@coroutineScope null
             )
         } ?: return@flow
         emit(Resource.Success(transformedRestaurants))
@@ -60,6 +75,9 @@ class GetRestaurantsUseCase @Inject constructor(
             }
             val deferredRestaurant = async {
                 restaurantRepository.getRestaurantById(id = restaurantId)
+            }
+            val deferredFavorites = async {
+                favoriteRepository.getUsersWhoFavoriteRestaurant(restaurantId = restaurantId)
             }
             transformData(
                 restaurant = when (val restaurant = deferredRestaurant.await()) {
@@ -77,7 +95,15 @@ class GetRestaurantsUseCase @Inject constructor(
                         return@coroutineScope null
                     }
                     else -> throw IllegalStateException()
-                }
+                },
+                usersWhoFavorite = when (val favorites = deferredFavorites.await()) {
+                    is Resource.Success -> favorites.result
+                    is Resource.Failure -> {
+                        emit(Resource.Failure(favorites.error))
+                        return@coroutineScope null
+                    }
+                    else -> throw IllegalStateException()
+                },
             )
         } ?: return@flow
         emit(Resource.Success(transformedRestaurant))
@@ -116,15 +142,20 @@ class GetRestaurantsUseCase @Inject constructor(
     }
 
     private fun transformMultipleData(
-        restaurants: List<Restaurant>,
+        restaurantsWithFav: RestaurantsWithFav,
         otherData: OtherData
-    ): List<TransformedRestaurant> = restaurants.map {
-        transformData(restaurant = it, otherData = otherData)
+    ): List<TransformedRestaurant> = restaurantsWithFav.restaurants.mapIndexed { index, restaurant ->
+        transformData(
+            restaurant = restaurant,
+            otherData = otherData,
+            usersWhoFavorite = restaurantsWithFav.favoriteUsers[index]
+        )
     }
 
     private fun transformData(
         restaurant: Restaurant,
-        otherData: OtherData
+        otherData: OtherData,
+        usersWhoFavorite: List<User>
     ): TransformedRestaurant {
         val commentsOfRestaurant = otherData.comments.filter { comment ->
             comment.restaurant.id == restaurant.id
@@ -139,9 +170,15 @@ class GetRestaurantsUseCase @Inject constructor(
             comments = commentsOfRestaurant,
             isFavoriteByCurrentUser = isFavorited,
             averageRating = getAverageRating(commentsOfRestaurant),
-            ratingCount = commentsOfRestaurant.size
+            ratingCount = commentsOfRestaurant.size,
+            favoriteSize = usersWhoFavorite.size
         )
     }
+
+    private data class RestaurantsWithFav(
+        val restaurants: List<Restaurant>,
+        val favoriteUsers: List<List<User>>
+    )
 
     private data class OtherData(
         val comments: List<Comment>,

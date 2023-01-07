@@ -1,38 +1,38 @@
 package com.nasportfolio.restaurant.details
 
+import android.view.MotionEvent
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.*
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
-import androidx.compose.ui.zIndex
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
-import com.nasportfolio.common.components.CltImageFromNetwork
-import com.nasportfolio.common.components.CltShimmer
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.nasportfolio.common.components.CltHeading
 import com.nasportfolio.common.navigation.homeScreenRoute
 import com.nasportfolio.common.navigation.navigateToHomeScreen
 import com.nasportfolio.common.theme.mediumOrange
+import com.nasportfolio.restaurant.details.components.ParallaxToolbar
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun RestaurantDetailsScreen(
     navController: NavHostController,
@@ -41,6 +41,9 @@ fun RestaurantDetailsScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
     val scaffoldState = rememberScaffoldState()
     val state by restaurantDetailsViewModel.state.collectAsState()
+    var isScrollEnabled by remember {
+        mutableStateOf(true)
+    }
 
     LaunchedEffect(true) {
         lifecycleOwner.lifecycleScope.launch {
@@ -68,221 +71,96 @@ fun RestaurantDetailsScreen(
         ParallaxToolbar(
             state = state,
             navController = navController,
+            isScrollEnabled = isScrollEnabled,
             toggleFavorite = {
                 restaurantDetailsViewModel.toggleFavorite()
             }
         ) {
-            repeat(100) {
-                state.restaurant?.let {
-                    Text(text = it.description)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ParallaxToolbar(
-    modifier: Modifier = Modifier,
-    state: RestaurantsDetailState,
-    navController: NavHostController,
-    toggleFavorite: () -> Unit,
-    content: @Composable () -> Unit
-) {
-    val scrollState = rememberScrollState()
-
-    Box(modifier = modifier.fillMaxSize()) {
-        AppBar(
-            modifier = Modifier.zIndex(10f),
-            state = state,
-            scrollState = scrollState,
-            navController = navController,
-            toggleFavorite = toggleFavorite
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-            )
-            content()
-        }
-    }
-}
-
-@Composable
-private fun AppBar(
-    modifier: Modifier = Modifier,
-    state: RestaurantsDetailState,
-    scrollState: ScrollState,
-    navController: NavHostController,
-    toggleFavorite: () -> Unit
-) {
-    val density = LocalDensity.current
-
-    var height by remember {
-        mutableStateOf(0.dp)
-    }
-
-    val transformedHeight by remember {
-        derivedStateOf {
-            max(56.dp, height - with(density) {
-                scrollState.value.toDp()
-            })
-        }
-    }
-
-    val offsetY by remember {
-        derivedStateOf {
-            max(0.dp, transformedHeight - 56.dp)
-        }
-    }
-
-    val offsetX by remember {
-        derivedStateOf {
-            val percent = transformedHeight / height
-            with(density) {
-                (percent * (-64).dp.toPx()).toDp()
-            }
-        }
-    }
-
-    val imageAlpha by remember {
-        derivedStateOf {
-            var percent = transformedHeight / height
-            if (percent < 0.2) percent = 0f
-            percent
-        }
-    }
-
-    val color by remember {
-        derivedStateOf {
-            var percent = 1 - transformedHeight / height
-            if (percent == Float.NEGATIVE_INFINITY) return@derivedStateOf Color.Black
-            if (percent > 0.85) percent = 1f
-            Color.Black.copy(green = percent, red = percent, blue = percent)
-        }
-    }
-
-    TopAppBar(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(transformedHeight)
-            .onGloballyPositioned {
-                height = with(density) {
-                    it.size.width.toDp()
-                }
-            },
-        elevation = if (scrollState.value > 0) 4.dp else 0.dp,
-        contentPadding = PaddingValues(),
-        backgroundColor = if (isSystemInDarkTheme()) {
-            MaterialTheme.colors.background
-        } else {
-            state.restaurant?.let { mediumOrange } ?: Color.White
-        }
-    ) {
-        Box {
             state.restaurant?.let {
-                CltImageFromNetwork(
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .alpha(imageAlpha)
-                        .height(transformedHeight),
-                    url = it.imageUrl,
-                    placeholder = {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(
-                                    if (isSystemInDarkTheme()) {
-                                        Color.Transparent
-                                    } else {
-                                        Color.White
-                                    }
-                                )
-                        ) {
-                            CltShimmer()
-                        }
-                    },
-                    contentDescription = null,
-                )
-            } ?: CltShimmer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-            )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .padding(2.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(
-                        onClick = {
-                            if (!state.isUpdated) return@IconButton run {
-                                navController.popBackStack()
-                            }
-                            navController.navigateToHomeScreen(
-                                popUpTo = homeScreenRoute
-                            )
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = null,
-                            tint = color
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(30.dp))
-                    state.restaurant?.let {
-                        Text(
-                            text = it.name,
-                            modifier = Modifier.offset(
-                                y = offsetY,
-                                x = offsetX,
-                            ),
-                            style = MaterialTheme.typography.h6.copy(
-                                color = color
-                            )
-                        )
-                    } ?: CltShimmer(
-                        modifier = Modifier
-                            .width(150.dp)
-                            .height(24.dp)
-                            .offset(
-                                y = height - 56.dp,
-                                x = (-64).dp
-                            )
-                    )
-                }
-                IconButton(
-                    onClick = {
-                        state.restaurant ?: return@IconButton
-                        toggleFavorite()
-                    }
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
                 ) {
-                    state.restaurant?.let {
-                        Icon(
-                            imageVector = if (it.isFavoriteByCurrentUser) {
-                                Icons.Default.Favorite
-                            } else {
-                                Icons.Default.FavoriteBorder
-                            },
-                            tint = color,
-                            contentDescription = null
-                        )
-                    } ?: CltShimmer(
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clip(CircleShape)
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Surface(
+                        elevation = 4.dp,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 5.dp, horizontal = 20.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                CltHeading(text = it.averageRating.toString())
+                                Text(text = "AVG Rating")
+                            }
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                CltHeading(text = it.ratingCount.toString())
+                                Text(text = "Reviews")
+                            }
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                CltHeading(text = it.favoriteSize.toString())
+                                Text(text = "Favorites")
+                            }
+                        }
+
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    CltHeading(
+                        text = "Description",
+                        textAlign = TextAlign.Start,
+                        fontSize = 30.sp,
+                        modifier = Modifier.fillMaxWidth()
                     )
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Text(
+                        text = it.description,
+                        style = MaterialTheme.typography.h6.copy(
+                            fontWeight = FontWeight.Normal
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    CltHeading(
+                        text = "Branches",
+                        textAlign = TextAlign.Start,
+                        fontSize = 30.sp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(5.dp))
+                    GoogleMap(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
+                            .border(2.dp, mediumOrange)
+                            .motionEventSpy {
+                                when (it.action) {
+                                    MotionEvent.ACTION_DOWN -> {
+                                        isScrollEnabled = false
+                                    }
+                                    MotionEvent.ACTION_UP -> {
+                                        isScrollEnabled = true
+                                    }
+                                }
+                            }
+                    ) {
+                        repeat(it.branches.size) { index ->
+                            val branch = it.branches[index]
+                            Marker(
+                                state = MarkerState(
+                                    position = LatLng(
+                                        branch.latitude,
+                                        branch.longitude
+                                    )
+                                ),
+                                title = branch.address
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
                 }
             }
         }
