@@ -88,59 +88,77 @@ fun BranchesSection(
         )
         Spacer(modifier = Modifier.height(5.dp))
         state.currentLocation?.let { currentLocation ->
-            GoogleMap(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-                    .border(2.dp, mediumOrange)
-                    .motionEventSpy {
-                        when (it.action) {
-                            MotionEvent.ACTION_DOWN -> {
-                                setIsScrollEnabled(false)
-                            }
-                            MotionEvent.ACTION_UP -> {
-                                setIsScrollEnabled(true)
-                            }
-                        }
-                    },
+            Map(
+                setIsScrollEnabled = setIsScrollEnabled,
                 cameraPositionState = cameraPositionState,
-                onMapLoaded = { isMapLoaded = true }
-            ) {
-                repeat(state.restaurant!!.branches.size) { index ->
-                    val branch = state.restaurant.branches[index]
-                    val markerState = MarkerState(
-                        position = LatLng(
-                            branch.latitude,
-                            branch.longitude
-                        )
-                    )
-                    MarkerInfoWindow(state = markerState) { marker ->
-                        Column(
-                            modifier = Modifier
-                                .background(
-                                    color = MaterialTheme.colors.background,
-                                    shape = RoundedCornerShape(10.dp)
-                                )
-                                .padding(10.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(text = state.restaurant.name)
-                            Text(text = branch.address)
-                        }
-                    }
-                }
-                Marker(
-                    state = MarkerState(
-                        position = currentLocation
-                    ),
-                    title = "Your location"
-                )
-            }
+                state = state,
+                currentLocation = currentLocation,
+                setIsMapLoaded = { isMapLoaded = it }
+            )
         } ?: CltShimmer(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
                 .border(2.dp, mediumOrange)
+        )
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun Map(
+    setIsScrollEnabled: (Boolean) -> Unit,
+    cameraPositionState: CameraPositionState,
+    state: RestaurantsDetailState,
+    currentLocation: LatLng,
+    setIsMapLoaded: (Boolean) -> Unit,
+) {
+    GoogleMap(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1f)
+            .border(2.dp, mediumOrange)
+            .motionEventSpy {
+                when (it.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        setIsScrollEnabled(false)
+                    }
+                    MotionEvent.ACTION_UP -> {
+                        setIsScrollEnabled(true)
+                    }
+                }
+            },
+        cameraPositionState = cameraPositionState,
+        onMapLoaded = { setIsMapLoaded(true) }
+    ) {
+        repeat(state.restaurant!!.branches.size) { index ->
+            val branch = state.restaurant.branches[index]
+            val markerState = MarkerState(
+                position = LatLng(
+                    branch.latitude,
+                    branch.longitude
+                )
+            )
+            MarkerInfoWindow(state = markerState) { marker ->
+                Column(
+                    modifier = Modifier
+                        .background(
+                            color = MaterialTheme.colors.background,
+                            shape = RoundedCornerShape(10.dp)
+                        )
+                        .padding(10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = state.restaurant.name)
+                    Text(text = branch.address)
+                }
+            }
+        }
+        Marker(
+            state = MarkerState(
+                position = currentLocation
+            ),
+            title = "Your location"
         )
     }
 }

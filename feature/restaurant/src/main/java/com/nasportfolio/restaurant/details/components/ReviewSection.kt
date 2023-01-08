@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
@@ -159,7 +160,7 @@ private fun EmptyReviews() {
                 }
             }
         }
-        Text(text = androidx.compose.ui.text.buildAnnotatedString {
+        Text(text = buildAnnotatedString {
             withStyle(ParagraphStyle(textAlign = TextAlign.Center)) {
                 withStyle(SpanStyle(fontSize = 24.sp)) {
                     append("No reviews yet...\n")
@@ -190,7 +191,7 @@ private fun calculatePercentOfUsers(comments: List<Comment>, rating: Int): Float
 
 @Composable
 private fun buildAnnotatedString(restaurant: TransformedRestaurant) =
-    androidx.compose.ui.text.buildAnnotatedString {
+    buildAnnotatedString {
         withStyle(
             ParagraphStyle(
                 textAlign = TextAlign.Center,
