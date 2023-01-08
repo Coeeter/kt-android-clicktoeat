@@ -10,9 +10,11 @@ import com.nasportfolio.domain.user.User
 import com.nasportfolio.domain.user.usecases.GetCurrentLoggedInUser
 import com.nasportfolio.domain.utils.Resource
 import com.nasportfolio.domain.utils.ResourceError
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.last
 import javax.inject.Inject
@@ -23,8 +25,9 @@ class GetRestaurantsUseCase @Inject constructor(
     private val commentRepository: CommentRepository,
     private val restaurantRepository: RestaurantRepository
 ) {
-    operator fun invoke() = flow<Resource<List<TransformedRestaurant>>> {
-        emit(Resource.Loading(isLoading = true))
+    @OptIn(ExperimentalCoroutinesApi::class)
+    operator fun invoke() = channelFlow<Resource<List<TransformedRestaurant>>> {
+        send(Resource.Loading(isLoading = true))
         val transformedRestaurants = coroutineScope {
             val deferredOtherData = async {
                 getOtherData()
@@ -32,7 +35,7 @@ class GetRestaurantsUseCase @Inject constructor(
             val deferredRestaurants = async {
                 val restaurants = restaurantRepository.getAllRestaurants()
                 if (restaurants !is Resource.Success) {
-                    emit(Resource.Failure((restaurants as Resource.Failure).error))
+                    send(Resource.Failure((restaurants as Resource.Failure).error))
                     return@async null
                 }
                 val deferredFavorites = restaurants.result.map {
@@ -42,7 +45,7 @@ class GetRestaurantsUseCase @Inject constructor(
                 }
                 val favorites = deferredFavorites.awaitAll().map {
                     if (it !is Resource.Success) {
-                        emit(Resource.Failure((it as Resource.Failure).error))
+                        send(Resource.Failure((it as Resource.Failure).error))
                         return@async null
                     }
                     it.result
@@ -56,19 +59,20 @@ class GetRestaurantsUseCase @Inject constructor(
                 otherData = when (val otherData = deferredOtherData.await()) {
                     is Resource.Success -> otherData.result
                     is Resource.Failure -> {
-                        emit(Resource.Failure(otherData.error))
+                        send(Resource.Failure(otherData.error))
                         return@coroutineScope null
                     }
                     else -> throw IllegalStateException()
                 },
                 restaurantsWithFav = deferredRestaurants.await() ?: return@coroutineScope null
             )
-        } ?: return@flow
-        emit(Resource.Success(transformedRestaurants))
+        } ?: return@channelFlow
+        send(Resource.Success(transformedRestaurants))
     }
 
-    fun getById(restaurantId: String) = flow<Resource<TransformedRestaurant>> {
-        emit(Resource.Loading(isLoading = true))
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getById(restaurantId: String) = channelFlow<Resource<TransformedRestaurant>> {
+        send(Resource.Loading(isLoading = true))
         val transformedRestaurant = coroutineScope {
             val deferredOtherData = async {
                 getOtherData()
@@ -83,7 +87,7 @@ class GetRestaurantsUseCase @Inject constructor(
                 restaurant = when (val restaurant = deferredRestaurant.await()) {
                     is Resource.Success -> restaurant.result
                     is Resource.Failure -> {
-                        emit(Resource.Failure(restaurant.error))
+                        send(Resource.Failure(restaurant.error))
                         return@coroutineScope null
                     }
                     else -> throw IllegalStateException()
@@ -91,7 +95,7 @@ class GetRestaurantsUseCase @Inject constructor(
                 otherData = when (val otherData = deferredOtherData.await()) {
                     is Resource.Success -> otherData.result
                     is Resource.Failure -> {
-                        emit(Resource.Failure(otherData.error))
+                        send(Resource.Failure(otherData.error))
                         return@coroutineScope null
                     }
                     else -> throw IllegalStateException()
@@ -99,14 +103,14 @@ class GetRestaurantsUseCase @Inject constructor(
                 usersWhoFavorite = when (val favorites = deferredFavorites.await()) {
                     is Resource.Success -> favorites.result
                     is Resource.Failure -> {
-                        emit(Resource.Failure(favorites.error))
+                        send(Resource.Failure(favorites.error))
                         return@coroutineScope null
                     }
                     else -> throw IllegalStateException()
                 },
             )
-        } ?: return@flow
-        emit(Resource.Success(transformedRestaurant))
+        } ?: return@channelFlow
+        send(Resource.Success(transformedRestaurant))
     }
 
     private suspend fun getOtherData(): Resource<OtherData> = coroutineScope {
@@ -144,13 +148,14 @@ class GetRestaurantsUseCase @Inject constructor(
     private fun transformMultipleData(
         restaurantsWithFav: RestaurantsWithFav,
         otherData: OtherData
-    ): List<TransformedRestaurant> = restaurantsWithFav.restaurants.mapIndexed { index, restaurant ->
-        transformData(
-            restaurant = restaurant,
-            otherData = otherData,
-            usersWhoFavorite = restaurantsWithFav.favoriteUsers[index]
-        )
-    }
+    ): List<TransformedRestaurant> =
+        restaurantsWithFav.restaurants.mapIndexed { index, restaurant ->
+            transformData(
+                restaurant = restaurant,
+                otherData = otherData,
+                usersWhoFavorite = restaurantsWithFav.favoriteUsers[index]
+            )
+        }
 
     private fun transformData(
         restaurant: Restaurant,

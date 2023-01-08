@@ -1,8 +1,15 @@
 package com.nasportfolio.restaurant.details
 
+import android.annotation.SuppressLint
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.tasks.CancellationToken
+import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.gms.tasks.OnTokenCanceledListener
 import com.nasportfolio.domain.favorites.usecases.ToggleFavoriteUseCase
 import com.nasportfolio.domain.restaurant.usecases.GetRestaurantsUseCase
 import com.nasportfolio.domain.user.usecases.GetCurrentLoggedInUser
@@ -16,11 +23,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
+@SuppressLint("MissingPermission")
 @HiltViewModel
 class RestaurantDetailsViewModel @Inject constructor(
     private val getRestaurantsUseCase: GetRestaurantsUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val getCurrentLoggedInUser: GetCurrentLoggedInUser,
+    private val fusedLocationProviderClient: FusedLocationProviderClient,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _state = MutableStateFlow(RestaurantsDetailState())
@@ -35,6 +44,33 @@ class RestaurantDetailsViewModel @Inject constructor(
         } ?: runBlocking {
             _state.update { it.copy(shouldNavigateBack = true) }
             _errorChannel.send("Unknown error has occurred. Please try again later")
+        }
+        getCurrentLocation()
+    }
+
+    private fun getCurrentLocation() {
+        val task = fusedLocationProviderClient.getCurrentLocation(
+            LocationRequest.PRIORITY_HIGH_ACCURACY,
+            object : CancellationToken() {
+                override fun isCancellationRequested() = false
+                override fun onCanceledRequested(p0: OnTokenCanceledListener) =
+                    CancellationTokenSource().token
+            }
+        )
+        task.addOnCompleteListener {
+            it.exception?.let {
+                return@addOnCompleteListener runBlocking {
+                    _errorChannel.send(it.message.toString())
+                }
+            }
+            _state.update { state ->
+                state.copy(
+                    currentLocation = LatLng(
+                        it.result.latitude,
+                        it.result.longitude
+                    )
+                )
+            }
         }
     }
 

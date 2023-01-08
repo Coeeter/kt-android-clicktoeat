@@ -1,5 +1,9 @@
 package com.nasportfolio.restaurant.home
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
@@ -11,16 +15,19 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -33,6 +40,7 @@ import com.nasportfolio.common.navigation.navigateToAuthScreen
 import com.nasportfolio.common.navigation.navigateToCreateRestaurant
 import com.nasportfolio.common.navigation.navigateToRestaurantDetails
 import com.nasportfolio.common.theme.lightOrange
+import com.nasportfolio.common.theme.mediumOrange
 import com.nasportfolio.restaurant.home.components.LoadingRestaurantCard
 import com.nasportfolio.restaurant.home.components.RestaurantCard
 import kotlinx.coroutines.launch
@@ -44,10 +52,37 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
-    val state by homeViewModel.state.collectAsState()
+    val context = LocalContext.current
     val scaffoldState = rememberScaffoldState()
+    val state by homeViewModel.state.collectAsState()
+    var permissionError by remember {
+        mutableStateOf<String?>(null)
+    }
+
+    val requestPermissions = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+    ) {
+        val hasPermissions = it[Manifest.permission.ACCESS_FINE_LOCATION] == true &&
+                it[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        if (hasPermissions) return@rememberLauncherForActivityResult
+        permissionError = "This app needs location permissions to run properly"
+    }
 
     LaunchedEffect(true) {
+        val hasFinePermission = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        val hasCoarsePermission = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        if (!hasFinePermission || !hasCoarsePermission) requestPermissions.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        )
         lifecycleOwner.lifecycleScope.launch {
             lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 homeViewModel.errorChannel.collect {
@@ -56,6 +91,12 @@ fun HomeScreen(
                 }
             }
         }
+    }
+
+    LaunchedEffect(permissionError) {
+        permissionError ?: return@LaunchedEffect
+        scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
+        scaffoldState.snackbarHostState.showSnackbar(permissionError!!, "Okay")
     }
 
     Scaffold(
@@ -129,12 +170,28 @@ fun HomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
-                        modifier = Modifier.size(250.dp),
+                        modifier = Modifier
+                            .size(250.dp)
+                            .graphicsLayer(alpha = 0.99f)
+                            .drawWithCache {
+                                onDrawWithContent {
+                                    drawContent()
+                                    drawRect(
+                                        Brush.linearGradient(
+                                            colors = listOf(
+                                                lightOrange,
+                                                mediumOrange,
+                                                lightOrange
+                                            )
+                                        ),
+                                        blendMode = BlendMode.SrcAtop
+                                    )
+                                }
+                            },
                         imageVector = Icons.Outlined.Info,
                         contentDescription = null,
-                        tint = lightOrange
                     )
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
                     Text(
                         text = "Wow such empty...",
                         style = MaterialTheme.typography.h5
