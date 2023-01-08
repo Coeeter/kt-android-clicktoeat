@@ -8,5 +8,6 @@ data class RestaurantsDetailState(
     val isLoading: Boolean = true,
     val shouldNavigateBack: Boolean = false,
     val isUpdated: Boolean = false,
-    val currentLocation: LatLng? = null
+    val currentLocation: LatLng? = null,
+    val isAnimationDone: Boolean = false
 )

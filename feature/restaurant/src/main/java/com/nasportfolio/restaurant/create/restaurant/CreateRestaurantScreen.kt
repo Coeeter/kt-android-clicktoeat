@@ -33,7 +33,6 @@ import com.nasportfolio.common.components.CltInput
 import com.nasportfolio.common.navigation.createRestaurantScreenRoute
 import com.nasportfolio.common.navigation.navigateToCreateBranch
 import com.nasportfolio.common.theme.mediumOrange
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalAnimationApi::class)

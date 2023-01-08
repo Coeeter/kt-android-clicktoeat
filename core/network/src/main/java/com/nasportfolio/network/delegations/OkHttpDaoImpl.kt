@@ -7,11 +7,13 @@ import com.nasportfolio.network.mappers.toTransformedResponse
 import com.nasportfolio.network.models.TransformedResponse
 import com.nasportfolio.network.utils.Constants.BASE_URL
 import com.nasportfolio.network.utils.await
-import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.*
-import kotlin.collections.HashMap
 
 class OkHttpDaoImpl(
     override val gson: Gson,

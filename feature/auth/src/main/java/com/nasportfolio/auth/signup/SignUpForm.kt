@@ -39,7 +39,6 @@ import com.nasportfolio.common.components.CltHeading
 import com.nasportfolio.common.components.CltInput
 import com.nasportfolio.common.navigation.authScreenRoute
 import com.nasportfolio.common.navigation.navigateToHomeScreen
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalAnimationApi::class)

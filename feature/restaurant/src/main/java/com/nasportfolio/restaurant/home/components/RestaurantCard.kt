@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.nasportfolio.common.components.CltImageFromNetwork
 import com.nasportfolio.common.components.CltShimmer
 import com.nasportfolio.common.theme.mediumOrange
+import com.nasportfolio.common.utils.toStringAsFixed
 import com.nasportfolio.domain.restaurant.TransformedRestaurant
 
 @Composable
@@ -94,7 +95,7 @@ fun RestaurantCard(
                     )
                     Spacer(modifier = Modifier.width(2.dp))
                     Text(
-                        text = restaurant.averageRating.toString(),
+                        text = restaurant.averageRating.toStringAsFixed(1),
                         fontWeight = FontWeight.Bold
                     )
                     Text(text = "/5")

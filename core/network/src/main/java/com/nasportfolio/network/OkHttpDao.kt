@@ -2,7 +2,6 @@ package com.nasportfolio.network
 
 import com.google.gson.Gson
 import com.nasportfolio.network.models.TransformedResponse
-import java.io.File
 
 interface OkHttpDao {
 

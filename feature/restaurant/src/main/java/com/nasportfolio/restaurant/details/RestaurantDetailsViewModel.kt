@@ -127,4 +127,10 @@ class RestaurantDetailsViewModel @Inject constructor(
             }
         }
     }
+
+    fun setAnimationIsDone(isDone: Boolean) {
+        _state.update { state ->
+            state.copy(isAnimationDone = isDone)
+        }
+    }
 }
