@@ -63,9 +63,7 @@ fun RestaurantDetailsScreen(
         )
     }
 
-    Scaffold(
-        scaffoldState = scaffoldState
-    ) {
+    Scaffold(scaffoldState = scaffoldState) {
         ParallaxToolbar(
             state = state,
             navController = navController,

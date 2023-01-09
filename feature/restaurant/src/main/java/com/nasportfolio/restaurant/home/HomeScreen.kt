@@ -33,6 +33,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.nasportfolio.common.components.CltFloatingActionButton
 import com.nasportfolio.common.modifier.scrollEnabled
 import com.nasportfolio.common.navigation.homeScreenRoute
@@ -136,19 +138,21 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            LazyVerticalGrid(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .scrollEnabled(enabled = !state.isLoading),
-                cells = GridCells.Fixed(2),
-                contentPadding = PaddingValues(5.dp)
+            SwipeRefresh(
+                state = rememberSwipeRefreshState(isRefreshing = state.isRefreshing),
+                onRefresh = { homeViewModel.refreshPage() }
             ) {
-                if (state.isLoading)
-                    items(10) {
+                LazyVerticalGrid(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .scrollEnabled(enabled = !state.isLoading),
+                    cells = GridCells.Fixed(2),
+                    contentPadding = PaddingValues(5.dp)
+                ) {
+                    if (state.isLoading) items(10) {
                         LoadingRestaurantCard()
                     }
-                if (!state.isLoading)
-                    items(state.restaurantList) {
+                    if (!state.isLoading) items(state.restaurantList) {
                         RestaurantCard(
                             restaurant = it,
                             toggleFavorite = { restaurantId ->
@@ -161,9 +165,8 @@ fun HomeScreen(
                             }
                         )
                     }
-            }
-            if (!state.isLoading)
-                state.restaurantList.firstOrNull() ?: Column(
+                }
+                if (!state.isLoading && state.restaurantList.isEmpty()) Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(10.dp),
@@ -203,6 +206,7 @@ fun HomeScreen(
                         )
                     )
                 }
+            }
         }
     }
 }

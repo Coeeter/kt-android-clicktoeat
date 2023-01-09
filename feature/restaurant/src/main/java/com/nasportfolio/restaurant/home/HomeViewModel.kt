@@ -30,6 +30,13 @@ class HomeViewModel @Inject constructor(
         getRestaurants()
     }
 
+    fun refreshPage() {
+        _state.update { state ->
+            state.copy(isRefreshing = true)
+        }
+        getRestaurants()
+    }
+
     fun toggleFavorite(restaurantId: String) {
         viewModelScope.launch {
             val index = _state.value.restaurantList.map { it.id }.indexOf(restaurantId)
@@ -66,12 +73,16 @@ class HomeViewModel @Inject constructor(
                 is Resource.Success -> _state.update { state ->
                     state.copy(
                         restaurantList = it.result.sortedBy { it.name },
-                        isLoading = false
+                        isLoading = false,
+                        isRefreshing = false
                     )
                 }
                 is Resource.Failure -> {
                     _state.update { state ->
-                        state.copy(isLoading = false)
+                        state.copy(
+                            isLoading = false,
+                            isRefreshing = false
+                        )
                     }
                     if (it.error !is ResourceError.DefaultError) return@onEach
                     val defaultError = it.error as ResourceError.DefaultError
