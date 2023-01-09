@@ -94,13 +94,12 @@ fun CltButton(
                 .then(modifier),
             contentAlignment = Alignment.Center
         ) {
-            if (!withLoading)
-                return@Box Text(
-                    text = text,
-                    color = Color.White,
-                    style = MaterialTheme.typography.h6
-                )
-            AnimatedContent(targetState = !enabled) { isLoading ->
+            if (!withLoading) Text(
+                text = text,
+                color = Color.White,
+                style = MaterialTheme.typography.h6
+            )
+            if (withLoading) AnimatedContent(targetState = !enabled) { isLoading ->
                 if (isLoading)
                     return@AnimatedContent CircularProgressIndicator(
                         modifier = Modifier.size(26.dp),
