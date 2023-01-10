@@ -6,6 +6,8 @@ interface CommentRepository {
 
     suspend fun getAllComments(): Resource<List<Comment>>
 
+    suspend fun getCommentById(id: String): Resource<Comment>
+
     suspend fun getCommentsByUser(userId: String): Resource<List<Comment>>
 
     suspend fun getCommentsByRestaurant(restaurantId: String): Resource<List<Comment>>

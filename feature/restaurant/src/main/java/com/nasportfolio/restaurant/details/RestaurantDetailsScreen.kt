@@ -69,7 +69,9 @@ fun RestaurantDetailsScreen(
             navController = navController,
             isScrollEnabled = isScrollEnabled,
             toggleFavorite = {
-                restaurantDetailsViewModel.toggleFavorite()
+                restaurantDetailsViewModel.onEvent(
+                    event = RestaurantDetailsEvent.ToggleFavoriteEvent
+                )
             }
         ) {
             state.restaurant?.let { restaurant ->
@@ -101,11 +103,16 @@ fun RestaurantDetailsScreen(
                             isScrollEnabled = it
                         },
                         setIsAnimationDone = {
-                            restaurantDetailsViewModel.setAnimationIsDone(it)
+                            restaurantDetailsViewModel.onEvent(
+                                event = RestaurantDetailsEvent.AnimationOverEvent(it)
+                            )
                         }
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    ReviewSection(restaurant = restaurant)
+                    ReviewSection(
+                        restaurant = restaurant,
+                        restaurantDetailsViewModel = restaurantDetailsViewModel
+                    )
                     Spacer(modifier = Modifier.height(10.dp))
                 }
             }

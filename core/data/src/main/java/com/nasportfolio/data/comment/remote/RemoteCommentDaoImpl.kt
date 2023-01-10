@@ -51,6 +51,28 @@ class RemoteCommentDaoImpl @Inject constructor(
             }
         }
 
+    override suspend fun getCommentById(id: String): Resource<Comment> =
+        tryWithIoHandling {
+            val (json, code) = get("/$id")
+            json ?: return@tryWithIoHandling Resource.Failure(
+                ResourceError.DefaultError(NO_RESPONSE)
+            )
+            return@tryWithIoHandling when (code) {
+                200 -> Resource.Success(
+                    gson.fromJson(
+                        json,
+                        object : TypeToken<Comment>() {}.type
+                    )
+                )
+                else -> Resource.Failure(
+                    gson.fromJson<ResourceError.DefaultError>(
+                        json,
+                        object : TypeToken<ResourceError.DefaultError>() {}.type
+                    )
+                )
+            }
+        }
+
     override suspend fun getCommentsByUser(userId: String): Resource<List<Comment>> =
         tryWithIoHandling {
             val (json, code) = get(endpoint = "?user=$userId")

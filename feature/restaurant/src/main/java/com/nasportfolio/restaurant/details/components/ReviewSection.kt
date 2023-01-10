@@ -1,5 +1,12 @@
 package com.nasportfolio.restaurant.details.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -14,9 +21,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,12 +43,15 @@ import com.nasportfolio.common.theme.mediumOrange
 import com.nasportfolio.common.utils.toStringAsFixed
 import com.nasportfolio.domain.comment.Comment
 import com.nasportfolio.domain.restaurant.TransformedRestaurant
+import com.nasportfolio.restaurant.details.RestaurantDetailsEvent
+import com.nasportfolio.restaurant.details.RestaurantDetailsViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ReviewSection(
     restaurant: TransformedRestaurant,
+    restaurantDetailsViewModel: RestaurantDetailsViewModel
 ) {
     Column {
         Row(
@@ -61,7 +69,7 @@ fun ReviewSection(
                 }
         }
         Spacer(modifier = Modifier.height(5.dp))
-        CreateReviewForm()
+        CreateReviewForm(restaurantDetailsViewModel = restaurantDetailsViewModel)
         Spacer(modifier = Modifier.height(5.dp))
         if (restaurant.comments.isNotEmpty()) Reviews(restaurant)
         if (restaurant.comments.isEmpty()) EmptyReviews()
@@ -70,12 +78,16 @@ fun ReviewSection(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun CreateReviewForm() {
+private fun CreateReviewForm(
+    restaurantDetailsViewModel: RestaurantDetailsViewModel
+) {
     val focusManager = LocalFocusManager.current
     val scope = rememberCoroutineScope()
     val bringIntoViewRequester = remember {
         BringIntoViewRequester()
     }
+
+    val state by restaurantDetailsViewModel.state.collectAsState()
 
     Column {
         CltInput(
@@ -85,16 +97,22 @@ private fun CreateReviewForm() {
                     bringIntoViewRequester.bringIntoView()
                 }
             },
-            value = "",
+            value = state.review,
             label = "Review",
-            error = null,
+            error = state.reviewError,
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done
             ),
             keyboardActions = KeyboardActions(
                 onDone = { focusManager.clearFocus() }
             ),
-            onValueChange = {}
+            onValueChange = {
+                restaurantDetailsViewModel.onEvent(
+                    RestaurantDetailsEvent.OnReviewChangedEvent(
+                        review = it
+                    )
+                )
+            }
         )
         Spacer(modifier = Modifier.height(5.dp))
         Row(
@@ -109,11 +127,22 @@ private fun CreateReviewForm() {
                         .clip(CircleShape)
                         .size(35.dp),
                     contentPadding = PaddingValues(5.dp),
-                    onClick = { /*TODO*/ }
+                    onClick = {
+                        focusManager.clearFocus()
+                        restaurantDetailsViewModel.onEvent(
+                            RestaurantDetailsEvent.OnRatingChangedEvent(
+                                rating = it + 1
+                            )
+                        )
+                    }
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
-                            imageVector = Icons.Default.StarBorder,
+                            imageVector = if (it < state.rating) {
+                                Icons.Default.Star
+                            } else {
+                                Icons.Default.StarBorder
+                            },
                             contentDescription = null,
                             tint = mediumOrange
                         )
@@ -123,10 +152,29 @@ private fun CreateReviewForm() {
             Spacer(modifier = Modifier.width(10.dp))
             CltButton(
                 text = "Submit",
-                withLoading = false,
-                enabled = false,
-                onClick = { /*TODO*/ }
+                withLoading = true,
+                enabled = !state.isSubmitting,
+                onClick = {
+                    restaurantDetailsViewModel.onEvent(
+                        RestaurantDetailsEvent.OnSubmit
+                    )
+                }
             )
+        }
+        AnimatedVisibility(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp),
+            visible = state.ratingError != null,
+            enter = fadeIn() + slideInHorizontally(animationSpec = spring()),
+        ) {
+            state.ratingError?.let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colors.error,
+                    style = MaterialTheme.typography.body1,
+                )
+            }
         }
     }
 }
@@ -152,6 +200,17 @@ private fun Reviews(restaurant: TransformedRestaurant) {
             ) {
                 Spacer(modifier = Modifier.height(10.dp))
                 repeat(5) {
+                    val animatedWidth by animateFloatAsState(
+                        targetValue = calculatePercentOfUsers(
+                            comments = restaurant.comments,
+                            rating = 5 - it
+                        ),
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing,
+                        )
+                    )
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End,
@@ -168,10 +227,7 @@ private fun Reviews(restaurant: TransformedRestaurant) {
                         }
                         Spacer(modifier = Modifier.width(5.dp))
                         LinearProgressIndicator(
-                            progress = calculatePercentOfUsers(
-                                comments = restaurant.comments,
-                                rating = 5 - it
-                            ),
+                            progress = animatedWidth,
                             modifier = Modifier
                                 .width(150.dp)
                                 .clip(CircleShape),

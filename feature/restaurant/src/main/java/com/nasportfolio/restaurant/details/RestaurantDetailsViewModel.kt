@@ -10,6 +10,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.OnTokenCanceledListener
+import com.nasportfolio.domain.comment.usecases.CreateCommentUseCase
 import com.nasportfolio.domain.favorites.usecases.ToggleFavoriteUseCase
 import com.nasportfolio.domain.restaurant.usecases.GetRestaurantsUseCase
 import com.nasportfolio.domain.user.usecases.GetCurrentLoggedInUser
@@ -28,7 +29,7 @@ import javax.inject.Inject
 class RestaurantDetailsViewModel @Inject constructor(
     private val getRestaurantsUseCase: GetRestaurantsUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
-    private val getCurrentLoggedInUser: GetCurrentLoggedInUser,
+    private val createCommentUseCase: CreateCommentUseCase,
     private val fusedLocationProviderClient: FusedLocationProviderClient,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -95,7 +96,7 @@ class RestaurantDetailsViewModel @Inject constructor(
         }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
     }
 
-    fun toggleFavorite() {
+    private fun toggleFavorite() {
         _state.value.restaurant ?: return
         viewModelScope.launch {
             val restaurant = state.value.restaurant!!
@@ -128,9 +129,92 @@ class RestaurantDetailsViewModel @Inject constructor(
         }
     }
 
-    fun setAnimationIsDone(isDone: Boolean) {
+    private fun createComment() {
+        val restaurant = _state.value.restaurant ?: return
+        createCommentUseCase(
+            restaurantId = restaurant.id,
+            review = _state.value.review,
+            rating = _state.value.rating
+        ).onEach {
+            when (it) {
+                is Resource.Loading -> _state.update { state ->
+                    state.copy(isSubmitting = it.isLoading)
+                }
+                is Resource.Success -> _state.update { state ->
+                    val newCommentList = restaurant.comments.toMutableList().apply {
+                        add(0, it.result)
+                    }
+                    state.copy(
+                        isSubmitting = false,
+                        rating = 0,
+                        review = "",
+                        isUpdated = true,
+                        restaurant = restaurant.copy(
+                            comments = newCommentList,
+                            averageRating = newCommentList.sumOf { it.rating } / newCommentList.size.toDouble(),
+                            ratingCount = newCommentList.size,
+                        ),
+                    )
+                }
+                is Resource.Failure -> {
+                    when (it.error) {
+                        is ResourceError.DefaultError -> {
+                            _state.update { state ->
+                                state.copy(isSubmitting = false)
+                            }
+                            _errorChannel.send((it.error as ResourceError.DefaultError).error)
+                        }
+                        is ResourceError.FieldError -> _state.update { state ->
+                            val fieldErrors = (it.error as ResourceError.FieldError).errors
+                            state.copy(
+                                isSubmitting = false,
+                                reviewError = fieldErrors.find { it.field == "review" }?.error,
+                                ratingError = fieldErrors.find { it.field == "rating" }?.error
+                            )
+                        }
+                    }
+                }
+            }
+        }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
+    }
+
+    private fun setAnimationIsDone(isDone: Boolean) {
         _state.update { state ->
             state.copy(isAnimationDone = isDone)
+        }
+    }
+
+    private fun getRating(newRating: Int, oldRating: Int): Int {
+        if (newRating == oldRating && newRating != 1) return newRating - 1
+        return newRating
+    }
+
+    fun onEvent(event: RestaurantDetailsEvent) {
+        when (event) {
+            is RestaurantDetailsEvent.AnimationOverEvent -> {
+                setAnimationIsDone(isDone = event.isAnimationDone)
+            }
+            is RestaurantDetailsEvent.ToggleFavoriteEvent -> {
+                toggleFavorite()
+            }
+            is RestaurantDetailsEvent.OnReviewChangedEvent -> _state.update { state ->
+                state.copy(
+                    review = event.review,
+                    reviewError = null
+                )
+            }
+            is RestaurantDetailsEvent.OnRatingChangedEvent -> _state.update { state ->
+                state.copy(
+                    rating = getRating(
+                        newRating = event.rating,
+                        oldRating = state.rating
+                    ),
+                    ratingError = null
+                )
+            }
+            is RestaurantDetailsEvent.OnSubmit -> {
+                createComment()
+            }
         }
     }
 }

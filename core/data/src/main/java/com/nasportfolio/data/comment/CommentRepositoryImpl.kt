@@ -15,6 +15,9 @@ class CommentRepositoryImpl @Inject constructor(
     override suspend fun getAllComments(): Resource<List<Comment>> =
         remoteCommentDao.getAllComments()
 
+    override suspend fun getCommentById(id: String): Resource<Comment> =
+        remoteCommentDao.getCommentById(id = id)
+
     override suspend fun getCommentsByUser(userId: String): Resource<List<Comment>> =
         remoteCommentDao.getCommentsByUser(userId = userId)
 
