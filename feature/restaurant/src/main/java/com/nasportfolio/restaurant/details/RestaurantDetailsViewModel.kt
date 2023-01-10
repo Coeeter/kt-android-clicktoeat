@@ -29,6 +29,7 @@ import javax.inject.Inject
 class RestaurantDetailsViewModel @Inject constructor(
     private val getRestaurantsUseCase: GetRestaurantsUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
+    private val getCurrentLoggedInUser: GetCurrentLoggedInUser,
     private val createCommentUseCase: CreateCommentUseCase,
     private val fusedLocationProviderClient: FusedLocationProviderClient,
     savedStateHandle: SavedStateHandle
@@ -47,6 +48,7 @@ class RestaurantDetailsViewModel @Inject constructor(
             _errorChannel.send("Unknown error has occurred. Please try again later")
         }
         getCurrentLocation()
+        getCurrentUser()
     }
 
     private fun getCurrentLocation() {
@@ -75,6 +77,20 @@ class RestaurantDetailsViewModel @Inject constructor(
         }
     }
 
+    private fun getCurrentUser() {
+        getCurrentLoggedInUser().onEach {
+            when (it) {
+                is Resource.Success -> _state.update { state ->
+                    state.copy(currentUserId = it.result.id)
+                }
+                is Resource.Failure -> _errorChannel.send(
+                    (it.error as ResourceError.DefaultError).error
+                )
+                else -> Unit
+            }
+        }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
+    }
+
     private fun getRestaurant(id: String) {
         getRestaurantsUseCase.getById(restaurantId = id).onEach {
             when (it) {
@@ -83,7 +99,9 @@ class RestaurantDetailsViewModel @Inject constructor(
                 }
                 is Resource.Success -> _state.update { state ->
                     state.copy(
-                        restaurant = it.result,
+                        restaurant = it.result.copy(
+                            comments = it.result.comments.sortedByDescending { it.createdAt }
+                        ),
                         isLoading = false
                     )
                 }

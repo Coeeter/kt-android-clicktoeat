@@ -11,6 +11,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.CircleShape
@@ -26,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusEvent
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
@@ -49,7 +52,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ReviewSection(
+fun ReviewMetaDataSection(
     restaurant: TransformedRestaurant,
     restaurantDetailsViewModel: RestaurantDetailsViewModel
 ) {
@@ -68,9 +71,8 @@ fun ReviewSection(
                     Text(text = "See all")
                 }
         }
-        Spacer(modifier = Modifier.height(5.dp))
         CreateReviewForm(restaurantDetailsViewModel = restaurantDetailsViewModel)
-        Spacer(modifier = Modifier.height(5.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         if (restaurant.comments.isNotEmpty()) Reviews(restaurant)
         if (restaurant.comments.isEmpty()) EmptyReviews()
     }
@@ -155,6 +157,7 @@ private fun CreateReviewForm(
                 withLoading = true,
                 enabled = !state.isSubmitting,
                 onClick = {
+                    focusManager.clearFocus()
                     restaurantDetailsViewModel.onEvent(
                         RestaurantDetailsEvent.OnSubmit
                     )
@@ -181,66 +184,70 @@ private fun CreateReviewForm(
 
 @Composable
 private fun Reviews(restaurant: TransformedRestaurant) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = 4.dp,
-        shape = RoundedCornerShape(10.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 20.dp, end = 20.dp, bottom = 10.dp, top = 5.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = buildAnnotatedString(restaurant = restaurant))
-            Column(
-                modifier = Modifier.weight(1f),
-                horizontalAlignment = Alignment.End
-            ) {
-                Spacer(modifier = Modifier.height(10.dp))
-                repeat(5) {
-                    val animatedWidth by animateFloatAsState(
-                        targetValue = calculatePercentOfUsers(
-                            comments = restaurant.comments,
-                            rating = 5 - it
-                        ),
-                        animationSpec = tween(
-                            durationMillis = 500,
-                            easing = FastOutSlowInEasing,
-                        )
-                    )
+    val config = LocalConfiguration.current
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row {
-                            repeat(5 - it) {
-                                Icon(
-                                    modifier = Modifier.size(10.dp),
-                                    imageVector = Icons.Default.Star,
-                                    contentDescription = null,
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.width(5.dp))
-                        LinearProgressIndicator(
-                            progress = animatedWidth,
-                            modifier = Modifier
-                                .width(150.dp)
-                                .clip(CircleShape),
+    Column {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = 4.dp,
+            shape = RoundedCornerShape(10.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, end = 20.dp, bottom = 10.dp, top = 5.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = buildAnnotatedString(restaurant = restaurant))
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    repeat(5) {
+                        val animatedWidth by animateFloatAsState(
+                            targetValue = calculatePercentOfUsers(
+                                comments = restaurant.comments,
+                                rating = 5 - it
+                            ),
+                            animationSpec = tween(
+                                durationMillis = 500,
+                                easing = FastOutSlowInEasing,
+                            )
                         )
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row {
+                                repeat(5 - it) {
+                                    Icon(
+                                        modifier = Modifier.size(10.dp),
+                                        imageVector = Icons.Default.Star,
+                                        contentDescription = null,
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(5.dp))
+                            LinearProgressIndicator(
+                                progress = animatedWidth,
+                                modifier = Modifier
+                                    .width(150.dp)
+                                    .clip(CircleShape),
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(2.dp))
                     }
-                    Spacer(modifier = Modifier.height(2.dp))
-                }
-                Text(
-                    text = "${restaurant.ratingCount} reviews",
-                    color = MaterialTheme.colors.onBackground.copy(
-                        alpha = if (isSystemInDarkTheme()) 0.5f else 0.7f
+                    Text(
+                        text = "${restaurant.ratingCount} reviews",
+                        color = MaterialTheme.colors.onBackground.copy(
+                            alpha = if (isSystemInDarkTheme()) 0.5f else 0.7f
+                        )
                     )
-                )
+                }
             }
         }
     }

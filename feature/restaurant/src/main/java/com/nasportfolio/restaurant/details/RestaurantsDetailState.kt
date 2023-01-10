@@ -14,5 +14,6 @@ data class RestaurantsDetailState(
     val rating: Int = 0,
     val reviewError: String? = null,
     val ratingError: String? = null,
-    val isSubmitting: Boolean = false
+    val isSubmitting: Boolean = false,
+    val currentUserId: String? = null
 )
