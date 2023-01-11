@@ -12,6 +12,13 @@ data class TransformedRestaurant(
     val comments: List<Comment>,
     val favoriteSize: Int,
     val isFavoriteByCurrentUser: Boolean,
-    val averageRating: Double,
+) {
+    val averageRating: Double
+        get() {
+            if (ratingCount == 0) return 0.0
+            return comments.sumOf { it.rating } / ratingCount.toDouble()
+        }
+
     val ratingCount: Int
-)
+        get() = comments.size
+}

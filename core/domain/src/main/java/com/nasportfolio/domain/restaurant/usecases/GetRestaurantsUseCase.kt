@@ -173,8 +173,6 @@ class GetRestaurantsUseCase @Inject constructor(
             branches = restaurant.branches,
             comments = commentsOfRestaurant,
             isFavoriteByCurrentUser = isFavorited,
-            averageRating = getAverageRating(commentsOfRestaurant),
-            ratingCount = commentsOfRestaurant.size,
             favoriteSize = usersWhoFavorite.size
         )
     }
@@ -188,11 +186,6 @@ class GetRestaurantsUseCase @Inject constructor(
         val comments: List<Comment>,
         val favorites: List<Restaurant>
     )
-
-    private fun getAverageRating(comments: List<Comment>): Double {
-        if (comments.isEmpty()) return 0.0
-        return comments.sumOf { comment -> comment.rating } / comments.size.toDouble()
-    }
 
     private suspend fun getUserId(): String? {
         val userResource = getCurrentLoggedInUserUseCase().last()

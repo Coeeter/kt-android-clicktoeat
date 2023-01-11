@@ -11,6 +11,8 @@ import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.OnTokenCanceledListener
 import com.nasportfolio.domain.comment.usecases.CreateCommentUseCase
+import com.nasportfolio.domain.comment.usecases.DeleteCommentUseCase
+import com.nasportfolio.domain.comment.usecases.EditCommentUseCase
 import com.nasportfolio.domain.favorites.usecases.ToggleFavoriteUseCase
 import com.nasportfolio.domain.restaurant.usecases.GetRestaurantsUseCase
 import com.nasportfolio.domain.user.usecases.GetCurrentLoggedInUser
@@ -31,6 +33,8 @@ class RestaurantDetailsViewModel @Inject constructor(
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val getCurrentLoggedInUser: GetCurrentLoggedInUser,
     private val createCommentUseCase: CreateCommentUseCase,
+    private val editCommentUseCase: EditCommentUseCase,
+    private val deleteCommentUseCase: DeleteCommentUseCase,
     private val fusedLocationProviderClient: FusedLocationProviderClient,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -168,9 +172,7 @@ class RestaurantDetailsViewModel @Inject constructor(
                         review = "",
                         isUpdated = true,
                         restaurant = restaurant.copy(
-                            comments = newCommentList,
-                            averageRating = newCommentList.sumOf { it.rating } / newCommentList.size.toDouble(),
-                            ratingCount = newCommentList.size,
+                            comments = newCommentList
                         ),
                     )
                 }
@@ -192,6 +194,82 @@ class RestaurantDetailsViewModel @Inject constructor(
                         }
                     }
                 }
+            }
+        }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
+    }
+
+    private fun editComment() {
+        editCommentUseCase(
+            commentId = _state.value.commentBeingEdited!!.id,
+            review = _state.value.editingReviewValue,
+            rating = _state.value.editingRatingValue
+        ).onEach {
+            when (it) {
+                is Resource.Failure -> {
+                    when (it.error) {
+                        is ResourceError.DefaultError -> {
+                            _state.update { state -> state.copy(isEditSubmitting = false) }
+                            val defaultError = it.error as ResourceError.DefaultError
+                            _errorChannel.send(defaultError.error)
+                        }
+                        is ResourceError.FieldError -> _state.update { state ->
+                            val fieldError = (it.error as ResourceError.FieldError).errors
+                            state.copy(
+                                editingRatingError = fieldError.find { it.field == "rating" }?.error,
+                                editingReviewError = fieldError.find { it.field == "review" }?.error,
+                                isEditSubmitting = false
+                            )
+                        }
+                    }
+                }
+                is Resource.Loading -> _state.update { state ->
+                    state.copy(isEditSubmitting = it.isLoading)
+                }
+                is Resource.Success -> _state.update { state ->
+                    state.copy(
+                        commentBeingEdited = null,
+                        editingReviewError = null,
+                        editingRatingError = null,
+                        editingRatingValue = 0,
+                        editingReviewValue = "",
+                        isEditSubmitting = false,
+                        restaurant = state.restaurant!!.copy(
+                            comments = state.restaurant.comments.toMutableList().apply {
+                                val index = map { it.id }.indexOf(state.commentBeingEdited!!.id)
+                                set(index, it.result)
+                            }
+                        )
+                    )
+                }
+            }
+        }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
+    }
+
+    private fun deleteComment(index: Int) {
+        val comment = _state.value.restaurant!!.comments[index]
+        lateinit var oldState: RestaurantsDetailState
+        _state.update { state ->
+            oldState = state
+            state.copy(
+                restaurant = state.restaurant!!.copy(
+                    comments = state.restaurant.comments.toMutableList().apply {
+                        removeAt(index)
+                    }
+                )
+            )
+        }
+        deleteCommentUseCase(commentId = comment.id).onEach {
+            when (it) {
+                is Resource.Failure -> {
+                    _state.value = oldState
+                    if (it.error !is ResourceError.DefaultError) return@onEach
+                    val error = (it.error as ResourceError.DefaultError).error
+                    _errorChannel.send(error)
+                }
+                is Resource.Success -> _state.update { state ->
+                    state.copy(isUpdated = true)
+                }
+                else -> Unit
             }
         }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
     }
@@ -232,6 +310,41 @@ class RestaurantDetailsViewModel @Inject constructor(
             }
             is RestaurantDetailsEvent.OnSubmit -> {
                 createComment()
+            }
+            is RestaurantDetailsEvent.DeleteComment -> {
+                deleteComment(index = event.index)
+            }
+            is RestaurantDetailsEvent.OpenEditCommentDialog -> _state.update { state ->
+                val comment = state.restaurant!!.comments[event.index]
+                state.copy(
+                    commentBeingEdited = comment,
+                    editingReviewValue = comment.review,
+                    editingRatingValue = comment.rating,
+                )
+            }
+            is RestaurantDetailsEvent.OnEditReview -> _state.update { state ->
+                state.copy(
+                    editingReviewValue = event.review,
+                    editingReviewError = null
+                )
+            }
+            is RestaurantDetailsEvent.OnEditRating -> _state.update { state ->
+                state.copy(
+                    editingRatingValue = getRating(event.rating, state.editingRatingValue),
+                    editingRatingError = null
+                )
+            }
+            is RestaurantDetailsEvent.OnCloseEditCommentDialog -> _state.update { state ->
+                state.copy(
+                    commentBeingEdited = null,
+                    editingReviewError = null,
+                    editingRatingError = null,
+                    editingRatingValue = 0,
+                    editingReviewValue = ""
+                )
+            }
+            is RestaurantDetailsEvent.OnCompleteEdit -> {
+                editComment()
             }
         }
     }
