@@ -20,23 +20,32 @@ fun DataSection(restaurant: TransformedRestaurant) {
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(10.dp)
     ) {
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 5.dp, horizontal = 20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .padding(vertical = 5.dp, horizontal = 20.dp)
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                CltHeading(text = restaurant.averageRating.toStringAsFixed(1))
-                Text(text = "AVG Rating")
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CltHeading(text = restaurant.ratingCount.toString())
+                    Text(text = "Reviews")
+                }
             }
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                CltHeading(text = restaurant.ratingCount.toString())
-                Text(text = "Reviews")
-            }
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                CltHeading(text = restaurant.favoriteSize.toString())
-                Text(text = "Favorites")
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CltHeading(text = restaurant.averageRating.toStringAsFixed(1))
+                    Text(text = "AVG Rating")
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CltHeading(text = restaurant.favoriteSize.toString())
+                    Text(text = "Favorites")
+                }
             }
         }
     }
