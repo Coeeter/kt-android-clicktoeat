@@ -13,12 +13,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nasportfolio.common.components.CltImageFromNetwork
 import com.nasportfolio.common.components.CltShimmer
+import com.nasportfolio.common.modifier.gradientBackground
+import com.nasportfolio.common.theme.darkOrange
+import com.nasportfolio.common.theme.lightOrange
 import com.nasportfolio.common.theme.mediumOrange
 import com.nasportfolio.common.utils.toStringAsFixed
 import com.nasportfolio.domain.restaurant.TransformedRestaurant
@@ -81,7 +85,14 @@ fun RestaurantCard(
                             Icon(
                                 imageVector = getFavoriteIcon(restaurant.isFavoriteByCurrentUser),
                                 contentDescription = null,
-                                tint = mediumOrange,
+                                modifier = Modifier.gradientBackground(
+                                    brush = Brush.linearGradient(
+                                        colors = listOf(
+                                            lightOrange,
+                                            mediumOrange
+                                        )
+                                    )
+                                )
                             )
                         }
                     }

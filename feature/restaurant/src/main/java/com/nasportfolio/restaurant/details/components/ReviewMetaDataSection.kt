@@ -11,8 +11,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.CircleShape
@@ -28,7 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusEvent
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
@@ -42,6 +40,8 @@ import androidx.compose.ui.unit.sp
 import com.nasportfolio.common.components.CltButton
 import com.nasportfolio.common.components.CltHeading
 import com.nasportfolio.common.components.CltInput
+import com.nasportfolio.common.modifier.gradientBackground
+import com.nasportfolio.common.theme.lightOrange
 import com.nasportfolio.common.theme.mediumOrange
 import com.nasportfolio.common.utils.toStringAsFixed
 import com.nasportfolio.domain.comment.Comment
@@ -123,31 +123,43 @@ private fun CreateReviewForm(
                 .bringIntoViewRequester(bringIntoViewRequester),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            repeat(5) {
-                TextButton(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .size(35.dp),
-                    contentPadding = PaddingValues(5.dp),
-                    onClick = {
-                        focusManager.clearFocus()
-                        restaurantDetailsViewModel.onEvent(
-                            RestaurantDetailsEvent.OnRatingChangedEvent(
-                                rating = it + 1
+            Row(
+                modifier = Modifier.gradientBackground(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            lightOrange,
+                            mediumOrange
+                        )
+                    )
+                ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                repeat(5) {
+                    TextButton(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .size(35.dp),
+                        contentPadding = PaddingValues(5.dp),
+                        onClick = {
+                            focusManager.clearFocus()
+                            restaurantDetailsViewModel.onEvent(
+                                RestaurantDetailsEvent.OnRatingChangedEvent(
+                                    rating = it + 1
+                                )
                             )
-                        )
-                    }
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = if (it < state.rating) {
-                                Icons.Default.Star
-                            } else {
-                                Icons.Default.StarBorder
-                            },
-                            contentDescription = null,
-                            tint = mediumOrange
-                        )
+                        }
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = if (it < state.rating) {
+                                    Icons.Default.Star
+                                } else {
+                                    Icons.Default.StarBorder
+                                },
+                                contentDescription = null,
+                                tint = mediumOrange
+                            )
+                        }
                     }
                 }
             }
