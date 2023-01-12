@@ -39,9 +39,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.*
+import com.nasportfolio.common.modifier.gradientBackground
 import com.nasportfolio.common.navigation.homeScreenRoute
 import com.nasportfolio.common.navigation.navigateToHomeScreen
 import com.nasportfolio.common.navigation.navigateToUpdateRestaurant
+import com.nasportfolio.common.theme.lightOrange
 import com.nasportfolio.common.theme.mediumOrange
 import com.nasportfolio.domain.restaurant.TransformedRestaurant
 import com.nasportfolio.restaurant.details.components.*
@@ -451,31 +453,43 @@ private fun EditCommentDialog(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    repeat(5) {
-                        TextButton(
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .size(35.dp),
-                            contentPadding = PaddingValues(5.dp),
-                            onClick = {
-                                focusManager.clearFocus()
-                                restaurantDetailsViewModel.onEvent(
-                                    RestaurantDetailsEvent.OnEditRating(
-                                        rating = it + 1
+                    Row(
+                        modifier = Modifier.gradientBackground(
+                            brush = Brush.linearGradient(
+                                colors = listOf(
+                                    lightOrange,
+                                    mediumOrange
+                                )
+                            )
+                        ),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        repeat(5) {
+                            TextButton(
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .size(35.dp),
+                                contentPadding = PaddingValues(5.dp),
+                                onClick = {
+                                    focusManager.clearFocus()
+                                    restaurantDetailsViewModel.onEvent(
+                                        RestaurantDetailsEvent.OnEditRating(
+                                            rating = it + 1
+                                        )
                                     )
-                                )
-                            }
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = if (it < state.editingRatingValue) {
-                                        Icons.Default.Star
-                                    } else {
-                                        Icons.Default.StarBorder
-                                    },
-                                    contentDescription = null,
-                                    tint = mediumOrange
-                                )
+                                }
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = if (it < state.editingRatingValue) {
+                                            Icons.Default.Star
+                                        } else {
+                                            Icons.Default.StarBorder
+                                        },
+                                        contentDescription = null,
+                                        tint = mediumOrange
+                                    )
+                                }
                             }
                         }
                     }
