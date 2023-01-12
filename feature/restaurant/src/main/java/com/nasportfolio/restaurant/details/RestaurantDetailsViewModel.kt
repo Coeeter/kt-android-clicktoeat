@@ -233,6 +233,7 @@ class RestaurantDetailsViewModel @Inject constructor(
                         editingRatingValue = 0,
                         editingReviewValue = "",
                         isEditSubmitting = false,
+                        isUpdated = true,
                         restaurant = state.restaurant!!.copy(
                             comments = state.restaurant.comments.toMutableList().apply {
                                 val index = map { it.id }.indexOf(state.commentBeingEdited!!.id)

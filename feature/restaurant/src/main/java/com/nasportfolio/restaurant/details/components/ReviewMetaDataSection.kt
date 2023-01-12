@@ -184,8 +184,6 @@ private fun CreateReviewForm(
 
 @Composable
 private fun Reviews(restaurant: TransformedRestaurant) {
-    val config = LocalConfiguration.current
-
     Column {
         Surface(
             modifier = Modifier.fillMaxWidth(),

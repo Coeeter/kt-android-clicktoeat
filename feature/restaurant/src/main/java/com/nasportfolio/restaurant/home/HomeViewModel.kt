@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.nasportfolio.domain.favorites.usecases.ToggleFavoriteUseCase
 import com.nasportfolio.domain.restaurant.usecases.GetRestaurantsUseCase
 import com.nasportfolio.domain.user.UserRepository
+import com.nasportfolio.domain.user.usecases.GetCurrentLoggedInUser
 import com.nasportfolio.domain.utils.Resource
 import com.nasportfolio.domain.utils.ResourceError
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,6 +20,7 @@ class HomeViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val getRestaurantsUseCase: GetRestaurantsUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
+    private val getCurrentLoggedInUser: GetCurrentLoggedInUser
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeState())
     val state = _state.asStateFlow()
@@ -28,6 +30,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         getRestaurants()
+        getLoggedInUser()
     }
 
     fun refreshPage() {
@@ -67,14 +70,41 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun getRestaurants() {
-        getRestaurantsUseCase().onEach {
+    private fun getLoggedInUser() {
+        getCurrentLoggedInUser().onEach {
             when (it) {
                 is Resource.Success -> _state.update { state ->
+                    state.copy(currentUserUsername = it.result.username)
+                }
+                is Resource.Failure -> {
+                    if (it.error !is ResourceError.DefaultError) return@onEach
+                    val defaultError = it.error as ResourceError.DefaultError
+                    _errorChannel.send(defaultError.error)
+                }
+                else -> Unit
+            }
+        }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
+    }
+
+    private fun getRestaurants() {
+        getRestaurantsUseCase().onEach { restaurantResource ->
+            when (restaurantResource) {
+                is Resource.Success -> _state.update { state ->
+                    val restaurantList = restaurantResource.result.sortedBy { it.name }
+                    val favRestaurants = restaurantList
+                        .filter { it.isFavoriteByCurrentUser }
+                        .map { restaurantList.indexOf(it) }
+                    val featuredRestaurants = restaurantList
+                        .sortedByDescending { it.averageRating }
+                        .slice(0 until if (restaurantList.size < 5) restaurantList.size else 5)
+                        .map { restaurantList.indexOf(it) }
+
                     state.copy(
-                        restaurantList = it.result.sortedBy { it.name },
+                        restaurantList = restaurantList,
                         isLoading = false,
-                        isRefreshing = false
+                        isRefreshing = false,
+                        favRestaurants = favRestaurants,
+                        featuredRestaurants = featuredRestaurants
                     )
                 }
                 is Resource.Failure -> {
@@ -84,12 +114,12 @@ class HomeViewModel @Inject constructor(
                             isRefreshing = false
                         )
                     }
-                    if (it.error !is ResourceError.DefaultError) return@onEach
-                    val defaultError = it.error as ResourceError.DefaultError
+                    if (restaurantResource.error !is ResourceError.DefaultError) return@onEach
+                    val defaultError = restaurantResource.error as ResourceError.DefaultError
                     _errorChannel.send(defaultError.error)
                 }
                 is Resource.Loading -> _state.update { state ->
-                    state.copy(isLoading = it.isLoading)
+                    state.copy(isLoading = restaurantResource.isLoading)
                 }
             }
         }.flowOn(Dispatchers.IO).launchIn(viewModelScope)

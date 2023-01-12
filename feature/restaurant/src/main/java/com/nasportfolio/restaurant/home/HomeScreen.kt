@@ -2,14 +2,18 @@ package com.nasportfolio.restaurant.home
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -23,10 +27,18 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.ParagraphStyle
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -36,6 +48,7 @@ import androidx.navigation.NavHostController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.nasportfolio.common.components.CltFloatingActionButton
+import com.nasportfolio.common.components.CltHeading
 import com.nasportfolio.common.modifier.scrollEnabled
 import com.nasportfolio.common.navigation.homeScreenRoute
 import com.nasportfolio.common.navigation.navigateToAuthScreen
@@ -53,12 +66,16 @@ fun HomeScreen(
     navController: NavHostController,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
+    val config = LocalConfiguration.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val scaffoldState = rememberScaffoldState()
     val state by homeViewModel.state.collectAsState()
     var permissionError by remember {
         mutableStateOf<String?>(null)
+    }
+    val width = remember {
+        ((config.screenWidthDp - 30) / 2).dp
     }
 
     val requestPermissions = rememberLauncherForActivityResult(
@@ -106,7 +123,13 @@ fun HomeScreen(
         scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
-                title = { Text(text = "Home") },
+                title = {
+                    Text(
+                        text = state.currentUserUsername?.let {
+                            "Welcome, $it"
+                        } ?: "Loading..."
+                    )
+                },
                 actions = {
                     IconButton(
                         onClick = {
@@ -142,70 +165,264 @@ fun HomeScreen(
                 state = rememberSwipeRefreshState(isRefreshing = state.isRefreshing),
                 onRefresh = { homeViewModel.refreshPage() }
             ) {
-                LazyVerticalGrid(
+                LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
                         .scrollEnabled(enabled = !state.isLoading),
-                    cells = GridCells.Fixed(2),
                     contentPadding = PaddingValues(5.dp)
                 ) {
-                    if (state.isLoading) items(10) {
-                        LoadingRestaurantCard()
+                    item {
+                        CltHeading(
+                            text = "Your Favorites",
+                            modifier = Modifier.padding(start = 5.dp)
+                        )
                     }
-                    if (!state.isLoading) items(state.restaurantList) {
-                        RestaurantCard(
-                            restaurant = it,
-                            toggleFavorite = { restaurantId ->
-                                homeViewModel.toggleFavorite(restaurantId)
-                            },
-                            onClick = { restaurantId ->
-                                navController.navigateToRestaurantDetails(
-                                    restaurantId = restaurantId
+                    favoriteRestaurantSection(
+                        state = state,
+                        width = width,
+                        homeViewModel = homeViewModel,
+                        navController = navController,
+                        config = config
+                    )
+                    item {
+                        CltHeading(
+                            text = "Featured Restaurants",
+                            modifier = Modifier.padding(start = 5.dp)
+                        )
+                    }
+                    featuredRestaurantsSection(
+                        state = state,
+                        homeViewModel = homeViewModel,
+                        navController = navController,
+                        width = width
+                    )
+                    item {
+                        CltHeading(
+                            text = "All Restaurants",
+                            modifier = Modifier.padding(start = 5.dp)
+                        )
+                    }
+                    allRestaurantsSection(
+                        state = state,
+                        homeViewModel = homeViewModel,
+                        navController = navController
+                    )
+                }
+                if (!state.isLoading && state.restaurantList.isEmpty())
+                    EmptyRestaurants()
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptyRestaurants() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            modifier = Modifier
+                .size(250.dp)
+                .graphicsLayer(alpha = 0.99f)
+                .drawWithCache {
+                    onDrawWithContent {
+                        drawContent()
+                        drawRect(
+                            Brush.linearGradient(
+                                colors = listOf(
+                                    lightOrange,
+                                    mediumOrange,
+                                    lightOrange
                                 )
+                            ),
+                            blendMode = BlendMode.SrcAtop
+                        )
+                    }
+                },
+            imageVector = Icons.Outlined.Info,
+            contentDescription = null,
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = "Wow such empty...",
+            style = MaterialTheme.typography.h5
+        )
+        Text(
+            text = "Try creating a restaurant!",
+            style = MaterialTheme.typography.h6.copy(
+                fontWeight = FontWeight.Light
+            )
+        )
+    }
+}
+
+private fun LazyListScope.allRestaurantsSection(
+    state: HomeState,
+    homeViewModel: HomeViewModel,
+    navController: NavHostController
+) {
+    if (state.isLoading) items(10) {
+        Row {
+            repeat(2) {
+                LoadingRestaurantCard(
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+    if (!state.isLoading) items(state.restaurantList.chunked(2)) { chunk ->
+        Row {
+            repeat(2) {
+                RestaurantCard(
+                    modifier = Modifier.weight(1f),
+                    restaurant = chunk[it],
+                    toggleFavorite = { restaurantId ->
+                        homeViewModel.toggleFavorite(restaurantId)
+                    },
+                    onClick = { restaurantId ->
+                        navController.navigateToRestaurantDetails(
+                            restaurantId = restaurantId
+                        )
+                    }
+                )
+            }
+        }
+    }
+}
+
+private fun LazyListScope.featuredRestaurantsSection(
+    state: HomeState,
+    homeViewModel: HomeViewModel,
+    navController: NavHostController,
+    width: Dp
+) {
+    if (state.isLoading) item {
+        Row(
+            modifier = Modifier.horizontalScroll(
+                state = rememberScrollState(),
+                enabled = false
+            )
+        ) {
+            repeat(5) {
+                LoadingRestaurantCard(
+                    modifier = Modifier.width(width)
+                )
+            }
+        }
+    }
+    if (!state.isLoading) item {
+        Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
+            repeat(state.featuredRestaurants.size) {
+                val index = state.featuredRestaurants[it]
+
+                RestaurantCard(
+                    modifier = Modifier.width(width),
+                    restaurant = state.restaurantList[index],
+                    toggleFavorite = { restaurantId ->
+                        homeViewModel.toggleFavorite(restaurantId)
+                    },
+                    onClick = { restaurantId ->
+                        navController.navigateToRestaurantDetails(
+                            restaurantId = restaurantId
+                        )
+                    }
+                )
+            }
+        }
+    }
+}
+
+private fun LazyListScope.favoriteRestaurantSection(
+    state: HomeState,
+    width: Dp,
+    homeViewModel: HomeViewModel,
+    navController: NavHostController,
+    config: Configuration
+) {
+    if (state.isLoading) item {
+        Row(
+            modifier = Modifier.horizontalScroll(
+                state = rememberScrollState(),
+                enabled = false
+            )
+        ) {
+            repeat(5) {
+                LoadingRestaurantCard(
+                    modifier = Modifier.width(width)
+                )
+            }
+        }
+    }
+    if (!state.isLoading) item {
+        Box {
+            Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
+                repeat(state.favRestaurants.size) {
+                    val index = state.favRestaurants[it]
+
+                    RestaurantCard(
+                        modifier = Modifier.width(width),
+                        restaurant = state.restaurantList[index],
+                        toggleFavorite = { restaurantId ->
+                            homeViewModel.toggleFavorite(restaurantId)
+                        },
+                        onClick = { restaurantId ->
+                            navController.navigateToRestaurantDetails(
+                                restaurantId = restaurantId
+                            )
+                        }
+                    )
+                }
+            }
+            if (state.favRestaurants.isEmpty()) Column(
+                modifier = Modifier.width(config.screenWidthDp.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(30.dp))
+                Row {
+                    repeat(2) {
+                        LoadingRestaurantCard(
+                            modifier = Modifier
+                                .width(width)
+                                .offset(
+                                    x = if (it == 0) 60.dp else (-60).dp,
+                                    y = if (it == 0) (-20).dp else 20.dp
+                                ),
+                            shimmer = false,
+                            elevation = if (isSystemInDarkTheme()) {
+                                if (it == 0) 4.dp else 20.dp
+                            } else {
+                                if (it == 0) 10.dp else 12.dp
                             }
                         )
                     }
                 }
-                if (!state.isLoading && state.restaurantList.isEmpty()) Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        modifier = Modifier
-                            .size(250.dp)
-                            .graphicsLayer(alpha = 0.99f)
-                            .drawWithCache {
-                                onDrawWithContent {
-                                    drawContent()
-                                    drawRect(
-                                        Brush.linearGradient(
-                                            colors = listOf(
-                                                lightOrange,
-                                                mediumOrange,
-                                                lightOrange
-                                            )
-                                        ),
-                                        blendMode = BlendMode.SrcAtop
+                Spacer(modifier = Modifier.height(30.dp))
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(ParagraphStyle(textAlign = TextAlign.Center)) {
+                            withStyle(SpanStyle(fontSize = 24.sp)) {
+                                append("No favorite restaurants yet...\n")
+                            }
+                            withStyle(
+                                SpanStyle(
+                                    color = MaterialTheme.colors.onBackground.copy(
+                                        alpha = if (isSystemInDarkTheme()) {
+                                            0.5f
+                                        } else {
+                                            0.7f
+                                        }
                                     )
-                                }
-                            },
-                        imageVector = Icons.Outlined.Info,
-                        contentDescription = null,
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        text = "Wow such empty...",
-                        style = MaterialTheme.typography.h5
-                    )
-                    Text(
-                        text = "Try creating a restaurant!",
-                        style = MaterialTheme.typography.h6.copy(
-                            fontWeight = FontWeight.Light
-                        )
-                    )
-                }
+                                )
+                            ) {
+                                append("Try adding one now!")
+                            }
+                        }
+                    }
+                )
+                Spacer(modifier = Modifier.height(10.dp))
             }
         }
     }

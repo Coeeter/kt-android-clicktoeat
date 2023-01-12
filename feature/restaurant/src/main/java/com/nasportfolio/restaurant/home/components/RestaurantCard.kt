@@ -32,7 +32,6 @@ fun RestaurantCard(
 ) {
     Card(
         modifier = modifier
-            .fillMaxWidth()
             .padding(5.dp)
             .clickable {
                 onClick(restaurant.id)
