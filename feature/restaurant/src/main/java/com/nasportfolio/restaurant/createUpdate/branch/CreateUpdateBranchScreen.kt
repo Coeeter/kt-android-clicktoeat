@@ -1,6 +1,7 @@
-package com.nasportfolio.restaurant.create.branch
+package com.nasportfolio.restaurant.createUpdate.branch
 
 import android.view.MotionEvent
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
@@ -37,6 +38,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.nasportfolio.common.components.CltButton
 import com.nasportfolio.common.components.CltInput
+import com.nasportfolio.common.navigation.createUpdateBranchScreenRoute
 import com.nasportfolio.common.navigation.homeScreenRoute
 import com.nasportfolio.common.navigation.navigateToHomeScreen
 import com.nasportfolio.common.theme.mediumOrange
@@ -44,13 +46,13 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun CreateBranchScreen(
+fun CreateUpdateBranchScreen(
     navController: NavHostController,
-    createBranchViewModel: CreateBranchViewModel = hiltViewModel()
+    createUpdateBranchViewModel: CreateUpdateBranchViewModel = hiltViewModel()
 ) {
     val focusManager = LocalFocusManager.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val state by createBranchViewModel.state.collectAsState()
+    val state by createUpdateBranchViewModel.state.collectAsState()
 
     val scaffoldState = rememberScaffoldState()
     val cameraPositionState = rememberCameraPositionState {
@@ -66,7 +68,7 @@ fun CreateBranchScreen(
     LaunchedEffect(true) {
         lifecycleOwner.lifecycleScope.launch {
             lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                createBranchViewModel.errorChannel.collect {
+                createUpdateBranchViewModel.errorChannel.collect {
                     scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
                     scaffoldState.snackbarHostState.showSnackbar(it, "Okay")
                 }
@@ -78,6 +80,12 @@ fun CreateBranchScreen(
         if (!state.isError && !state.isCreated) return@LaunchedEffect
         navController.navigateToHomeScreen(
             popUpTo = homeScreenRoute
+        )
+    }
+
+    BackHandler(enabled = true) {
+        navController.navigateToHomeScreen(
+            popUpTo = "$createUpdateBranchScreenRoute/{restaurantId}"
         )
     }
 
@@ -127,8 +135,8 @@ fun CreateBranchScreen(
                     },
                 cameraPositionState = cameraPositionState,
                 onMapClick = {
-                    createBranchViewModel.onEvent(
-                        CreateBranchEvent.OnLocationChanged(latLng = it)
+                    createUpdateBranchViewModel.onEvent(
+                        CreateUpdateBranchEvent.OnLocationChanged(latLng = it)
                     )
                 }
             ) {
@@ -171,8 +179,8 @@ fun CreateBranchScreen(
                             onDone = { focusManager.clearFocus() }
                         ),
                         onValueChange = {
-                            createBranchViewModel.onEvent(
-                                CreateBranchEvent.OnAddressChanged(address = it)
+                            createUpdateBranchViewModel.onEvent(
+                                CreateUpdateBranchEvent.OnAddressChanged(address = it)
                             )
                         }
                     )
@@ -183,8 +191,8 @@ fun CreateBranchScreen(
                         enabled = !state.isLoading,
                         onClick = {
                             focusManager.clearFocus()
-                            createBranchViewModel.onEvent(
-                                CreateBranchEvent.OnSubmit
+                            createUpdateBranchViewModel.onEvent(
+                                CreateUpdateBranchEvent.OnSubmit
                             )
                         }
                     )

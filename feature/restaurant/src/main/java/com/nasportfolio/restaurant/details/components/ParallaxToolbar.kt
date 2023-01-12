@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.runtime.*
@@ -24,6 +25,7 @@ import com.nasportfolio.common.components.CltImageFromNetwork
 import com.nasportfolio.common.components.CltShimmer
 import com.nasportfolio.common.navigation.homeScreenRoute
 import com.nasportfolio.common.navigation.navigateToHomeScreen
+import com.nasportfolio.common.navigation.navigateToUpdateRestaurant
 import com.nasportfolio.common.theme.mediumOrange
 import com.nasportfolio.restaurant.details.RestaurantsDetailState
 
@@ -209,27 +211,48 @@ private fun AppBar(
                             )
                     )
                 }
-                IconButton(
-                    onClick = {
-                        state.restaurant ?: return@IconButton
-                        toggleFavorite()
-                    }
-                ) {
-                    state.restaurant?.let {
-                        Icon(
-                            imageVector = if (it.isFavoriteByCurrentUser) {
-                                Icons.Default.Favorite
-                            } else {
-                                Icons.Default.FavoriteBorder
-                            },
-                            tint = color,
-                            contentDescription = null
+                Row(horizontalArrangement = Arrangement.End) {
+                    IconButton(
+                        onClick = {
+                            navController.navigateToUpdateRestaurant(
+                                restaurantId = state.restaurant!!.id
+                            )
+                        }
+                    ) {
+                        state.restaurant?.let {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                tint = color,
+                                contentDescription = null
+                            )
+                        } ?: CltShimmer(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clip(CircleShape)
                         )
-                    } ?: CltShimmer(
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clip(CircleShape)
-                    )
+                    }
+                    IconButton(
+                        onClick = {
+                            state.restaurant ?: return@IconButton
+                            toggleFavorite()
+                        }
+                    ) {
+                        state.restaurant?.let {
+                            Icon(
+                                imageVector = if (it.isFavoriteByCurrentUser) {
+                                    Icons.Default.Favorite
+                                } else {
+                                    Icons.Default.FavoriteBorder
+                                },
+                                tint = color,
+                                contentDescription = null
+                            )
+                        } ?: CltShimmer(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clip(CircleShape)
+                        )
+                    }
                 }
             }
         }

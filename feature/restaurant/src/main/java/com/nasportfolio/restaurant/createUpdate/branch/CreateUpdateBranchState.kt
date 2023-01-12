@@ -1,8 +1,8 @@
-package com.nasportfolio.restaurant.create.branch
+package com.nasportfolio.restaurant.createUpdate.branch
 
 import com.google.android.gms.maps.model.LatLng
 
-data class CreateBranchState(
+data class CreateUpdateBranchState(
     val restaurantId: String? = null,
     val address: String = "",
     val latLng: LatLng? = null,

@@ -14,7 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.net.URL
 
-private val bitmapCache = HashMap<String, ImageBitmap>()
+val bitmapCache = HashMap<String, ImageBitmap>()
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable

@@ -4,8 +4,8 @@ import androidx.navigation.NavHostController
 
 const val homeScreenRoute = "/home"
 const val restaurantDetailScreenRoute = "/restaurant"
-const val createRestaurantScreenRoute = "/restaurant/create"
-const val createBranchScreenRoute = "/branch/create"
+const val createUpdateRestaurantScreenRoute = "create-update/restaurant"
+const val createUpdateBranchScreenRoute = "create-update/branch"
 
 fun NavHostController.navigateToHomeScreen(
     popUpTo: String? = null
@@ -21,7 +21,19 @@ fun NavHostController.navigateToHomeScreen(
 fun NavHostController.navigateToCreateRestaurant(
     popUpTo: String? = null
 ) {
-    navigate(createRestaurantScreenRoute) {
+    navigate("$createUpdateRestaurantScreenRoute/null") {
+        popUpTo ?: return@navigate
+        popUpTo(popUpTo) {
+            inclusive = true
+        }
+    }
+}
+
+fun NavHostController.navigateToUpdateRestaurant(
+    restaurantId: String,
+    popUpTo: String? = null
+) {
+    navigate("$createUpdateRestaurantScreenRoute/$restaurantId") {
         popUpTo ?: return@navigate
         popUpTo(popUpTo) {
             inclusive = true
@@ -33,7 +45,20 @@ fun NavHostController.navigateToCreateBranch(
     restaurantId: String,
     popUpTo: String? = null,
 ) {
-    navigate("$createBranchScreenRoute/$restaurantId") {
+    navigate("$createUpdateBranchScreenRoute/$restaurantId/null") {
+        popUpTo ?: return@navigate
+        popUpTo(popUpTo) {
+            inclusive = true
+        }
+    }
+}
+
+fun NavHostController.navigateToUpdateBranch(
+    branchId: String,
+    restaurantId: String,
+    popUpTo: String? = null,
+) {
+    navigate("$createUpdateBranchScreenRoute/$restaurantId/$branchId") {
         popUpTo ?: return@navigate
         popUpTo(popUpTo) {
             inclusive = true

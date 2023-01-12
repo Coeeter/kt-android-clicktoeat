@@ -275,7 +275,7 @@ private fun LazyListScope.allRestaurantsSection(
     }
     if (!state.isLoading) items(state.restaurantList.chunked(2)) { chunk ->
         Row {
-            repeat(2) {
+            repeat(chunk.size) {
                 RestaurantCard(
                     modifier = Modifier.weight(1f),
                     restaurant = chunk[it],
@@ -289,6 +289,7 @@ private fun LazyListScope.allRestaurantsSection(
                     }
                 )
             }
+            if (chunk.size == 1) Box(modifier = Modifier.weight(1f))
         }
     }
 }

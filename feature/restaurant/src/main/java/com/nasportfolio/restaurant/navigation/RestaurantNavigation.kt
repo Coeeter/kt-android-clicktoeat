@@ -1,14 +1,13 @@
 package com.nasportfolio.restaurant.navigation
 
-import androidx.activity.compose.BackHandler
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.nasportfolio.common.navigation.*
-import com.nasportfolio.restaurant.create.branch.CreateBranchScreen
-import com.nasportfolio.restaurant.create.restaurant.CreateRestaurantScreen
+import com.nasportfolio.restaurant.createUpdate.branch.CreateUpdateBranchScreen
+import com.nasportfolio.restaurant.createUpdate.restaurant.CreateUpdateRestaurantScreen
 import com.nasportfolio.restaurant.details.RestaurantDetailsScreen
 import com.nasportfolio.restaurant.home.HomeScreen
 
@@ -18,25 +17,30 @@ fun NavGraphBuilder.restaurantComposable(
     composable(homeScreenRoute) {
         HomeScreen(navController = navController)
     }
-    composable(createRestaurantScreenRoute) {
-        CreateRestaurantScreen(navController = navController)
+    composable(
+        route = "$createUpdateRestaurantScreenRoute/{restaurantId}",
+        arguments = listOf(
+            navArgument(name = "restaurantId") {
+                type = NavType.StringType
+            }
+        )
+    ) {
+        CreateUpdateRestaurantScreen(navController = navController)
     }
     composable(
-        route = "$createBranchScreenRoute/{restaurantId}",
+        route = "$createUpdateBranchScreenRoute/{restaurantId}/{branchId}",
         arguments = listOf(
             navArgument(name = "restaurantId") {
                 defaultValue = ""
                 type = NavType.StringType
                 nullable = false
+            },
+            navArgument(name = "branchId") {
+                type = NavType.StringType
             }
         )
     ) {
-        BackHandler(enabled = true) {
-            navController.navigateToHomeScreen(
-                popUpTo = "$createBranchScreenRoute/{restaurantId}"
-            )
-        }
-        CreateBranchScreen(navController = navController)
+        CreateUpdateBranchScreen(navController = navController)
     }
     composable(
         route = "$restaurantDetailScreenRoute/{restaurantId}",

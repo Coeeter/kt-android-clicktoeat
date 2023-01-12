@@ -1,4 +1,4 @@
-package com.nasportfolio.restaurant.create.branch
+package com.nasportfolio.restaurant.createUpdate.branch
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -14,11 +14,11 @@ import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
-class CreateBranchViewModel @Inject constructor(
+class CreateUpdateBranchViewModel @Inject constructor(
     private val createBranchUseCase: CreateBranchUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val _state = MutableStateFlow(CreateBranchState())
+    private val _state = MutableStateFlow(CreateUpdateBranchState())
     val state = _state.asStateFlow()
 
     private val _errorChannel = Channel<String>()
@@ -35,21 +35,21 @@ class CreateBranchViewModel @Inject constructor(
         }
     }
 
-    fun onEvent(event: CreateBranchEvent) {
+    fun onEvent(event: CreateUpdateBranchEvent) {
         when (event) {
-            is CreateBranchEvent.OnAddressChanged -> _state.update { state ->
+            is CreateUpdateBranchEvent.OnAddressChanged -> _state.update { state ->
                 state.copy(
                     address = event.address,
                     addressError = null
                 )
             }
-            is CreateBranchEvent.OnLocationChanged -> _state.update { state ->
+            is CreateUpdateBranchEvent.OnLocationChanged -> _state.update { state ->
                 state.copy(
                     latLng = event.latLng,
                     latLngError = null
                 )
             }
-            is CreateBranchEvent.OnSubmit -> onSubmit()
+            is CreateUpdateBranchEvent.OnSubmit -> onSubmit()
         }
     }
 

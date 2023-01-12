@@ -1,4 +1,4 @@
-package com.nasportfolio.restaurant.create.restaurant
+package com.nasportfolio.restaurant.createUpdate.restaurant
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.border
@@ -30,27 +30,29 @@ import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.CltButton
 import com.nasportfolio.common.components.CltImagePicker
 import com.nasportfolio.common.components.CltInput
-import com.nasportfolio.common.navigation.createRestaurantScreenRoute
+import com.nasportfolio.common.navigation.createUpdateRestaurantScreenRoute
 import com.nasportfolio.common.navigation.navigateToCreateBranch
+import com.nasportfolio.common.navigation.navigateToRestaurantDetails
+import com.nasportfolio.common.navigation.restaurantDetailScreenRoute
 import com.nasportfolio.common.theme.mediumOrange
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun CreateRestaurantScreen(
+fun CreateUpdateRestaurantScreen(
     navController: NavHostController,
-    createRestaurantViewModel: CreateRestaurantViewModel = hiltViewModel()
+    createUpdateRestaurantViewModel: CreateUpdateRestaurantViewModel = hiltViewModel()
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val focusManager = LocalFocusManager.current
 
-    val state by createRestaurantViewModel.state.collectAsState()
+    val state by createUpdateRestaurantViewModel.state.collectAsState()
     val scaffoldState = rememberScaffoldState()
 
     LaunchedEffect(true) {
         lifecycleOwner.lifecycleScope.launch {
             lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                createRestaurantViewModel.errorChannel.collect {
+                createUpdateRestaurantViewModel.errorChannel.collect {
                     scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
                     scaffoldState.snackbarHostState.showSnackbar(
                         message = it,
@@ -61,11 +63,18 @@ fun CreateRestaurantScreen(
         }
     }
 
-    LaunchedEffect(state.insertId) {
+    LaunchedEffect(state.insertId, state.isUpdated) {
         state.insertId ?: return@LaunchedEffect
+        if (!state.isUpdated) return@LaunchedEffect
+        if (state.isUpdating) return@LaunchedEffect run {
+            navController.navigateToRestaurantDetails(
+                restaurantId = state.insertId!!,
+                popUpTo = "$restaurantDetailScreenRoute/{restaurantId}"
+            )
+        }
         navController.navigateToCreateBranch(
             restaurantId = state.insertId!!,
-            popUpTo = createRestaurantScreenRoute
+            popUpTo = createUpdateRestaurantScreenRoute
         )
     }
 
@@ -99,8 +108,8 @@ fun CreateRestaurantScreen(
                     .border(width = 2.dp, color = mediumOrange),
                 value = state.image,
                 onValueChange = {
-                    createRestaurantViewModel.onEvent(
-                        event = CreateRestaurantEvent.OnImageChanged(image = it)
+                    createUpdateRestaurantViewModel.onEvent(
+                        event = CreateUpdateRestaurantEvent.OnImageChanged(image = it)
                     )
                 },
                 error = state.imageError,
@@ -127,8 +136,8 @@ fun CreateRestaurantScreen(
                             onNext = { focusManager.moveFocus(FocusDirection.Down) }
                         ),
                         onValueChange = {
-                            createRestaurantViewModel.onEvent(
-                                CreateRestaurantEvent.OnNameChanged(name = it)
+                            createUpdateRestaurantViewModel.onEvent(
+                                CreateUpdateRestaurantEvent.OnNameChanged(name = it)
                             )
                         }
                     )
@@ -145,8 +154,8 @@ fun CreateRestaurantScreen(
                             onDone = { focusManager.clearFocus() }
                         ),
                         onValueChange = {
-                            createRestaurantViewModel.onEvent(
-                                CreateRestaurantEvent.OnDescriptionChanged(description = it)
+                            createUpdateRestaurantViewModel.onEvent(
+                                CreateUpdateRestaurantEvent.OnDescriptionChanged(description = it)
                             )
                         }
                     )
@@ -157,8 +166,8 @@ fun CreateRestaurantScreen(
                         enabled = !state.isLoading,
                         onClick = {
                             focusManager.clearFocus()
-                            createRestaurantViewModel.onEvent(
-                                CreateRestaurantEvent.OnSubmit
+                            createUpdateRestaurantViewModel.onEvent(
+                                CreateUpdateRestaurantEvent.OnSubmit
                             )
                         }
                     )
