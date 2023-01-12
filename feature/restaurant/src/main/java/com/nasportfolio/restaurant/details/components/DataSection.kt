@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.nasportfolio.common.components.CltHeading
+import com.nasportfolio.common.components.typography.CltHeading
 import com.nasportfolio.common.utils.toStringAsFixed
 import com.nasportfolio.domain.restaurant.TransformedRestaurant
 

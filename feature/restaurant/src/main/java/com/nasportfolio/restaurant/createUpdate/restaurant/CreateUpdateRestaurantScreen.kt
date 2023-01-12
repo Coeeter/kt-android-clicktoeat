@@ -27,9 +27,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
-import com.nasportfolio.common.components.CltButton
-import com.nasportfolio.common.components.CltImagePicker
-import com.nasportfolio.common.components.CltInput
+import com.nasportfolio.common.components.buttons.CltButton
+import com.nasportfolio.common.components.form.CltImagePicker
+import com.nasportfolio.common.components.form.CltInput
 import com.nasportfolio.common.navigation.createUpdateRestaurantScreenRoute
 import com.nasportfolio.common.navigation.navigateToCreateBranch
 import com.nasportfolio.common.navigation.navigateToRestaurantDetails

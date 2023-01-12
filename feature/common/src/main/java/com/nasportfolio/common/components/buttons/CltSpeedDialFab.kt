@@ -1,4 +1,4 @@
-package com.nasportfolio.common.components
+package com.nasportfolio.common.components.buttons
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween

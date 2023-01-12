@@ -1,4 +1,4 @@
-package com.nasportfolio.common.components
+package com.nasportfolio.common.components.typography
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.MaterialTheme

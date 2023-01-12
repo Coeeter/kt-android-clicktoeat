@@ -30,8 +30,8 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
-import com.nasportfolio.common.components.CltHeading
-import com.nasportfolio.common.components.CltShimmer
+import com.nasportfolio.common.components.typography.CltHeading
+import com.nasportfolio.common.components.loading.CltShimmer
 import com.nasportfolio.common.modifier.gradientBackground
 import com.nasportfolio.common.navigation.navigateToUpdateBranch
 import com.nasportfolio.common.theme.lightOrange

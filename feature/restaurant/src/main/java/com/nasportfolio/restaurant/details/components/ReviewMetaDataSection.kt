@@ -37,9 +37,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nasportfolio.common.components.CltButton
-import com.nasportfolio.common.components.CltHeading
-import com.nasportfolio.common.components.CltInput
+import com.nasportfolio.common.components.buttons.CltButton
+import com.nasportfolio.common.components.typography.CltHeading
+import com.nasportfolio.common.components.form.CltInput
 import com.nasportfolio.common.modifier.gradientBackground
 import com.nasportfolio.common.theme.lightOrange
 import com.nasportfolio.common.theme.mediumOrange

@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nasportfolio.common.components.bitmapCache
+import com.nasportfolio.common.components.images.bitmapCache
 import com.nasportfolio.domain.restaurant.usecases.CreateRestaurantUseCase
 import com.nasportfolio.domain.restaurant.usecases.GetRestaurantsUseCase
 import com.nasportfolio.domain.restaurant.usecases.UpdateRestaurantUseCase

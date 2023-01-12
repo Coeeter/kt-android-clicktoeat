@@ -1,4 +1,4 @@
-package com.nasportfolio.common.components
+package com.nasportfolio.common.components.form
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi

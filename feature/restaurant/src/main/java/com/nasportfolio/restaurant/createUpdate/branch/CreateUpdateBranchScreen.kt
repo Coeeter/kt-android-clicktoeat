@@ -37,8 +37,8 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.nasportfolio.common.components.CltButton
-import com.nasportfolio.common.components.CltInput
+import com.nasportfolio.common.components.buttons.CltButton
+import com.nasportfolio.common.components.form.CltInput
 import com.nasportfolio.common.navigation.*
 import com.nasportfolio.common.theme.mediumOrange
 import kotlinx.coroutines.launch

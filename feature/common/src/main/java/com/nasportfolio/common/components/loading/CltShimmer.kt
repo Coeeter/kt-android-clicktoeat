@@ -1,4 +1,4 @@
-package com.nasportfolio.common.components
+package com.nasportfolio.common.components.loading
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background

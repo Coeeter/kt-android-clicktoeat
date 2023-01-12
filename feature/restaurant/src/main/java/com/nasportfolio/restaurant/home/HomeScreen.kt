@@ -47,8 +47,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.nasportfolio.common.components.CltFloatingActionButton
-import com.nasportfolio.common.components.CltHeading
+import com.nasportfolio.common.components.buttons.CltFloatingActionButton
+import com.nasportfolio.common.components.typography.CltHeading
 import com.nasportfolio.common.modifier.scrollEnabled
 import com.nasportfolio.common.navigation.homeScreenRoute
 import com.nasportfolio.common.navigation.navigateToAuthScreen

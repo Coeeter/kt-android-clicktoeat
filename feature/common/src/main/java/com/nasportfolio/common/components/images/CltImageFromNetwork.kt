@@ -1,4 +1,4 @@
-package com.nasportfolio.common.components
+package com.nasportfolio.common.components.images
 
 import android.graphics.BitmapFactory
 import androidx.compose.animation.ExperimentalAnimationApi

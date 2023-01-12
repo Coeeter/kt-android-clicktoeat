@@ -13,7 +13,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.nasportfolio.common.components.CltShimmer
+import com.nasportfolio.common.components.loading.CltShimmer
 import com.nasportfolio.common.theme.mediumOrange
 
 @Composable

@@ -20,8 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
-import com.nasportfolio.common.components.CltImageFromNetwork
-import com.nasportfolio.common.components.CltShimmer
+import com.nasportfolio.common.components.images.CltImageFromNetwork
+import com.nasportfolio.common.components.loading.CltShimmer
 import com.nasportfolio.common.navigation.homeScreenRoute
 import com.nasportfolio.common.navigation.navigateToHomeScreen
 import com.nasportfolio.common.theme.mediumOrange

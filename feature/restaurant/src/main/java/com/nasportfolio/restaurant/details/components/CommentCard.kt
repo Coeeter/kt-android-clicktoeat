@@ -17,9 +17,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nasportfolio.common.components.CltHeading
-import com.nasportfolio.common.components.CltImageFromNetwork
-import com.nasportfolio.common.components.CltShimmer
+import com.nasportfolio.common.components.typography.CltHeading
+import com.nasportfolio.common.components.images.CltImageFromNetwork
+import com.nasportfolio.common.components.loading.CltShimmer
 import com.nasportfolio.common.theme.mediumOrange
 import com.nasportfolio.domain.comment.Comment
 import java.text.SimpleDateFormat
