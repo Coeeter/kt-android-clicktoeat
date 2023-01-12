@@ -63,14 +63,15 @@ fun CreateUpdateRestaurantScreen(
         }
     }
 
-    LaunchedEffect(state.insertId, state.isUpdated) {
+    LaunchedEffect(state.insertId, state.isUpdateComplete) {
         state.insertId ?: return@LaunchedEffect
-        if (!state.isUpdated) return@LaunchedEffect
-        if (state.isUpdating) return@LaunchedEffect run {
-            navController.navigateToRestaurantDetails(
-                restaurantId = state.insertId!!,
-                popUpTo = "$restaurantDetailScreenRoute/{restaurantId}"
-            )
+        if (state.isUpdateForm) {
+            if (state.isUpdateComplete)
+                navController.navigateToRestaurantDetails(
+                    restaurantId = state.insertId!!,
+                    popUpTo = "$restaurantDetailScreenRoute/{restaurantId}"
+                )
+            return@LaunchedEffect
         }
         navController.navigateToCreateBranch(
             restaurantId = state.insertId!!,
@@ -82,7 +83,7 @@ fun CreateUpdateRestaurantScreen(
         scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
-                title = { Text(text = "Create restaurant") },
+                title = { Text(text = if (state.isUpdateForm) "Update restaurant" else "Create restaurant") },
                 navigationIcon = {
                     IconButton(onClick = navController::popBackStack) {
                         Icon(

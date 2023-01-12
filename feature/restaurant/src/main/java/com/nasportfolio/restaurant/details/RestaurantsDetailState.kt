@@ -24,5 +24,8 @@ data class RestaurantsDetailState(
     val editingRatingValue: Int = 0,
     val editingReviewError: String? = null,
     val editingRatingError: String? = null,
-    val isEditSubmitting: Boolean = false
+    val isEditSubmitting: Boolean = false,
+
+    val isDeleted: Boolean = false,
+    val isDeleting: Boolean = false,
 )

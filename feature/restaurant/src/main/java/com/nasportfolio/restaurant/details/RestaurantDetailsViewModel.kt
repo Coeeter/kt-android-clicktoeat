@@ -14,6 +14,7 @@ import com.nasportfolio.domain.comment.usecases.CreateCommentUseCase
 import com.nasportfolio.domain.comment.usecases.DeleteCommentUseCase
 import com.nasportfolio.domain.comment.usecases.EditCommentUseCase
 import com.nasportfolio.domain.favorites.usecases.ToggleFavoriteUseCase
+import com.nasportfolio.domain.restaurant.usecases.DeleteRestaurantUseCase
 import com.nasportfolio.domain.restaurant.usecases.GetRestaurantsUseCase
 import com.nasportfolio.domain.user.usecases.GetCurrentLoggedInUser
 import com.nasportfolio.domain.utils.Resource
@@ -36,6 +37,7 @@ class RestaurantDetailsViewModel @Inject constructor(
     private val editCommentUseCase: EditCommentUseCase,
     private val deleteCommentUseCase: DeleteCommentUseCase,
     private val fusedLocationProviderClient: FusedLocationProviderClient,
+    private val deleteRestaurantUseCase: DeleteRestaurantUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _state = MutableStateFlow(RestaurantsDetailState())
@@ -275,6 +277,31 @@ class RestaurantDetailsViewModel @Inject constructor(
         }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
     }
 
+    private fun deleteRestaurant() {
+        _state.value.restaurant?.let {
+            deleteRestaurantUseCase(it.id).onEach { deleteResource ->
+                when (deleteResource) {
+                    is Resource.Success -> _state.update { state ->
+                        state.copy(
+                            isDeleted = true,
+                            isDeleting = false
+                        )
+                    }
+                    is Resource.Loading -> _state.update { state ->
+                        state.copy(
+                            isDeleting = deleteResource.isLoading
+                        )
+                    }
+                    is Resource.Failure -> {
+                        if (deleteResource.error !is ResourceError.DefaultError) return@onEach
+                        val error = (deleteResource.error as ResourceError.DefaultError).error
+                        _errorChannel.send(error)
+                    }
+                }
+            }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
+        }
+    }
+
     private fun setAnimationIsDone(isDone: Boolean) {
         _state.update { state ->
             state.copy(isAnimationDone = isDone)
@@ -346,6 +373,9 @@ class RestaurantDetailsViewModel @Inject constructor(
             }
             is RestaurantDetailsEvent.OnCompleteEdit -> {
                 editComment()
+            }
+            is RestaurantDetailsEvent.DeleteRestaurant -> {
+                deleteRestaurant()
             }
         }
     }

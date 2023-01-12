@@ -11,6 +11,6 @@ data class CreateUpdateRestaurantState(
     val imageError: String? = null,
     val isLoading: Boolean = false,
     val insertId: String? = null,
-    val isUpdating: Boolean = false,
-    val isUpdated: Boolean = false
+    val isUpdateForm: Boolean = false,
+    val isUpdateComplete: Boolean = false
 )

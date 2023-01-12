@@ -12,4 +12,5 @@ sealed class RestaurantDetailsEvent {
     class OnEditReview(val review: String) : RestaurantDetailsEvent()
     class OnEditRating(val rating: Int) : RestaurantDetailsEvent()
     object OnCompleteEdit : RestaurantDetailsEvent()
+    object DeleteRestaurant: RestaurantDetailsEvent()
 }

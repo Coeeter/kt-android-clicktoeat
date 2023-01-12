@@ -15,13 +15,14 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -37,12 +38,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
-import com.nasportfolio.common.components.CltButton
-import com.nasportfolio.common.components.CltHeading
-import com.nasportfolio.common.components.CltInput
-import com.nasportfolio.common.components.CltShimmer
+import com.nasportfolio.common.components.*
 import com.nasportfolio.common.navigation.homeScreenRoute
 import com.nasportfolio.common.navigation.navigateToHomeScreen
+import com.nasportfolio.common.navigation.navigateToUpdateRestaurant
 import com.nasportfolio.common.theme.mediumOrange
 import com.nasportfolio.domain.restaurant.TransformedRestaurant
 import com.nasportfolio.restaurant.details.components.*
@@ -62,6 +61,9 @@ fun RestaurantDetailsScreen(
     var isScrollEnabled by remember {
         mutableStateOf(true)
     }
+    var openDeleteDialog by remember {
+        mutableStateOf(false)
+    }
 
     LaunchedEffect(true) {
         lifecycleOwner.lifecycleScope.launch {
@@ -78,6 +80,14 @@ fun RestaurantDetailsScreen(
         isScrollEnabled = !state.isLoading
     }
 
+    LaunchedEffect(state.isDeleted) {
+        if (!state.isDeleted) return@LaunchedEffect
+        openDeleteDialog = false
+        navController.navigateToHomeScreen(
+            popUpTo = homeScreenRoute
+        )
+    }
+
     BackHandler(enabled = true) {
         if (!state.isUpdated) return@BackHandler run {
             navController.popBackStack()
@@ -87,7 +97,18 @@ fun RestaurantDetailsScreen(
         )
     }
 
-    Scaffold(scaffoldState = scaffoldState) {
+    Scaffold(
+        scaffoldState = scaffoldState,
+        floatingActionButton = {
+            SpeedDial(
+                state = state,
+                navController = navController,
+                openDialog = {
+                    openDeleteDialog = true
+                }
+            )
+        }
+    ) {
         ParallaxToolbar(
             state = state,
             navController = navController,
@@ -108,12 +129,109 @@ fun RestaurantDetailsScreen(
                 )
             } ?: LoadingComponent()
         }
+
+        if (openDeleteDialog) AlertDialog(
+            onDismissRequest = { openDeleteDialog = false },
+            title = {
+                Text(text = "Are you sure you want to delete restaurant ${state.restaurant?.name}")
+            },
+            text = {
+                Text(text = "This action is irreversible and will delete all data related to this restaurant")
+            },
+            buttons = {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
+                ) {
+                    CltButton(
+                        modifier = Modifier.weight(1f),
+                        text = "Cancel",
+                        withLoading = false,
+                        enabled = true,
+                        onClick = {
+                            openDeleteDialog = false
+                        }
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    CltButton(
+                        modifier = Modifier.weight(1f),
+                        text = "Delete",
+                        withLoading = true,
+                        enabled = !state.isDeleting,
+                        gradient = Brush.horizontalGradient(
+                            colors = listOf(Color(0xFFE60000), Color(0xFFFF5E5E))
+                        ),
+                        onClick = {
+                            restaurantDetailsViewModel.onEvent(
+                                event = RestaurantDetailsEvent.DeleteRestaurant
+                            )
+                        }
+                    )
+                }
+            }
+        )
     }
 
     if (state.commentBeingEdited != null) EditCommentDialog(
         state = state,
         restaurantDetailsViewModel = restaurantDetailsViewModel,
         config = config
+    )
+}
+
+@Composable
+private fun SpeedDial(
+    state: RestaurantsDetailState,
+    navController: NavHostController,
+    openDialog: () -> Unit
+) {
+    val speedDialState = rememberSpeedDialState()
+
+    CltSpeedDialFab(
+        state = speedDialState,
+        buttons = {
+            CltSpeedDialFabItem(
+                backgroundColor = mediumOrange,
+                hint = "Add branch",
+                onClick = { /*TODO*/ }
+            ) {
+                Icon(imageVector = Icons.Default.AddLocation, contentDescription = null)
+            }
+            CltSpeedDialFabItem(
+                backgroundColor = mediumOrange,
+                hint = "Edit restaurant",
+                onClick = {
+                    state.restaurant?.let {
+                        navController.navigateToUpdateRestaurant(
+                            restaurantId = it.id
+                        )
+                    }
+                }
+            ) {
+                Icon(imageVector = Icons.Default.Restaurant, contentDescription = null)
+            }
+            CltSpeedDialFabItem(
+                backgroundColor = Color.Red,
+                hint = "Delete restaurant",
+                onClick = {
+                    openDialog()
+                    speedDialState.isExpanded = false
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = null,
+                    tint = Color.White
+                )
+            }
+        },
+        expandedChild = {
+            Icon(imageVector = Icons.Default.Close, contentDescription = null)
+        },
+        collapsedChild = {
+            Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+        }
     )
 }
 

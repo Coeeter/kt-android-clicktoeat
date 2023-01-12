@@ -165,7 +165,7 @@ fun HomeScreen(
                 state = rememberSwipeRefreshState(isRefreshing = state.isRefreshing),
                 onRefresh = { homeViewModel.refreshPage() }
             ) {
-                LazyColumn(
+                if (state.isLoading || state.restaurantList.isNotEmpty()) LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
                         .scrollEnabled(enabled = !state.isLoading),
@@ -208,8 +208,11 @@ fun HomeScreen(
                         navController = navController
                     )
                 }
-                if (!state.isLoading && state.restaurantList.isEmpty())
-                    EmptyRestaurants()
+                if (!state.isLoading && state.restaurantList.isEmpty()) LazyColumn {
+                    item {
+                        EmptyRestaurants()
+                    }
+                }
             }
         }
     }

@@ -36,7 +36,7 @@ class CreateUpdateRestaurantViewModel @Inject constructor(
     init {
         savedStateHandle.get<String>("restaurantId")?.let {
             if (it == "null") return@let
-            _state.update { state -> state.copy(isUpdating = true) }
+            _state.update { state -> state.copy(isUpdateForm = true) }
             getRestaurant(restaurantId = it)
         }
     }
@@ -94,7 +94,7 @@ class CreateUpdateRestaurantViewModel @Inject constructor(
     }
 
     private fun onSubmit() {
-        if (!_state.value.isUpdating) return createRestaurant()
+        if (!_state.value.isUpdateForm) return createRestaurant()
         updateRestaurant()
     }
 
@@ -110,7 +110,7 @@ class CreateUpdateRestaurantViewModel @Inject constructor(
                     is Resource.Success -> _state.update { state ->
                         state.copy(
                             isLoading = false,
-                            isUpdated = true,
+                            isUpdateComplete = true,
                         )
                     }
                     is Resource.Loading -> _state.update { state ->
