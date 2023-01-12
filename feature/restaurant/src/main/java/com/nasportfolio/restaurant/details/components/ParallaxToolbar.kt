@@ -30,7 +30,7 @@ import com.nasportfolio.restaurant.details.RestaurantsDetailState
 @Composable
 fun ParallaxToolbar(
     modifier: Modifier = Modifier,
-    isScrollEnabled: Boolean = true,
+    isScrollEnabled: Boolean,
     state: RestaurantsDetailState,
     navController: NavHostController,
     toggleFavorite: () -> Unit,

@@ -41,6 +41,7 @@ import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.*
 import com.nasportfolio.common.modifier.gradientBackground
 import com.nasportfolio.common.navigation.homeScreenRoute
+import com.nasportfolio.common.navigation.navigateToCreateBranch
 import com.nasportfolio.common.navigation.navigateToHomeScreen
 import com.nasportfolio.common.navigation.navigateToUpdateRestaurant
 import com.nasportfolio.common.theme.lightOrange
@@ -60,11 +61,17 @@ fun RestaurantDetailsScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
     val scaffoldState = rememberScaffoldState()
     val state by restaurantDetailsViewModel.state.collectAsState()
-    var isScrollEnabled by remember {
+    val (isScrollEnabled, setIsScrollEnabled) = remember {
         mutableStateOf(true)
     }
-    var openDeleteDialog by remember {
+    var openRestaurantDeleteDialog by remember {
         mutableStateOf(false)
+    }
+    var openBranchDeleteDialog by remember {
+        mutableStateOf(false)
+    }
+    var branchToBeDeletedId by remember {
+        mutableStateOf<String?>(null)
     }
 
     LaunchedEffect(true) {
@@ -79,12 +86,12 @@ fun RestaurantDetailsScreen(
     }
 
     LaunchedEffect(state.isLoading) {
-        isScrollEnabled = !state.isLoading
+        setIsScrollEnabled(!state.isLoading)
     }
 
     LaunchedEffect(state.isDeleted) {
         if (!state.isDeleted) return@LaunchedEffect
-        openDeleteDialog = false
+        openRestaurantDeleteDialog = false
         navController.navigateToHomeScreen(
             popUpTo = homeScreenRoute
         )
@@ -106,7 +113,7 @@ fun RestaurantDetailsScreen(
                 state = state,
                 navController = navController,
                 openDialog = {
-                    openDeleteDialog = true
+                    openRestaurantDeleteDialog = true
                 }
             )
         }
@@ -125,53 +132,32 @@ fun RestaurantDetailsScreen(
                 ScreenContent(
                     restaurant = restaurant,
                     state = state,
-                    isScrollEnabled = isScrollEnabled,
+                    navController = navController,
                     restaurantDetailsViewModel = restaurantDetailsViewModel,
-                    config = config
+                    config = config,
+                    setIsScrollEnabled = setIsScrollEnabled,
+                    setOpenDeleteDialog = {
+                        branchToBeDeletedId = it
+                        openBranchDeleteDialog = true
+                    }
                 )
             } ?: LoadingComponent()
         }
 
-        if (openDeleteDialog) AlertDialog(
-            onDismissRequest = { openDeleteDialog = false },
-            title = {
-                Text(text = "Are you sure you want to delete restaurant ${state.restaurant?.name}")
-            },
-            text = {
-                Text(text = "This action is irreversible and will delete all data related to this restaurant")
-            },
-            buttons = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp)
-                ) {
-                    CltButton(
-                        modifier = Modifier.weight(1f),
-                        text = "Cancel",
-                        withLoading = false,
-                        enabled = true,
-                        onClick = {
-                            openDeleteDialog = false
-                        }
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    CltButton(
-                        modifier = Modifier.weight(1f),
-                        text = "Delete",
-                        withLoading = true,
-                        enabled = !state.isDeleting,
-                        gradient = Brush.horizontalGradient(
-                            colors = listOf(Color(0xFFE60000), Color(0xFFFF5E5E))
-                        ),
-                        onClick = {
-                            restaurantDetailsViewModel.onEvent(
-                                event = RestaurantDetailsEvent.DeleteRestaurant
-                            )
-                        }
-                    )
-                }
-            }
+        if (openRestaurantDeleteDialog) DeleteDialog(
+            setIsOpen = { openRestaurantDeleteDialog = it },
+            state = state,
+            restaurantDetailsViewModel = restaurantDetailsViewModel
+        )
+        if (openBranchDeleteDialog) DeleteDialog(
+            setIsOpen = { openBranchDeleteDialog = it },
+            state = state,
+            restaurantDetailsViewModel = restaurantDetailsViewModel,
+            title = "this branch?",
+            content = "branch",
+            event = RestaurantDetailsEvent.DeleteBranch(
+                branchId = branchToBeDeletedId!!
+            )
         )
     }
 
@@ -179,6 +165,59 @@ fun RestaurantDetailsScreen(
         state = state,
         restaurantDetailsViewModel = restaurantDetailsViewModel,
         config = config
+    )
+}
+
+@Composable
+private fun DeleteDialog(
+    setIsOpen: (Boolean) -> Unit,
+    state: RestaurantsDetailState,
+    restaurantDetailsViewModel: RestaurantDetailsViewModel,
+    title: String = "restaurant ${state.restaurant?.name}?",
+    content: String = "restaurant",
+    event: RestaurantDetailsEvent = RestaurantDetailsEvent.DeleteRestaurant
+) {
+    AlertDialog(
+        onDismissRequest = { setIsOpen(false) },
+        title = {
+            Text(text = "Are you sure you want to delete $title")
+        },
+        text = {
+            Text(text = "This action is irreversible and will delete all data related to this $content")
+        },
+        buttons = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+            ) {
+                CltButton(
+                    modifier = Modifier.weight(1f),
+                    text = "Cancel",
+                    withLoading = false,
+                    enabled = true,
+                    onClick = {
+                        setIsOpen(false)
+                    }
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                CltButton(
+                    modifier = Modifier.weight(1f),
+                    text = "Delete",
+                    withLoading = true,
+                    enabled = !state.isDeleting,
+                    gradient = Brush.horizontalGradient(
+                        colors = listOf(Color(0xFFE60000), Color(0xFFFF5E5E))
+                    ),
+                    onClick = {
+                        setIsOpen(false)
+                        restaurantDetailsViewModel.onEvent(
+                            event = event
+                        )
+                    }
+                )
+            }
+        }
     )
 }
 
@@ -196,7 +235,13 @@ private fun SpeedDial(
             CltSpeedDialFabItem(
                 backgroundColor = mediumOrange,
                 hint = "Add branch",
-                onClick = { /*TODO*/ }
+                onClick = {
+                    state.restaurant?.let {
+                        navController.navigateToCreateBranch(
+                            restaurantId = it.id
+                        )
+                    }
+                }
             ) {
                 Icon(imageVector = Icons.Default.AddLocation, contentDescription = null)
             }
@@ -241,11 +286,12 @@ private fun SpeedDial(
 private fun ScreenContent(
     restaurant: TransformedRestaurant,
     state: RestaurantsDetailState,
-    isScrollEnabled: Boolean,
+    navController: NavHostController,
     restaurantDetailsViewModel: RestaurantDetailsViewModel,
-    config: Configuration
+    config: Configuration,
+    setIsScrollEnabled: (Boolean) -> Unit,
+    setOpenDeleteDialog: (String) -> Unit
 ) {
-    var isScrollEnabled1 = isScrollEnabled
     Column(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -270,13 +316,15 @@ private fun ScreenContent(
             Spacer(modifier = Modifier.height(10.dp))
             BranchesSection(
                 state = state,
-                setIsScrollEnabled = {
-                    isScrollEnabled1 = it
-                },
+                navController = navController,
+                setIsScrollEnabled = setIsScrollEnabled,
                 setIsAnimationDone = {
                     restaurantDetailsViewModel.onEvent(
                         event = RestaurantDetailsEvent.AnimationOverEvent(it)
                     )
+                },
+                deleteBranch = {
+                    setOpenDeleteDialog(it)
                 }
             )
             Spacer(modifier = Modifier.height(10.dp))

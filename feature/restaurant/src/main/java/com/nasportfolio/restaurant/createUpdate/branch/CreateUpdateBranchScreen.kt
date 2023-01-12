@@ -30,6 +30,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -38,9 +39,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.nasportfolio.common.components.CltButton
 import com.nasportfolio.common.components.CltInput
-import com.nasportfolio.common.navigation.createUpdateBranchScreenRoute
-import com.nasportfolio.common.navigation.homeScreenRoute
-import com.nasportfolio.common.navigation.navigateToHomeScreen
+import com.nasportfolio.common.navigation.*
 import com.nasportfolio.common.theme.mediumOrange
 import kotlinx.coroutines.launch
 
@@ -83,9 +82,43 @@ fun CreateUpdateBranchScreen(
         )
     }
 
+    LaunchedEffect(state.isUpdated) {
+        if (!state.isUpdated) return@LaunchedEffect
+        state.restaurantId?.let {
+            navController.navigateToRestaurantDetails(
+                restaurantId = it,
+                popUpTo = "$restaurantDetailScreenRoute/{restaurantId}"
+            )
+        }
+    }
+
+    LaunchedEffect(state.latLng) {
+        state.latLng?.let {
+            cameraPositionState.animate(
+                CameraUpdateFactory.newLatLngZoom(
+                    it,
+                    16f
+                )
+            )
+        }
+    }
+
     BackHandler(enabled = true) {
+        if (state.isUpdateForm) {
+            if (state.isUpdated) {
+                state.restaurantId?.let {
+                    navController.navigateToRestaurantDetails(
+                        restaurantId = it,
+                        popUpTo = "$restaurantDetailScreenRoute/{restaurantId}"
+                    )
+                }
+                return@BackHandler
+            }
+            navController.popBackStack()
+            return@BackHandler
+        }
         navController.navigateToHomeScreen(
-            popUpTo = "$createUpdateBranchScreenRoute/{restaurantId}"
+            popUpTo = "$createUpdateBranchScreenRoute/{restaurantId}/{branchId}"
         )
     }
 
@@ -93,10 +126,29 @@ fun CreateUpdateBranchScreen(
         scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
-                title = { Text(text = "Add branch to restaurant") },
+                title = {
+                    Text(
+                        text = state.branchId?.let {
+                            "Update branch"
+                        } ?: "Add branch to restaurant"
+                    )
+                },
                 navigationIcon = {
                     IconButton(
                         onClick = {
+                            if (state.isUpdateForm) {
+                                if (state.isUpdated) {
+                                    state.restaurantId?.let {
+                                        navController.navigateToRestaurantDetails(
+                                            restaurantId = it,
+                                            popUpTo = "$restaurantDetailScreenRoute/{restaurantId}"
+                                        )
+                                    }
+                                    return@IconButton
+                                }
+                                navController.popBackStack()
+                                return@IconButton
+                            }
                             navController.navigateToHomeScreen(
                                 popUpTo = homeScreenRoute
                             )

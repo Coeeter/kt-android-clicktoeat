@@ -10,6 +10,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.OnTokenCanceledListener
+import com.nasportfolio.domain.branch.usecases.DeleteBranchUseCase
 import com.nasportfolio.domain.comment.usecases.CreateCommentUseCase
 import com.nasportfolio.domain.comment.usecases.DeleteCommentUseCase
 import com.nasportfolio.domain.comment.usecases.EditCommentUseCase
@@ -38,6 +39,7 @@ class RestaurantDetailsViewModel @Inject constructor(
     private val deleteCommentUseCase: DeleteCommentUseCase,
     private val fusedLocationProviderClient: FusedLocationProviderClient,
     private val deleteRestaurantUseCase: DeleteRestaurantUseCase,
+    private val deleteBranchUseCase: DeleteBranchUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _state = MutableStateFlow(RestaurantsDetailState())
@@ -302,6 +304,37 @@ class RestaurantDetailsViewModel @Inject constructor(
         }
     }
 
+    private fun deleteBranch(branchId: String) {
+        val restaurant = _state.value.restaurant ?: return
+        lateinit var oldState: RestaurantsDetailState
+        _state.update { state ->
+            oldState = state
+            state.copy(
+                restaurant = restaurant.copy(
+                    branches = restaurant.branches.toMutableList().apply {
+                        val index = map { it.id }.indexOf(branchId)
+                        removeAt(index)
+                    }
+                )
+            )
+        }
+        deleteBranchUseCase(
+            branchId = branchId,
+            restaurantId = _state.value.restaurant!!.id
+        ).onEach {
+            when (it) {
+                is Resource.Failure -> {
+                    _state.value = oldState
+                    if (it.error !is ResourceError.DefaultError) return@onEach
+                    val defaultError = it.error as ResourceError.DefaultError
+                    _errorChannel.send(defaultError.error)
+                }
+                else -> Unit
+            }
+        }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
+
+    }
+
     private fun setAnimationIsDone(isDone: Boolean) {
         _state.update { state ->
             state.copy(isAnimationDone = isDone)
@@ -376,6 +409,9 @@ class RestaurantDetailsViewModel @Inject constructor(
             }
             is RestaurantDetailsEvent.DeleteRestaurant -> {
                 deleteRestaurant()
+            }
+            is RestaurantDetailsEvent.DeleteBranch -> {
+                deleteBranch(branchId = event.branchId)
             }
         }
     }

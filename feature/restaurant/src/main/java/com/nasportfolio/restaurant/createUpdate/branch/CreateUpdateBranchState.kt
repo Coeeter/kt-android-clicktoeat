@@ -10,5 +10,8 @@ data class CreateUpdateBranchState(
     val latLngError: String? = null,
     val isLoading: Boolean = false,
     val isError: Boolean = false,
-    val isCreated: Boolean = false
+    val isCreated: Boolean = false,
+    val branchId: String? = null,
+    val isUpdateForm: Boolean = false,
+    val isUpdated: Boolean = false,
 )

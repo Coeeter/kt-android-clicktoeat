@@ -22,7 +22,6 @@ class CreateBranchUseCase @Inject constructor(
             latitude = latitude,
             longitude = longitude
         )?.let {
-            print("debug: Hello got error")
             return@flow emit(
                 Resource.Failure(error = it)
             )
@@ -49,7 +48,7 @@ class CreateBranchUseCase @Inject constructor(
         return@flow emit(Resource.Success(Unit))
     }
 
-    private fun validate(
+    fun validate(
         address: String,
         latitude: Double?,
         longitude: Double?
