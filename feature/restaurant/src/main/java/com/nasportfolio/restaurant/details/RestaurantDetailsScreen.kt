@@ -362,8 +362,10 @@ private fun ScreenContent(
                         }
                     ) {
                         Row {
+                            var width = config.screenWidthDp.dp - 32.dp
+                            if (restaurant.comments.size != 1) width -= 10.dp
                             CommentCard(
-                                modifier = Modifier.width(config.screenWidthDp.dp - 42.dp),
+                                modifier = Modifier.width(width),
                                 comment = restaurant.comments[it],
                                 currentUserId = userId,
                                 editComment = {

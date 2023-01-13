@@ -35,8 +35,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.buttons.CltButton
-import com.nasportfolio.common.components.typography.CltHeading
 import com.nasportfolio.common.components.form.CltInput
+import com.nasportfolio.common.components.typography.CltHeading
 import com.nasportfolio.common.navigation.authScreenRoute
 import com.nasportfolio.common.navigation.navigateToHomeScreen
 import kotlinx.coroutines.launch
@@ -133,10 +133,12 @@ private fun FirstSignUpFormStage(
                 vertical = 15.dp
             )
         ) {
-            CltHeading(
-                text = "Create Account",
-                modifier = Modifier.fillMaxWidth()
-            )
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                CltHeading(text = "Create Account")
+            }
             Spacer(modifier = Modifier.height(20.dp))
             CltInput(
                 modifier = Modifier.fillMaxWidth(),
@@ -238,10 +240,12 @@ private fun SecondSignUpFormStage(
                 vertical = 15.dp
             )
         ) {
-            CltHeading(
-                text = "Secure your Account",
-                modifier = Modifier.fillMaxWidth()
-            )
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                CltHeading(text = "Secure your Account")
+            }
             Spacer(modifier = Modifier.height(20.dp))
             CltInput(
                 modifier = Modifier.fillMaxWidth(),

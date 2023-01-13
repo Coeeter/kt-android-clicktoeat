@@ -1,7 +1,15 @@
 package com.nasportfolio.restaurant.home
 
+import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.tasks.CancellationToken
+import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.gms.tasks.OnTokenCanceledListener
+import com.nasportfolio.domain.branch.usecases.GetBranchUseCase
 import com.nasportfolio.domain.favorites.usecases.ToggleFavoriteUseCase
 import com.nasportfolio.domain.restaurant.usecases.GetRestaurantsUseCase
 import com.nasportfolio.domain.user.UserRepository
@@ -13,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,7 +29,9 @@ class HomeViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val getRestaurantsUseCase: GetRestaurantsUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
-    private val getCurrentLoggedInUser: GetCurrentLoggedInUser
+    private val getCurrentLoggedInUser: GetCurrentLoggedInUser,
+    private val getBranchUseCase: GetBranchUseCase,
+    private val fusedLocationProviderClient: FusedLocationProviderClient
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeState())
     val state = _state.asStateFlow()
@@ -30,7 +41,9 @@ class HomeViewModel @Inject constructor(
 
     init {
         getRestaurants()
+        getBranches()
         getLoggedInUser()
+        getCurrentLocation()
     }
 
     fun refreshPage() {
@@ -38,6 +51,8 @@ class HomeViewModel @Inject constructor(
             state.copy(isRefreshing = true)
         }
         getRestaurants()
+        getBranches()
+        getCurrentLocation()
     }
 
     fun toggleFavorite(restaurantId: String) {
@@ -123,6 +138,49 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
+    }
+
+    private fun getBranches() {
+        getBranchUseCase().onEach {
+            when (it) {
+                is Resource.Success -> _state.update { state ->
+                    state.copy(branches = it.result)
+                }
+                is Resource.Failure -> {
+                    if (it.error !is ResourceError.DefaultError) return@onEach
+                    val defaultError = it.error as ResourceError.DefaultError
+                    _errorChannel.send(defaultError.error)
+                }
+                else -> Unit
+            }
+        }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getCurrentLocation() {
+        val task = fusedLocationProviderClient.getCurrentLocation(
+            LocationRequest.PRIORITY_HIGH_ACCURACY,
+            object : CancellationToken() {
+                override fun isCancellationRequested() = false
+                override fun onCanceledRequested(p0: OnTokenCanceledListener) =
+                    CancellationTokenSource().token
+            }
+        )
+        task.addOnCompleteListener {
+            it.exception?.let {
+                return@addOnCompleteListener runBlocking {
+                    _errorChannel.send(it.message.toString())
+                }
+            }
+            _state.update { state ->
+                state.copy(
+                    currentLocation = LatLng(
+                        it.result.latitude,
+                        it.result.longitude
+                    )
+                )
+            }
+        }
     }
 
     fun logout() {

@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.nasportfolio.domain.branch.usecases.CreateBranchUseCase
-import com.nasportfolio.domain.branch.usecases.GetBranchByIdUseCase
+import com.nasportfolio.domain.branch.usecases.GetBranchUseCase
 import com.nasportfolio.domain.branch.usecases.UpdateBranchUseCase
 import com.nasportfolio.domain.utils.Resource
 import com.nasportfolio.domain.utils.ResourceError
@@ -19,7 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CreateUpdateBranchViewModel @Inject constructor(
     private val createBranchUseCase: CreateBranchUseCase,
-    private val getBranchByIdUseCase: GetBranchByIdUseCase,
+    private val getBranchUseCase: GetBranchUseCase,
     private val updateBranchUseCase: UpdateBranchUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -46,7 +46,7 @@ class CreateUpdateBranchViewModel @Inject constructor(
     }
 
     private fun getBranch(branchId: String) {
-        getBranchByIdUseCase(branchId = branchId).onEach {
+        getBranchUseCase.byId(branchId = branchId).onEach {
             when (it) {
                 is Resource.Success -> _state.update { state ->
                     state.copy(

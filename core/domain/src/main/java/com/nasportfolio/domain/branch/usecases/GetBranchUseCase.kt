@@ -7,10 +7,15 @@ import com.nasportfolio.domain.utils.ResourceError
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-class GetBranchByIdUseCase @Inject constructor(
+class GetBranchUseCase @Inject constructor(
     private val branchRepository: BranchRepository
 ) {
-    operator fun invoke(branchId: String) = flow<Resource<Branch>> {
+    operator fun invoke() = flow<Resource<List<Branch>>> {
+        emit(Resource.Loading(isLoading = true))
+        emit(branchRepository.getAllBranches())
+    }
+
+    fun byId(branchId: String) = flow<Resource<Branch>> {
         emit(Resource.Loading(isLoading = true))
         when (val branchResources = branchRepository.getAllBranches()) {
             is Resource.Success -> {

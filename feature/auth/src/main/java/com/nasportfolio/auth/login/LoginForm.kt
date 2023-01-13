@@ -29,8 +29,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.buttons.CltButton
-import com.nasportfolio.common.components.typography.CltHeading
 import com.nasportfolio.common.components.form.CltInput
+import com.nasportfolio.common.components.typography.CltHeading
 import com.nasportfolio.common.navigation.authScreenRoute
 import com.nasportfolio.common.navigation.navigateToHomeScreen
 import kotlinx.coroutines.launch
@@ -79,10 +79,12 @@ internal fun LoginForm(
                 vertical = 15.dp
             )
         ) {
-            CltHeading(
-                text = "Login",
-                modifier = Modifier.fillMaxWidth()
-            )
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                CltHeading(text = "Login")
+            }
             Spacer(modifier = Modifier.height(20.dp))
             LoginInputs(
                 state = state,
