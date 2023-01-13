@@ -6,6 +6,7 @@ const val homeScreenRoute = "/home"
 const val restaurantDetailScreenRoute = "/restaurant"
 const val createUpdateRestaurantScreenRoute = "create-update/restaurant"
 const val createUpdateBranchScreenRoute = "create-update/branch"
+const val commentsScreenRoute = "/comments"
 
 fun NavHostController.navigateToHomeScreen(
     popUpTo: String? = null
@@ -71,6 +72,18 @@ fun NavHostController.navigateToRestaurantDetails(
     popUpTo: String? = null
 ) {
     navigate("$restaurantDetailScreenRoute/$restaurantId") {
+        popUpTo ?: return@navigate
+        popUpTo(popUpTo) {
+            inclusive = true
+        }
+    }
+}
+
+fun NavHostController.navigateToCommentsScreen(
+    restaurantId: String,
+    popUpTo: String? = null
+) {
+    navigate("$commentsScreenRoute/$restaurantId") {
         popUpTo ?: return@navigate
         popUpTo(popUpTo) {
             inclusive = true

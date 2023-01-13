@@ -37,10 +37,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.buttons.CltButton
-import com.nasportfolio.common.components.typography.CltHeading
 import com.nasportfolio.common.components.form.CltInput
+import com.nasportfolio.common.components.typography.CltHeading
 import com.nasportfolio.common.modifier.gradientBackground
+import com.nasportfolio.common.navigation.navigateToCommentsScreen
 import com.nasportfolio.common.theme.lightOrange
 import com.nasportfolio.common.theme.mediumOrange
 import com.nasportfolio.common.utils.toStringAsFixed
@@ -53,6 +55,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ReviewMetaDataSection(
+    navController: NavHostController,
     restaurant: TransformedRestaurant,
     restaurantDetailsViewModel: RestaurantDetailsViewModel
 ) {
@@ -66,10 +69,15 @@ fun ReviewMetaDataSection(
                 textAlign = TextAlign.Start,
                 fontSize = 30.sp
             )
-            if (restaurant.comments.isNotEmpty())
-                TextButton(onClick = { /*TODO*/ }) {
-                    Text(text = "See all")
+            if (restaurant.comments.isNotEmpty()) TextButton(
+                onClick = {
+                    navController.navigateToCommentsScreen(
+                        restaurantId = restaurant.id
+                    )
                 }
+            ) {
+                Text(text = "See all")
+            }
         }
         CreateReviewForm(restaurantDetailsViewModel = restaurantDetailsViewModel)
         Spacer(modifier = Modifier.height(10.dp))

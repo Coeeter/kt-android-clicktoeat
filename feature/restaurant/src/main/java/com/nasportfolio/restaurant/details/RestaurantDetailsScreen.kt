@@ -38,8 +38,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
-import com.nasportfolio.common.components.*
 import com.nasportfolio.common.components.buttons.CltButton
+import com.nasportfolio.common.components.buttons.CltSpeedDialFab
+import com.nasportfolio.common.components.buttons.CltSpeedDialFabItem
+import com.nasportfolio.common.components.buttons.rememberSpeedDialState
 import com.nasportfolio.common.components.form.CltInput
 import com.nasportfolio.common.components.loading.CltShimmer
 import com.nasportfolio.common.components.typography.CltHeading
@@ -334,7 +336,8 @@ private fun ScreenContent(
             Spacer(modifier = Modifier.height(10.dp))
             ReviewMetaDataSection(
                 restaurant = restaurant,
-                restaurantDetailsViewModel = restaurantDetailsViewModel
+                restaurantDetailsViewModel = restaurantDetailsViewModel,
+                navController = navController
             )
         }
         state.currentUserId?.let { userId ->
@@ -354,6 +357,9 @@ private fun ScreenContent(
                         } else {
                             3
                         },
+                        key = {
+                            restaurant.comments[it].id
+                        }
                     ) {
                         Row {
                             CommentCard(

@@ -6,6 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.nasportfolio.common.navigation.*
+import com.nasportfolio.restaurant.comments.CommentScreen
 import com.nasportfolio.restaurant.createUpdate.branch.CreateUpdateBranchScreen
 import com.nasportfolio.restaurant.createUpdate.restaurant.CreateUpdateRestaurantScreen
 import com.nasportfolio.restaurant.details.RestaurantDetailsScreen
@@ -53,5 +54,17 @@ fun NavGraphBuilder.restaurantComposable(
         )
     ) {
         RestaurantDetailsScreen(navController = navController)
+    }
+    composable(
+        route = "$commentsScreenRoute/{restaurantId}",
+        arguments = listOf(
+            navArgument(name = "restaurantId") {
+                defaultValue = ""
+                type = NavType.StringType
+                nullable = false
+            }
+        )
+    ) {
+        CommentScreen(navController = navController)
     }
 }
