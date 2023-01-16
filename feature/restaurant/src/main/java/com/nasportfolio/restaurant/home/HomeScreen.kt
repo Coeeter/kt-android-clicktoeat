@@ -6,10 +6,13 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
@@ -33,6 +36,7 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.nasportfolio.common.components.buttons.CltFloatingActionButton
 import com.nasportfolio.common.components.typography.CltHeading
+import com.nasportfolio.common.modifier.scrollEnabled
 import com.nasportfolio.common.navigation.homeScreenRoute
 import com.nasportfolio.common.navigation.navigateToAuthScreen
 import com.nasportfolio.common.navigation.navigateToCreateRestaurant
@@ -142,25 +146,26 @@ fun HomeScreen(
             }
         }
     ) { padding ->
-        Box(
+        SwipeRefresh(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .padding(padding),
+            state = rememberSwipeRefreshState(isRefreshing = state.isRefreshing),
+            onRefresh = { homeViewModel.refreshPage() }
         ) {
-            SwipeRefresh(
-                state = rememberSwipeRefreshState(isRefreshing = state.isRefreshing),
-                onRefresh = { homeViewModel.refreshPage() }
+            if (state.isLoading || state.restaurantList.isNotEmpty()) LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .scrollEnabled(isScrollEnabled),
+                contentPadding = PaddingValues(5.dp)
             ) {
-                if (state.isLoading || state.restaurantList.isNotEmpty()) Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState(), isScrollEnabled)
-                        .padding(5.dp),
-                ) {
+                item {
                     CltHeading(
                         text = "Your Favorites",
                         modifier = Modifier.padding(start = 5.dp)
                     )
+                }
+                item {
                     FavoriteRestaurantSection(
                         state = state,
                         width = width,
@@ -168,16 +173,22 @@ fun HomeScreen(
                         navController = navController,
                         config = config
                     )
+                }
+                item {
                     CltHeading(
                         text = "Featured Restaurants",
                         modifier = Modifier.padding(start = 5.dp)
                     )
+                }
+                item {
                     FeaturedRestaurantsSection(
                         state = state,
                         homeViewModel = homeViewModel,
                         navController = navController,
                         width = width
                     )
+                }
+                item {
                     RestaurantsNearYouSection(
                         navController = navController,
                         state = state,
@@ -185,21 +196,23 @@ fun HomeScreen(
                             isScrollEnabled = it
                         }
                     )
+                }
+                item {
                     CltHeading(
                         text = "All Restaurants",
                         modifier = Modifier.padding(start = 5.dp)
                     )
-                    AllRestaurantsSection(
-                        state = state,
-                        homeViewModel = homeViewModel,
-                        navController = navController
-                    )
                 }
-                if (!state.isLoading && state.restaurantList.isEmpty()) Column(
-                    modifier = Modifier.verticalScroll(rememberScrollState())
-                ) {
-                    EmptyRestaurants()
-                }
+                allRestaurantsSection(
+                    state = state,
+                    homeViewModel = homeViewModel,
+                    navController = navController
+                )
+            }
+            if (!state.isLoading && state.restaurantList.isEmpty()) Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
+                EmptyRestaurants()
             }
         }
     }

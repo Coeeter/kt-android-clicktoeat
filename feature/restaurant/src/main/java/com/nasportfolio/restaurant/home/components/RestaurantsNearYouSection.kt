@@ -15,6 +15,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -43,6 +44,9 @@ fun RestaurantsNearYouSection(
     state: HomeState,
     setIsScrollEnabled: (Boolean) -> Unit
 ) {
+    var isAnimationDone by rememberSaveable {
+        mutableStateOf(false)
+    }
     var isMapLoaded by remember {
         mutableStateOf(false)
     }
@@ -52,17 +56,13 @@ fun RestaurantsNearYouSection(
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(
             LatLng(1.3610, 103.8200),
-            10f
+            10.25f
         )
     }
 
-    LaunchedEffect(
-        state.currentLocation,
-        isMapLoaded,
-        state.isRefreshing
-    ) {
+    LaunchedEffect(state.currentLocation, isMapLoaded) {
         state.currentLocation ?: return@LaunchedEffect
-        if (!isMapLoaded || state.isRefreshing) return@LaunchedEffect
+        if (isAnimationDone || !isMapLoaded || state.isRefreshing) return@LaunchedEffect
         val position = CameraPosition.fromLatLngZoom(
             state.currentLocation,
             16f
@@ -78,6 +78,7 @@ fun RestaurantsNearYouSection(
             )
         )
         isMapLoaded = false
+        isAnimationDone = true
     }
 
     Column {
@@ -152,7 +153,7 @@ fun RestaurantsNearYouSection(
                         selectedBranch = branch
                         false
                     }
-                ) { marker ->
+                ) {
                     Column(
                         modifier = Modifier
                             .background(
