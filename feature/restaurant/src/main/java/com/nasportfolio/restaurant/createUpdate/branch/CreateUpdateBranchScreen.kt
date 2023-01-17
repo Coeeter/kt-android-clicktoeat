@@ -104,22 +104,7 @@ fun CreateUpdateBranchScreen(
     }
 
     BackHandler(enabled = true) {
-        if (state.isUpdateForm) {
-            if (state.isUpdated) {
-                state.restaurantId?.let {
-                    navController.navigateToRestaurantDetails(
-                        restaurantId = it,
-                        popUpTo = "$restaurantDetailScreenRoute/{restaurantId}"
-                    )
-                }
-                return@BackHandler
-            }
-            navController.popBackStack()
-            return@BackHandler
-        }
-        navController.navigateToHomeScreen(
-            popUpTo = "$createUpdateBranchScreenRoute/{restaurantId}/{branchId}"
-        )
+        navigateBack(state = state, navController = navController)
     }
 
     Scaffold(
@@ -136,22 +121,7 @@ fun CreateUpdateBranchScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            if (state.isUpdateForm) {
-                                if (state.isUpdated) {
-                                    state.restaurantId?.let {
-                                        navController.navigateToRestaurantDetails(
-                                            restaurantId = it,
-                                            popUpTo = "$restaurantDetailScreenRoute/{restaurantId}"
-                                        )
-                                    }
-                                    return@IconButton
-                                }
-                                navController.popBackStack()
-                                return@IconButton
-                            }
-                            navController.navigateToHomeScreen(
-                                popUpTo = homeScreenRoute
-                            )
+                            navigateBack(state = state, navController = navController)
                         }
                     ) {
                         Icon(
@@ -252,4 +222,31 @@ fun CreateUpdateBranchScreen(
             }
         }
     }
+}
+
+private fun navigateBack(
+    state: CreateUpdateBranchState,
+    navController: NavHostController
+) {
+    if (state.isUpdateForm) {
+        if (state.isUpdated) {
+            state.restaurantId?.let {
+                navController.navigateToRestaurantDetails(
+                    restaurantId = it,
+                    popUpTo = "$restaurantDetailScreenRoute/{restaurantId}"
+                )
+            }
+            return
+        }
+        navController.popBackStack()
+        return
+    }
+    val prevScreen = navController.backQueue[navController.backQueue.size - 2].destination.route
+    if (prevScreen == "$restaurantDetailScreenRoute/{restaurantId}") {
+        navController.popBackStack()
+        return
+    }
+    navController.navigateToHomeScreen(
+        popUpTo = "$createUpdateBranchScreenRoute/{restaurantId}/{branchId}"
+    )
 }
