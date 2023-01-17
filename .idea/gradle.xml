@@ -20,6 +20,7 @@
             <option value="$PROJECT_DIR$/feature/auth" />
             <option value="$PROJECT_DIR$/feature/common" />
             <option value="$PROJECT_DIR$/feature/restaurant" />
+            <option value="$PROJECT_DIR$/feature/search" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

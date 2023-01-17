@@ -17,9 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.twotone.Search
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
@@ -38,25 +35,21 @@ import com.nasportfolio.common.theme.mediumOrange
 enum class BottomNavigationBarItem(
     val route: String,
     val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
     val label: String
 ) {
     Home(
         route = homeScreenRoute,
-        selectedIcon = Icons.Filled.Home,
-        unselectedIcon = Icons.Outlined.Home,
+        selectedIcon = Icons.Default.Home,
         label = "Home"
     ),
     Search(
         route = searchScreenRoute,
-        selectedIcon = Icons.Filled.Search,
-        unselectedIcon = Icons.TwoTone.Search,
+        selectedIcon = Icons.Default.Search,
         label = "Search"
     ),
     Profile(
         route = userProfileScreen,
-        selectedIcon = Icons.Filled.Person,
-        unselectedIcon = Icons.Outlined.Person,
+        selectedIcon = Icons.Default.Person,
         label = "Profile"
     )
 }
@@ -115,13 +108,12 @@ fun CltBottomBar(
                 BottomNavigationItem(
                     selected = isSelected,
                     selectedContentColor = mediumOrange,
-                    unselectedContentColor = mediumOrange,
                     icon = {
                         if (isCurrentRouteProfile && isLoading) CltShimmer(
                             modifier = Modifier
                                 .size(35.dp)
                                 .clip(CircleShape)
-                                .border(1.dp, mediumOrange, CircleShape)
+                                .border(if (isSelected) 2.dp else 0.dp, mediumOrange, CircleShape)
                         )
                         if (hasProfileImage && isCurrentRouteProfile) Image(
                             bitmap = profileImage!!.asImageBitmap(),
@@ -129,20 +121,27 @@ fun CltBottomBar(
                             modifier = Modifier
                                 .size(35.dp)
                                 .clip(CircleShape)
-                                .border(1.dp, mediumOrange, CircleShape)
+                                .border(if (isSelected) 2.dp else 0.dp, mediumOrange, CircleShape)
                         )
                         if (!isCurrentRouteProfile || !hasProfileImage) Icon(
-                            imageVector = if (isSelected) item.selectedIcon else item.unselectedIcon,
+                            imageVector = item.selectedIcon,
                             contentDescription = item.label
                         )
                     },
                     onClick = {
+                        if (item.route == currentRoute) {
+                            navController.popBackStack(
+                                route = item.route,
+                                inclusive = false
+                            )
+                            return@BottomNavigationItem
+                        }
                         navController.navigate(item.route) {
-                            navController.graph.startDestinationRoute?.let { route ->
-                                popUpTo(route) { saveState = true }
+                            popUpTo(homeScreenRoute) {
+                                saveState = true
                             }
                             launchSingleTop = true
-                            restoreState = true
+                            restoreState = item.route != currentRoute
                         }
                     }
                 )
