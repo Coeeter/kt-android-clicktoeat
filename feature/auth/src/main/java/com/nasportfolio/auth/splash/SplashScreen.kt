@@ -2,19 +2,19 @@ package com.nasportfolio.auth.splash
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.animation.expandIn
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -57,19 +57,16 @@ internal fun SplashScreen(
     val size = remember {
         Animatable(initialValue = 30f)
     }
-    val fallingAnimation = remember {
-        Animatable(initialValue = canvasCenterY)
-    }
-
-    LaunchedEffect(canvasCenterY) {
-        if (canvasCenterY == 0f) return@LaunchedEffect
-        fallingAnimation.animateTo(
-            targetValue = canvasCenterY,
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessLow
-            )
+    val fallingAnimation by animateDpAsState(
+        targetValue = canvasCenterY.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
         )
+    )
+
+    LaunchedEffect(fallingAnimation) {
+        if (canvasCenterY.dp != fallingAnimation) return@LaunchedEffect
         showTitleAndLogo = true
         size.animateTo(
             targetValue = heightOfScreen * 2,
@@ -98,9 +95,7 @@ internal fun SplashScreen(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Canvas(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
             canvasCenterY = center.y
             drawCircle(
                 brush = Brush.linearGradient(
@@ -122,7 +117,7 @@ internal fun SplashScreen(
                     delayMillis = 600
                 )
             ),
-            modifier = Modifier.size(500.dp)
+            modifier = Modifier.aspectRatio(1f)
         ) {
             Column(
                 verticalArrangement = Arrangement.Center,

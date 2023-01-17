@@ -1,31 +1,64 @@
 package com.nasportfolio.common.components.navigation
 
+import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.material.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.BottomAppBar
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.twotone.Search
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.nasportfolio.common.components.loading.CltShimmer
 import com.nasportfolio.common.navigation.homeScreenRoute
+import com.nasportfolio.common.navigation.searchScreenRoute
+import com.nasportfolio.common.navigation.userProfileScreen
 import com.nasportfolio.common.theme.mediumOrange
 
-private enum class BottomNavigationBarItem(
+enum class BottomNavigationBarItem(
     val route: String,
-    val icon: ImageVector,
+    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector,
     val label: String
 ) {
-    Home(route = homeScreenRoute, icon = Icons.Default.Home, label = "Home"),
-    Search(route = "/search", icon = Icons.Default.Search, label = "Search"),
-    Profile(route = "/profile", icon = Icons.Default.Person, label = "Profile")
+    Home(
+        route = homeScreenRoute,
+        selectedIcon = Icons.Filled.Home,
+        unselectedIcon = Icons.Outlined.Home,
+        label = "Home"
+    ),
+    Search(
+        route = searchScreenRoute,
+        selectedIcon = Icons.Filled.Search,
+        unselectedIcon = Icons.TwoTone.Search,
+        label = "Search"
+    ),
+    Profile(
+        route = userProfileScreen,
+        selectedIcon = Icons.Filled.Person,
+        unselectedIcon = Icons.Outlined.Person,
+        label = "Profile"
+    )
 }
 
 @Composable
@@ -36,7 +69,9 @@ fun rememberBottomBarPadding() = rememberSaveable {
 @Composable
 fun CltBottomBar(
     bottomPadding: MutableState<Int>,
-    navController: NavHostController
+    navController: NavHostController,
+    profileImage: Bitmap? = null,
+    isLoading: Boolean = false
 ) {
     val items = BottomNavigationBarItem.values()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -73,16 +108,34 @@ fun CltBottomBar(
             elevation = 10.dp
         ) {
             items.forEach { item ->
+                val hasProfileImage = profileImage != null
+                val isCurrentRouteProfile = item.route == BottomNavigationBarItem.Profile.route
+                val isSelected = currentRoute == item.route
+
                 BottomNavigationItem(
-                    selected = currentRoute == item.route,
+                    selected = isSelected,
                     selectedContentColor = mediumOrange,
+                    unselectedContentColor = mediumOrange,
                     icon = {
-                        Icon(
-                            item.icon,
+                        if (isCurrentRouteProfile && isLoading) CltShimmer(
+                            modifier = Modifier
+                                .size(35.dp)
+                                .clip(CircleShape)
+                                .border(1.dp, mediumOrange, CircleShape)
+                        )
+                        if (hasProfileImage && isCurrentRouteProfile) Image(
+                            bitmap = profileImage!!.asImageBitmap(),
+                            contentDescription = item.label,
+                            modifier = Modifier
+                                .size(35.dp)
+                                .clip(CircleShape)
+                                .border(1.dp, mediumOrange, CircleShape)
+                        )
+                        if (!isCurrentRouteProfile || !hasProfileImage) Icon(
+                            imageVector = if (isSelected) item.selectedIcon else item.unselectedIcon,
                             contentDescription = item.label
                         )
                     },
-                    label = { Text(item.label) },
                     onClick = {
                         navController.navigate(item.route) {
                             navController.graph.startDestinationRoute?.let { route ->
