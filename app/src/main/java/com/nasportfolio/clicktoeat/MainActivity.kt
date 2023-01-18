@@ -37,6 +37,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
                     val bottomPadding = rememberBottomBarPadding()
+                    val userId by mainViewModel.userId.collectAsState()
                     val profileImage by mainViewModel.profileImage.collectAsState()
                     val isLoading by mainViewModel.isLoading.collectAsState()
 
@@ -62,7 +63,8 @@ class MainActivity : ComponentActivity() {
                                 navController = navController,
                                 bottomPadding = bottomPadding,
                                 profileImage = profileImage,
-                                isLoading = isLoading
+                                isLoading = isLoading,
+                                userId = userId
                             )
                         }
                     ) {

@@ -367,6 +367,7 @@ private fun ScreenContent(
                             CommentCard(
                                 modifier = Modifier.width(width),
                                 comment = restaurant.comments[it],
+                                navController = navController,
                                 currentUserId = userId,
                                 editComment = {
                                     restaurantDetailsViewModel.onEvent(

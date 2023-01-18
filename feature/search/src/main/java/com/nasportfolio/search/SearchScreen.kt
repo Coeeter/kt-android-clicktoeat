@@ -24,6 +24,7 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.nasportfolio.common.components.typography.CltHeading
 import com.nasportfolio.common.navigation.navigateToRestaurantDetails
+import com.nasportfolio.common.navigation.navigateToUserProfile
 import com.nasportfolio.search.components.*
 import kotlinx.coroutines.launch
 
@@ -121,7 +122,11 @@ fun SearchScreen(
                             .animateItemPlacement(),
                         user = it,
                         state = state,
-                        onClick = {}
+                        onClick = {
+                            navController.navigateToUserProfile(
+                                userId = it.id
+                            )
+                        }
                     )
                 }
             }

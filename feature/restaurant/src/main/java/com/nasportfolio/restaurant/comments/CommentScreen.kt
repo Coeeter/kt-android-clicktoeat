@@ -160,6 +160,7 @@ fun CommentScreen(
                                 CommentCard(
                                     modifier = Modifier.fillMaxWidth(),
                                     comment = state.comments[index],
+                                    navController = navController,
                                     currentUserId = userId,
                                     editComment = {
                                         commentViewModel.onEvent(

@@ -1,6 +1,7 @@
 package com.nasportfolio.restaurant.details.components
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -17,9 +18,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.images.CltImageFromNetwork
 import com.nasportfolio.common.components.loading.CltShimmer
 import com.nasportfolio.common.components.typography.CltHeading
+import com.nasportfolio.common.navigation.navigateToUserProfile
 import com.nasportfolio.common.theme.mediumOrange
 import com.nasportfolio.domain.comment.Comment
 import java.text.SimpleDateFormat
@@ -28,6 +31,7 @@ import java.util.*
 @Composable
 fun CommentCard(
     modifier: Modifier = Modifier,
+    navController: NavHostController,
     comment: Comment,
     currentUserId: String,
     editComment: () -> Unit,
@@ -50,7 +54,14 @@ fun CommentCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.clickable {
+                        navController.navigateToUserProfile(
+                            userId = comment.user.id
+                        )
+                    },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     comment.user.image?.url?.let {
                         CltImageFromNetwork(
                             modifier = Modifier

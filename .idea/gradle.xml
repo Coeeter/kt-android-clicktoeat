@@ -21,6 +21,7 @@
             <option value="$PROJECT_DIR$/feature/common" />
             <option value="$PROJECT_DIR$/feature/restaurant" />
             <option value="$PROJECT_DIR$/feature/search" />
+            <option value="$PROJECT_DIR$/feature/user" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

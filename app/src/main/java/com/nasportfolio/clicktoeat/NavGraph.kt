@@ -13,6 +13,7 @@ import com.nasportfolio.auth.navigation.authScreenComposable
 import com.nasportfolio.common.navigation.splashScreenRoute
 import com.nasportfolio.restaurant.navigation.restaurantComposable
 import com.nasportfolio.search.searchComposable
+import com.nasportfolio.user.userComposable
 
 @Composable
 fun NavGraph(navController: NavHostController, paddingValues: PaddingValues) {
@@ -31,5 +32,6 @@ fun NavGraph(navController: NavHostController, paddingValues: PaddingValues) {
         authScreenComposable(navController = navController)
         restaurantComposable(navController = navController)
         searchComposable(navController = navController)
+        userComposable(navController = navController)
     }
 }

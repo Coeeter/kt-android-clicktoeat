@@ -19,6 +19,9 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val getCurrentLoggedInUser: GetCurrentLoggedInUser
 ) : ViewModel() {
+    private val _userId = MutableStateFlow<String?>(null)
+    val userId = _userId.asStateFlow()
+
     private val _profileImage = MutableStateFlow<Bitmap?>(null)
     val profileImage = _profileImage.asStateFlow()
 
@@ -32,17 +35,20 @@ class MainViewModel @Inject constructor(
     fun updateImage() {
         getCurrentLoggedInUser().onEach { userResource ->
             when (userResource) {
-                is Resource.Success -> _profileImage.update {
-                    val url = userResource.result.image?.url
-                    url ?: return@update null
-                    return@update bitmapCache[url]?.asAndroidBitmap() ?: run {
-                        val bitmap = BitmapFactory.decodeStream(
-                            URL(url).openConnection().getInputStream()
-                        )
-                        bitmapCache[url] = bitmap.asImageBitmap()
-                        bitmap
-                    }.also {
-                        _isLoading.value = false
+                is Resource.Success -> {
+                    _userId.value = userResource.result.id
+                    _profileImage.update {
+                        val url = userResource.result.image?.url
+                        url ?: return@update null
+                        return@update bitmapCache[url]?.asAndroidBitmap() ?: run {
+                            val bitmap = BitmapFactory.decodeStream(
+                                URL(url).openConnection().getInputStream()
+                            )
+                            bitmapCache[url] = bitmap.asImageBitmap()
+                            bitmap
+                        }.also {
+                            _isLoading.value = false
+                        }
                     }
                 }
                 is Resource.Loading -> _isLoading.value = userResource.isLoading

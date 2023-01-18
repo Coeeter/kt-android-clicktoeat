@@ -48,7 +48,7 @@ enum class BottomNavigationBarItem(
         label = "Search"
     ),
     Profile(
-        route = userProfileScreen,
+        route = "$userProfileScreen/{userId}/{fromNav}",
         selectedIcon = Icons.Default.Person,
         label = "Profile"
     )
@@ -64,17 +64,28 @@ fun CltBottomBar(
     bottomPadding: MutableState<Int>,
     navController: NavHostController,
     profileImage: Bitmap? = null,
-    isLoading: Boolean = false
+    isLoading: Boolean = false,
+    userId: String? = null
 ) {
     val items = BottomNavigationBarItem.values()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+    val currentDestination = navBackStackEntry?.destination
+    val currentArgs = navBackStackEntry?.arguments?.let {
+        currentDestination?.arguments?.get("fromNav")?.type?.get(
+            it,
+            key = "fromNav"
+        )
+    }
+    val currentRoute = currentDestination?.route
     val isVisible = rememberSaveable(currentRoute) {
+        currentArgs?.let {
+            return@rememberSaveable it == true
+        }
         currentRoute in items.map { it.route }
     }
 
-    LaunchedEffect(currentRoute) {
-        bottomPadding.value = if (currentRoute in items.map { it.route }) {
+    LaunchedEffect(isVisible) {
+        bottomPadding.value = if (isVisible) {
             56
         } else {
             0
@@ -103,7 +114,11 @@ fun CltBottomBar(
             items.forEach { item ->
                 val hasProfileImage = profileImage != null
                 val isCurrentRouteProfile = item.route == BottomNavigationBarItem.Profile.route
-                val isSelected = currentRoute == item.route
+                var isSelected = currentRoute == item.route
+
+                if (isCurrentRouteProfile) {
+                    isSelected = currentArgs == true
+                }
 
                 BottomNavigationItem(
                     selected = isSelected,
@@ -136,7 +151,19 @@ fun CltBottomBar(
                             )
                             return@BottomNavigationItem
                         }
-                        navController.navigate(item.route) {
+                        navController.navigate(
+                            route = if (userId != null && isCurrentRouteProfile) {
+                                item.route.replace(
+                                    oldValue = "{userId}",
+                                    newValue = userId
+                                ).replace(
+                                    oldValue = "{fromNav}",
+                                    newValue = true.toString()
+                                )
+                            } else {
+                                item.route
+                            }
+                        ) {
                             popUpTo(homeScreenRoute) {
                                 saveState = true
                             }
