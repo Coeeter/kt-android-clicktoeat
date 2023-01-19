@@ -39,7 +39,6 @@ class MainActivity : ComponentActivity() {
                     val bottomPadding = rememberBottomBarPadding()
                     val userId by mainViewModel.userId.collectAsState()
                     val profileImage by mainViewModel.profileImage.collectAsState()
-                    val isLoading by mainViewModel.isLoading.collectAsState()
 
                     val listener = remember {
                         NavController.OnDestinationChangedListener { _, destination, _ ->
@@ -63,7 +62,6 @@ class MainActivity : ComponentActivity() {
                                 navController = navController,
                                 bottomPadding = bottomPadding,
                                 profileImage = profileImage,
-                                isLoading = isLoading,
                                 userId = userId
                             )
                         }

@@ -25,9 +25,6 @@ class MainViewModel @Inject constructor(
     private val _profileImage = MutableStateFlow<Bitmap?>(null)
     val profileImage = _profileImage.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(true)
-    val isLoading = _isLoading.asStateFlow()
-
     init {
         updateImage()
     }
@@ -46,13 +43,10 @@ class MainViewModel @Inject constructor(
                             )
                             bitmapCache[url] = bitmap.asImageBitmap()
                             bitmap
-                        }.also {
-                            _isLoading.value = false
                         }
                     }
                 }
-                is Resource.Loading -> _isLoading.value = userResource.isLoading
-                else -> _isLoading.value = false
+                else -> Unit
             }
         }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
     }

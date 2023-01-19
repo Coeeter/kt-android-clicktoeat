@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -64,7 +65,6 @@ fun CltBottomBar(
     bottomPadding: MutableState<Int>,
     navController: NavHostController,
     profileImage: Bitmap? = null,
-    isLoading: Boolean = false,
     userId: String? = null
 ) {
     val items = BottomNavigationBarItem.values()
@@ -124,19 +124,19 @@ fun CltBottomBar(
                     selected = isSelected,
                     selectedContentColor = mediumOrange,
                     icon = {
-                        if (isCurrentRouteProfile && isLoading) CltShimmer(
-                            modifier = Modifier
-                                .size(35.dp)
-                                .clip(CircleShape)
-                                .border(if (isSelected) 2.dp else 0.dp, mediumOrange, CircleShape)
+                        var modifier = Modifier
+                            .size(35.dp)
+                            .clip(CircleShape)
+                        if (isSelected) modifier = modifier.border(
+                            width = 2.dp,
+                            color = mediumOrange,
+                            shape = CircleShape
                         )
+                        if (!isSelected) modifier = modifier.alpha(alpha = 0.7f)
                         if (hasProfileImage && isCurrentRouteProfile) Image(
                             bitmap = profileImage!!.asImageBitmap(),
                             contentDescription = item.label,
-                            modifier = Modifier
-                                .size(35.dp)
-                                .clip(CircleShape)
-                                .border(if (isSelected) 2.dp else 0.dp, mediumOrange, CircleShape)
+                            modifier = modifier
                         )
                         if (!isCurrentRouteProfile || !hasProfileImage) Icon(
                             imageVector = item.selectedIcon,
