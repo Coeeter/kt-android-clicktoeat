@@ -1,4 +1,4 @@
-package com.nasportfolio.restaurant.home.components
+package com.nasportfolio.common.components
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,7 +27,7 @@ import com.nasportfolio.common.utils.toStringAsFixed
 import com.nasportfolio.domain.restaurant.TransformedRestaurant
 
 @Composable
-fun RestaurantCard(
+fun CltRestaurantCard(
     modifier: Modifier = Modifier,
     restaurant: TransformedRestaurant,
     toggleFavorite: (String) -> Unit,

@@ -11,6 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.navigation.NavHostController
+import com.nasportfolio.common.components.CltRestaurantCard
+import com.nasportfolio.common.components.loading.CltLoadingRestaurantCard
 import com.nasportfolio.common.navigation.navigateToRestaurantDetails
 import com.nasportfolio.restaurant.home.HomeState
 import com.nasportfolio.restaurant.home.HomeViewModel
@@ -40,7 +42,7 @@ fun FeaturedRestaurantsSection(
             )
         ) {
             repeat(3) {
-                LoadingRestaurantCard(
+                CltLoadingRestaurantCard(
                     modifier = Modifier.width(width)
                 )
             }
@@ -49,7 +51,7 @@ fun FeaturedRestaurantsSection(
             items(state.featuredRestaurants.size) {
                 val index = state.featuredRestaurants[it]
 
-                RestaurantCard(
+                CltRestaurantCard(
                     modifier = Modifier.width(width),
                     restaurant = state.restaurantList[index],
                     toggleFavorite = { restaurantId ->

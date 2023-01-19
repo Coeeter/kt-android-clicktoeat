@@ -61,7 +61,7 @@ import com.nasportfolio.common.theme.lightOrange
 import com.nasportfolio.common.theme.mediumOrange
 import com.nasportfolio.common.utils.toStringAsFixed
 import com.nasportfolio.domain.comment.Comment
-import com.nasportfolio.restaurant.details.components.CommentCard
+import com.nasportfolio.common.components.CltCommentCard
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -157,7 +157,7 @@ fun CommentScreen(
                         state.currentUserId?.let { userId ->
                             if (index == 0) Spacer(modifier = Modifier.height(10.dp))
                             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                                CommentCard(
+                                CltCommentCard(
                                     modifier = Modifier.fillMaxWidth(),
                                     comment = state.comments[index],
                                     navController = navController,

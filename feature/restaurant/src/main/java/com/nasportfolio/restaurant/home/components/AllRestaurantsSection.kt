@@ -8,6 +8,8 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import com.nasportfolio.common.components.CltRestaurantCard
+import com.nasportfolio.common.components.loading.CltLoadingRestaurantCard
 import com.nasportfolio.common.navigation.navigateToRestaurantDetails
 import com.nasportfolio.restaurant.home.HomeState
 import com.nasportfolio.restaurant.home.HomeViewModel
@@ -21,7 +23,7 @@ fun LazyListScope.allRestaurantsSection(
     if (state.isLoading) items(3) {
         Row {
             repeat(2) {
-                LoadingRestaurantCard(
+                CltLoadingRestaurantCard(
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -30,7 +32,7 @@ fun LazyListScope.allRestaurantsSection(
     if (!state.isLoading) items(state.restaurantList.chunked(2)) { chunk ->
         Row {
             repeat(chunk.size) {
-                RestaurantCard(
+                CltRestaurantCard(
                     modifier = Modifier.weight(1f),
                     restaurant = chunk[it],
                     toggleFavorite = { restaurantId ->

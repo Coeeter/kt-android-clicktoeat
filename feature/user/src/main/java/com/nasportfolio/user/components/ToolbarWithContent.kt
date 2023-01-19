@@ -9,12 +9,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshState
 import com.nasportfolio.user.UserProfileState
 
 @Composable
 fun ToolbarWithContent(
     state: UserProfileState,
     navController: NavHostController,
+    isRefreshing: Boolean,
+    refresh: () -> Unit,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val density = LocalDensity.current
@@ -41,26 +45,31 @@ fun ToolbarWithContent(
         progress = 1 - scrollState.value / (appBarHeightInPx)
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        UserProfileToolbar(
-            username = state.user?.username ?: "Loading...",
-            imageUrl = state.user?.image?.url,
-            progress = progress,
-            arrowShown = !state.fromNav,
-            height = appBarHeight,
-            navController = navController
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(state = scrollState)
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(appBarHeight)
+    SwipeRefresh(
+        state = SwipeRefreshState(isRefreshing = isRefreshing),
+        onRefresh = refresh
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            UserProfileToolbar(
+                username = state.user?.username ?: "Loading...",
+                imageUrl = state.user?.image?.url,
+                progress = progress,
+                arrowShown = !state.fromNav,
+                height = appBarHeight,
+                navController = navController
             )
-            content()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(state = scrollState)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(appBarHeight)
+                )
+                content()
+            }
         }
     }
 }

@@ -20,8 +20,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ExperimentalMotionApi
 import androidx.constraintlayout.compose.MotionLayout
@@ -29,6 +31,7 @@ import androidx.constraintlayout.compose.MotionScene
 import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.images.CltImageFromNetwork
 import com.nasportfolio.common.components.loading.CltShimmer
+import com.nasportfolio.common.components.typography.CltHeading
 import com.nasportfolio.common.modifier.gradientBackground
 import com.nasportfolio.common.theme.lightOrange
 import com.nasportfolio.common.theme.mediumOrange
@@ -166,7 +169,7 @@ fun UserProfileToolbar(
                     )
                 }
             }
-            Text(
+            CltHeading(
                 modifier = Modifier
                     .layoutId(usernameProperties.id())
                     .gradientBackground(
@@ -178,7 +181,8 @@ fun UserProfileToolbar(
                         )
                     ),
                 text = username,
-                style = MaterialTheme.typography.h6,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.SemiBold,
             )
         }
     }

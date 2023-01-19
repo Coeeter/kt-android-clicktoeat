@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
@@ -19,6 +20,33 @@ import com.nasportfolio.common.theme.mediumOrange
 fun CltHeading(
     modifier: Modifier = Modifier,
     text: String,
+    textAlign: TextAlign = TextAlign.Center,
+    fontWeight: FontWeight = FontWeight.Bold,
+    fontSize: TextUnit = 25.sp,
+    color: Color = mediumOrange
+) {
+    Box(modifier = modifier) {
+        Text(
+            modifier = Modifier.gradientBackground(
+                brush = Brush.linearGradient(
+                    colors = listOf(lightOrange, mediumOrange)
+                )
+            ),
+            text = text,
+            textAlign = textAlign,
+            fontWeight = fontWeight,
+            style = MaterialTheme.typography.h5.copy(
+                color = color,
+                fontSize = fontSize
+            )
+        )
+    }
+}
+
+@Composable
+fun CltHeading(
+    modifier: Modifier = Modifier,
+    text: AnnotatedString,
     textAlign: TextAlign = TextAlign.Center,
     fontWeight: FontWeight = FontWeight.Bold,
     fontSize: TextUnit = 25.sp,

@@ -38,6 +38,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
+import com.nasportfolio.common.components.CltCommentCard
 import com.nasportfolio.common.components.buttons.CltButton
 import com.nasportfolio.common.components.buttons.CltSpeedDialFab
 import com.nasportfolio.common.components.buttons.CltSpeedDialFabItem
@@ -53,7 +54,10 @@ import com.nasportfolio.common.navigation.navigateToUpdateRestaurant
 import com.nasportfolio.common.theme.lightOrange
 import com.nasportfolio.common.theme.mediumOrange
 import com.nasportfolio.domain.restaurant.TransformedRestaurant
-import com.nasportfolio.restaurant.details.components.*
+import com.nasportfolio.restaurant.details.components.BranchesSection
+import com.nasportfolio.restaurant.details.components.DataSection
+import com.nasportfolio.restaurant.details.components.ParallaxToolbar
+import com.nasportfolio.restaurant.details.components.ReviewMetaDataSection
 import kotlinx.coroutines.launch
 
 @SuppressLint("MissingPermission")
@@ -364,7 +368,7 @@ private fun ScreenContent(
                         Row {
                             var width = config.screenWidthDp.dp - 32.dp
                             if (restaurant.comments.size != 1) width -= 10.dp
-                            CommentCard(
+                            CltCommentCard(
                                 modifier = Modifier.width(width),
                                 comment = restaurant.comments[it],
                                 navController = navController,

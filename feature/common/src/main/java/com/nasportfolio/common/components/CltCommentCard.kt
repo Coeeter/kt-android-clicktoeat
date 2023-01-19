@@ -1,4 +1,4 @@
-package com.nasportfolio.restaurant.details.components
+package com.nasportfolio.common.components
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,15 +22,22 @@ import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.images.CltImageFromNetwork
 import com.nasportfolio.common.components.loading.CltShimmer
 import com.nasportfolio.common.components.typography.CltHeading
+import com.nasportfolio.common.navigation.navigateToRestaurantDetails
 import com.nasportfolio.common.navigation.navigateToUserProfile
 import com.nasportfolio.common.theme.mediumOrange
 import com.nasportfolio.domain.comment.Comment
 import java.text.SimpleDateFormat
 import java.util.*
 
+enum class TopBar {
+    User,
+    Restaurant
+}
+
 @Composable
-fun CommentCard(
+fun CltCommentCard(
     modifier: Modifier = Modifier,
+    topBar: TopBar = TopBar.User,
     navController: NavHostController,
     comment: Comment,
     currentUserId: String,
@@ -56,38 +63,67 @@ fun CommentCard(
             ) {
                 Row(
                     modifier = Modifier.clickable {
-                        navController.navigateToUserProfile(
-                            userId = comment.user.id
-                        )
+                        when (topBar) {
+                            TopBar.Restaurant -> navController.navigateToRestaurantDetails(
+                                restaurantId = comment.restaurant.id
+                            )
+                            TopBar.User -> navController.navigateToUserProfile(
+                                userId = comment.user.id
+                            )
+                        }
                     },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    comment.user.image?.url?.let {
-                        CltImageFromNetwork(
+                    if (topBar == TopBar.User)
+                        comment.user.image?.url?.let {
+                            CltImageFromNetwork(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .border(
+                                        width = 2.dp,
+                                        color = mediumOrange,
+                                        shape = CircleShape
+                                    ),
+                                url = it,
+                                placeholder = { CltShimmer() },
+                                contentDescription = null
+                            )
+                        } ?: Box(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
                                 .border(width = 2.dp, color = mediumOrange, shape = CircleShape),
-                            url = it,
-                            placeholder = { CltShimmer() },
-                            contentDescription = null
-                        )
-                    } ?: Box(
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = null
+                            )
+                        }
+                    if (topBar == TopBar.Restaurant) CltImageFromNetwork(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .border(width = 2.dp, color = mediumOrange, shape = CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = null
-                        )
-                    }
+                            .border(
+                                width = 2.dp,
+                                color = mediumOrange,
+                                shape = CircleShape
+                            ),
+                        url = comment.restaurant.image.url,
+                        placeholder = { CltShimmer() },
+                        contentDescription = null
+                    )
                     Spacer(modifier = Modifier.width(5.dp))
-                    CltHeading(text = comment.user.username, fontSize = 20.sp)
+                    CltHeading(
+                        text = when (topBar) {
+                            TopBar.User -> comment.user.username
+                            TopBar.Restaurant -> comment.restaurant.name
+                        },
+                        fontSize = 20.sp
+                    )
                 }
-                if (currentUserId == comment.user.id) {
+                if (currentUserId == comment.user.id && topBar != TopBar.Restaurant) {
                     Box(contentAlignment = Alignment.Center) {
                         IconButton(
                             modifier = Modifier.offset(x = 10.dp),

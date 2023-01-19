@@ -25,49 +25,51 @@ class GetRestaurantsUseCase @Inject constructor(
     private val restaurantRepository: RestaurantRepository
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
-    operator fun invoke() = channelFlow<Resource<List<TransformedRestaurant>>> {
-        send(Resource.Loading(isLoading = true))
-        val transformedRestaurants = coroutineScope {
-            val deferredOtherData = async {
-                getOtherData()
-            }
-            val deferredRestaurants = async {
-                val restaurants = restaurantRepository.getAllRestaurants()
-                if (restaurants !is Resource.Success) {
-                    send(Resource.Failure((restaurants as Resource.Failure).error))
-                    return@async null
+    operator fun invoke(filter: Filter = Filter.None) =
+        channelFlow<Resource<List<TransformedRestaurant>>> {
+            send(Resource.Loading(isLoading = true))
+            val transformedRestaurants = coroutineScope {
+                val deferredOtherData = async {
+                    getOtherData()
                 }
-                val deferredFavorites = restaurants.result.map {
-                    async {
-                        favoriteRepository.getUsersWhoFavoriteRestaurant(it.id)
-                    }
-                }
-                val favorites = deferredFavorites.awaitAll().map {
-                    if (it !is Resource.Success) {
-                        send(Resource.Failure((it as Resource.Failure).error))
+                val deferredRestaurants = async {
+                    val restaurants = restaurantRepository.getAllRestaurants()
+                    if (restaurants !is Resource.Success) {
+                        send(Resource.Failure((restaurants as Resource.Failure).error))
                         return@async null
                     }
-                    it.result
-                }
-                RestaurantsWithFav(
-                    restaurants = restaurants.result,
-                    favoriteUsers = favorites
-                )
-            }
-            transformMultipleData(
-                otherData = when (val otherData = deferredOtherData.await()) {
-                    is Resource.Success -> otherData.result
-                    is Resource.Failure -> {
-                        send(Resource.Failure(otherData.error))
-                        return@coroutineScope null
+                    val deferredFavorites = restaurants.result.map {
+                        async {
+                            favoriteRepository.getUsersWhoFavoriteRestaurant(it.id)
+                        }
                     }
-                    else -> throw IllegalStateException()
-                },
-                restaurantsWithFav = deferredRestaurants.await() ?: return@coroutineScope null
-            )
-        } ?: return@channelFlow
-        send(Resource.Success(transformedRestaurants))
-    }
+                    val favorites = deferredFavorites.awaitAll().map {
+                        if (it !is Resource.Success) {
+                            send(Resource.Failure((it as Resource.Failure).error))
+                            return@async null
+                        }
+                        it.result
+                    }
+                    RestaurantsWithFav(
+                        restaurants = restaurants.result,
+                        favoriteUsers = favorites
+                    )
+                }
+                transformMultipleData(
+                    otherData = when (val otherData = deferredOtherData.await()) {
+                        is Resource.Success -> otherData.result
+                        is Resource.Failure -> {
+                            send(Resource.Failure(otherData.error))
+                            return@coroutineScope null
+                        }
+                        else -> throw IllegalStateException()
+                    },
+                    restaurantsWithFav = deferredRestaurants.await() ?: return@coroutineScope null,
+                    filter = filter
+                )
+            } ?: return@channelFlow
+            send(Resource.Success(transformedRestaurants))
+        }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getById(restaurantId: String) = channelFlow<Resource<TransformedRestaurant>> {
@@ -146,15 +148,26 @@ class GetRestaurantsUseCase @Inject constructor(
 
     private fun transformMultipleData(
         restaurantsWithFav: RestaurantsWithFav,
-        otherData: OtherData
-    ): List<TransformedRestaurant> =
-        restaurantsWithFav.restaurants.mapIndexed { index, restaurant ->
-            transformData(
+        otherData: OtherData,
+        filter: Filter
+    ): List<TransformedRestaurant> {
+        return restaurantsWithFav.restaurants.mapIndexedNotNull { index, restaurant ->
+            val usersWhoFavorite = restaurantsWithFav.favoriteUsers[index]
+            val transformData = transformData(
                 restaurant = restaurant,
                 otherData = otherData,
-                usersWhoFavorite = restaurantsWithFav.favoriteUsers[index]
+                usersWhoFavorite = usersWhoFavorite
             )
+            when (filter) {
+                is Filter.UserIdInFav -> {
+                    if (filter.userId !in usersWhoFavorite.map { it.id })
+                        return@mapIndexedNotNull null
+                    transformData
+                }
+                else -> transformData
+            }
         }
+    }
 
     private fun transformData(
         restaurant: Restaurant,
@@ -191,5 +204,10 @@ class GetRestaurantsUseCase @Inject constructor(
         val userResource = getCurrentLoggedInUserUseCase().last()
         if (userResource is Resource.Failure) return null
         return (userResource as Resource.Success).result.id
+    }
+
+    sealed class Filter {
+        object None : Filter()
+        class UserIdInFav(val userId: String) : Filter()
     }
 }

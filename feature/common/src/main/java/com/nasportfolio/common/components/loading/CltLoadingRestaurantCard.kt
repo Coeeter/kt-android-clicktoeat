@@ -1,4 +1,4 @@
-package com.nasportfolio.restaurant.home.components
+package com.nasportfolio.common.components.loading
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,11 +13,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.nasportfolio.common.components.loading.CltShimmer
 import com.nasportfolio.common.theme.mediumOrange
 
 @Composable
-fun LoadingRestaurantCard(
+fun CltLoadingRestaurantCard(
     modifier: Modifier = Modifier,
     shimmer: Boolean = true,
     elevation: Dp = 4.dp
