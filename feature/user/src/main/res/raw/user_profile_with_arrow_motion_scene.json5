@@ -1,0 +1,98 @@
+{
+  ConstraintSets: {
+    start: {
+      arrow: {
+        width: 24,
+        height: 24,
+        start: ["parent", "start", 16],
+        top: ["profile_pic", "top"],
+        bottom: ["profile_pic", "bottom"]
+      },
+      profile_pic: {
+        width: 40,
+        height: 40,
+        start: ["arrow", "end", 16],
+        top: ["parent", "top", 8],
+        custom: {
+          elevation: 0,
+          color: "#ffffff"
+        }
+      },
+      username: {
+        top: ["profile_pic", "top"],
+        bottom: ["profile_pic", "bottom"],
+        start: ["profile_pic", "end", 16],
+        custom: {
+          first_color: "#FFFFFF",
+          second_color: "#FFFFFF"
+        }
+      },
+      app_bar: {
+        width: "spread",
+        height: 56,
+        start: ["parent", "start"],
+        end: ["parent", "end"],
+        top: ["parent", "top"],
+        custom: {
+          corners: 0,
+          alpha: 0
+        }
+      }
+    },
+    end: {
+      arrow: {
+        width: 24,
+        height: 24,
+        start: ["parent", "start", 16],
+        top: ["parent", "top", 16]
+      },
+      profile_pic: {
+        width: 125,
+        height: 125,
+        start: ["parent", "start"],
+        end: ["parent", "end"],
+        top: ["parent", "top", 60],
+        custom: {
+          elevation: 4,
+          color: "#00FFFFFF"
+        }
+      },
+      username: {
+        top: ["profile_pic", "bottom", 16],
+        start: ["parent", "start"],
+        end: ["parent", "end"],
+        custom: {
+          first_color:  "#FCB57F",
+          second_color: "#f36d0d"
+        }
+      },
+      app_bar: {
+        width: "spread",
+        height: 120,
+        start: ["parent", "start"],
+        end: ["parent", "end"],
+        top: ["parent", "top"],
+        custom: {
+          corners: 50,
+          alpha: 1
+        }
+      }
+    }
+  },
+  Transitions: {
+    default: {
+      from: "start",
+      to: "end",
+      pathMotionArc: "startHorizontal",
+      KeyFrames: {
+        KeyAttributes: [
+          {
+            target: ["username"],
+            frames: [0, 50, 100],
+            translationX: [0, 64, 0]
+          }
+        ]
+      }
+    }
+  }
+}

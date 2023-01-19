@@ -62,6 +62,7 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0-alpha03")
     implementation("com.google.accompanist:accompanist-navigation-animation:0.23.0")
     implementation("com.google.accompanist:accompanist-swiperefresh:0.20.0")
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
     // for google maps
     implementation("com.google.maps.android:maps-compose:2.5.0")
