@@ -1,5 +1,10 @@
 package com.nasportfolio.user
 
+import android.graphics.ImageDecoder
+import android.os.Build
+import android.provider.MediaStore
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberScaffoldState
@@ -8,6 +13,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ExperimentalMotionApi
@@ -35,8 +41,28 @@ fun UserProfileScreen(
     userProfileViewModel: UserProfileViewModel = hiltViewModel()
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
+    val context = LocalContext.current
     val scaffoldState = rememberScaffoldState()
     val state by userProfileViewModel.state.collectAsState()
+
+    val pickImage = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            ImageDecoder.decodeBitmap(
+                ImageDecoder.createSource(
+                    context.contentResolver,
+                    uri!!
+                )
+            )
+        } else {
+            MediaStore.Images.Media.getBitmap(
+                context.contentResolver,
+                uri
+            )
+        }
+        userProfileViewModel.editPhoto(bitmap)
+    }
 
     LaunchedEffect(true) {
         lifecycleOwner.lifecycleScope.launch {
@@ -54,7 +80,9 @@ fun UserProfileScreen(
             state = state,
             navController = navController,
             isRefreshing = state.isRefreshing,
-            refresh = userProfileViewModel::refresh
+            refresh = userProfileViewModel::refresh,
+            editPhoto = { pickImage.launch("image/*") },
+            deletePhoto = userProfileViewModel::deletePhoto,
         ) {
             Column(
                 modifier = Modifier

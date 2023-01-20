@@ -8,15 +8,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -125,16 +127,18 @@ fun UserProfileToolbar(
                     )
                 )
             ) {
-                Box(
+                if (isLoading) CltShimmer(modifier = Modifier.fillMaxSize())
+                if (!isLoading) Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     imageUrl?.let {
                         CltImageFromNetwork(
                             url = imageUrl,
-                            placeholder = { CltShimmer() },
+                            placeholder = { CltShimmer(modifier = Modifier.fillMaxSize()) },
                             contentDescription = null,
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
                         )
                     } ?: Icon(
                         imageVector = Icons.Default.Person,
@@ -185,6 +189,7 @@ fun UserProfileToolbar(
                         Text(text = "Upload a photo")
                     }
                     DropdownMenuItem(
+                        enabled = imageUrl != null,
                         onClick = {
                             isMenuExpanded = false
                             removePhoto()

@@ -7,6 +7,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.BottomAppBar
@@ -24,10 +25,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.nasportfolio.common.components.loading.CltShimmer
 import com.nasportfolio.common.navigation.homeScreenRoute
 import com.nasportfolio.common.navigation.searchScreenRoute
 import com.nasportfolio.common.navigation.userProfileScreen
@@ -136,7 +137,8 @@ fun CltBottomBar(
                         if (hasProfileImage && isCurrentRouteProfile) Image(
                             bitmap = profileImage!!.asImageBitmap(),
                             contentDescription = item.label,
-                            modifier = modifier
+                            modifier = modifier,
+                            contentScale = ContentScale.Crop
                         )
                         if (!isCurrentRouteProfile || !hasProfileImage) Icon(
                             imageVector = item.selectedIcon,

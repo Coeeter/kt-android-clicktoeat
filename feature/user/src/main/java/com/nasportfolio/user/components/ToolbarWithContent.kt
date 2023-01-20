@@ -21,6 +21,8 @@ fun ToolbarWithContent(
     navController: NavHostController,
     isRefreshing: Boolean,
     refresh: () -> Unit,
+    editPhoto: () -> Unit,
+    deletePhoto: () -> Unit,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val scrollState = rememberScrollState()
@@ -44,8 +46,8 @@ fun ToolbarWithContent(
                 navController = navController,
                 isCurrentUser = state.loggedInUserId == state.user?.id,
                 isLoading = state.isUserLoading,
-                uploadPhoto = {},
-                removePhoto = {}
+                uploadPhoto = editPhoto,
+                removePhoto = deletePhoto
             )
             Column(
                 modifier = Modifier

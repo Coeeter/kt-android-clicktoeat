@@ -1,13 +1,17 @@
 package com.nasportfolio.user
 
+import android.graphics.Bitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nasportfolio.common.components.images.bitmapCache
 import com.nasportfolio.domain.comment.usecases.GetCommentsUseCase
 import com.nasportfolio.domain.favorites.usecases.ToggleFavoriteUseCase
 import com.nasportfolio.domain.restaurant.usecases.GetRestaurantsUseCase
 import com.nasportfolio.domain.user.usecases.GetCurrentLoggedInUser
 import com.nasportfolio.domain.user.usecases.GetUsersUseCase
+import com.nasportfolio.domain.user.usecases.UpdateAccountUseCase
 import com.nasportfolio.domain.utils.Resource
 import com.nasportfolio.domain.utils.ResourceError
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,6 +29,7 @@ class UserProfileViewModel @Inject constructor(
     private val getRestaurantsUseCase: GetRestaurantsUseCase,
     private val getCurrentLoggedInUser: GetCurrentLoggedInUser,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
+    private val updateAccountUseCase: UpdateAccountUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _state = MutableStateFlow(UserProfileState())
@@ -197,5 +203,54 @@ class UserProfileViewModel @Inject constructor(
                 else -> Unit
             }
         }
+    }
+
+    fun editPhoto(bitmap: Bitmap) {
+        val baos = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val byteArray = baos.toByteArray()
+        updateAccountUseCase.updateImage(byteArray).onEach {
+            when (it) {
+                is Resource.Success -> _state.update { state ->
+                    bitmapCache[it.result.image!!.url] = bitmap.asImageBitmap()
+                    state.copy(
+                        user = it.result,
+                        isUserLoading = false
+                    )
+                }
+                is Resource.Failure -> {
+                    if (it.error !is ResourceError.DefaultError) return@onEach
+                    val defaultError = (it.error as ResourceError.DefaultError).error
+                    _errorChannel.send(defaultError)
+                }
+                is Resource.Loading -> _state.update { state ->
+                    state.copy(isUserLoading = it.isLoading)
+                }
+            }
+        }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
+    }
+
+    fun deletePhoto() {
+        updateAccountUseCase.deleteImage().onEach {
+            when (it) {
+                is Resource.Success -> _state.update { state ->
+                    bitmapCache.remove(state.user!!.image!!.url)
+                    state.copy(
+                        user = state.user.copy(
+                            image = null
+                        ),
+                        isUserLoading = false
+                    )
+                }
+                is Resource.Failure -> {
+                    if (it.error !is ResourceError.DefaultError) return@onEach
+                    val defaultError = (it.error as ResourceError.DefaultError).error
+                    _errorChannel.send(defaultError)
+                }
+                is Resource.Loading -> _state.update { state ->
+                    state.copy(isUserLoading = it.isLoading)
+                }
+            }
+        }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
     }
 }
