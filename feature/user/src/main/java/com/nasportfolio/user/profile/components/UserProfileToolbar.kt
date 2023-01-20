@@ -1,4 +1,4 @@
-package com.nasportfolio.user.components
+package com.nasportfolio.user.profile.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -32,6 +32,7 @@ import com.nasportfolio.common.components.images.CltImageFromNetwork
 import com.nasportfolio.common.components.loading.CltShimmer
 import com.nasportfolio.common.components.typography.CltHeading
 import com.nasportfolio.common.modifier.gradientBackground
+import com.nasportfolio.common.navigation.navigateToUpdateUser
 import com.nasportfolio.common.theme.lightOrange
 import com.nasportfolio.common.theme.mediumOrange
 
@@ -123,7 +124,7 @@ fun UserProfileToolbar(
                             top = 4.dp
                         )
                     ) {
-                        IconButton(onClick = { /*TODO*/ }) {
+                        IconButton(onClick = navController::navigateToUpdateUser) {
                             Box(contentAlignment = Alignment.TopEnd) {
                                 Icon(
                                     imageVector = Icons.Default.Edit,

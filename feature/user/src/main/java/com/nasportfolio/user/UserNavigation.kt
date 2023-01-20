@@ -5,7 +5,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.nasportfolio.common.navigation.updateUserScreen
 import com.nasportfolio.common.navigation.userProfileScreen
+import com.nasportfolio.user.profile.UserProfileScreen
+import com.nasportfolio.user.update.UpdateUserScreen
 
 fun NavGraphBuilder.userComposable(navController: NavHostController) {
     composable(
@@ -24,5 +27,8 @@ fun NavGraphBuilder.userComposable(navController: NavHostController) {
         )
     ) {
         UserProfileScreen(navController = navController)
+    }
+    composable(route = updateUserScreen,) {
+        UpdateUserScreen(navController = navController)
     }
 }

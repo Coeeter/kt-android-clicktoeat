@@ -1,4 +1,4 @@
-package com.nasportfolio.user
+package com.nasportfolio.user.profile
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Scaffold
@@ -23,10 +23,10 @@ import com.nasportfolio.common.components.form.rememberImagePicker
 import com.nasportfolio.common.components.loading.CltLoadingRestaurantCard
 import com.nasportfolio.common.components.typography.CltHeading
 import com.nasportfolio.common.navigation.navigateToRestaurantDetails
-import com.nasportfolio.user.components.EmptyRestaurants
-import com.nasportfolio.user.components.EmptyReviews
-import com.nasportfolio.user.components.ToolbarWithContent
-import com.nasportfolio.user.components.UserStats
+import com.nasportfolio.user.profile.components.EmptyRestaurants
+import com.nasportfolio.user.profile.components.EmptyReviews
+import com.nasportfolio.user.profile.components.ToolbarWithContent
+import com.nasportfolio.user.profile.components.UserStats
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMotionApi::class)

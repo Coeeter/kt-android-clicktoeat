@@ -1,4 +1,4 @@
-package com.nasportfolio.user.components
+package com.nasportfolio.user.profile.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.nasportfolio.common.components.loading.CltShimmer
 import com.nasportfolio.common.components.typography.CltHeading
 import com.nasportfolio.common.utils.toStringAsFixed
-import com.nasportfolio.user.UserProfileState
+import com.nasportfolio.user.profile.UserProfileState
 
 @Composable
 fun UserStats(state: UserProfileState) {

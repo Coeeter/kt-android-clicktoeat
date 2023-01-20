@@ -1,4 +1,4 @@
-package com.nasportfolio.user.components
+package com.nasportfolio.user.profile.components
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.*
@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
-import com.nasportfolio.user.UserProfileState
+import com.nasportfolio.user.profile.UserProfileState
 
 @Composable
 fun ToolbarWithContent(

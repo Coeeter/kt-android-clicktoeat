@@ -1,4 +1,4 @@
-package com.nasportfolio.user
+package com.nasportfolio.user.profile
 
 import android.graphics.Bitmap
 import androidx.compose.ui.graphics.asImageBitmap

@@ -1,4 +1,4 @@
-package com.nasportfolio.user.components
+package com.nasportfolio.user.profile.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme

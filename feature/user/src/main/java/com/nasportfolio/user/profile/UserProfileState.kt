@@ -1,4 +1,4 @@
-package com.nasportfolio.user
+package com.nasportfolio.user.profile
 
 import com.nasportfolio.domain.comment.Comment
 import com.nasportfolio.domain.restaurant.TransformedRestaurant
