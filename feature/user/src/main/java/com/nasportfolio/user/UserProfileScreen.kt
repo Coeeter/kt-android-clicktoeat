@@ -61,6 +61,7 @@ fun UserProfileScreen(
                     .fillMaxSize()
                     .padding(horizontal = 10.dp),
             ) {
+                Spacer(modifier = Modifier.height(10.dp))
                 UserStats(state = state)
                 Spacer(modifier = Modifier.height(16.dp))
                 CltHeading(text = "Favorite Restaurants")
