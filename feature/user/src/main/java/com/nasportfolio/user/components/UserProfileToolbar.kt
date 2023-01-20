@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.runtime.*
@@ -102,19 +103,37 @@ fun UserProfileToolbar(
                     .layoutId(layoutId = "appbar"),
                 contentPadding = PaddingValues()
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .alpha(alpha = progress)
-                        .background(
-                            brush = Brush.linearGradient(
-                                colors = listOf(
-                                    lightOrange,
-                                    mediumOrange
-                                ),
+                Box(contentAlignment = Alignment.TopEnd) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .alpha(alpha = progress)
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        lightOrange,
+                                        mediumOrange
+                                    ),
+                                )
                             )
+                    )
+                    if (isCurrentUser && !isLoading) Box(
+                        modifier = Modifier.padding(
+                            end = 4.dp,
+                            top = 4.dp
                         )
-                )
+                    ) {
+                        IconButton(onClick = { /*TODO*/ }) {
+                            Box(contentAlignment = Alignment.TopEnd) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = null,
+                                    tint = Color.White
+                                )
+                            }
+                        }
+                    }
+                }
             }
             Surface(
                 modifier = Modifier.layoutId(layoutId = "profile_pic"),
