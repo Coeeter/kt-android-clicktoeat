@@ -2,8 +2,10 @@ package com.nasportfolio.common.components.form
 
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
+import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -31,20 +33,12 @@ import com.nasportfolio.common.components.buttons.CltButton
 import com.nasportfolio.common.theme.mediumOrange
 
 @Composable
-fun CltImagePicker(
-    modifier: Modifier = Modifier,
-    value: Bitmap?,
-    onValueChange: (Bitmap) -> Unit,
-    error: String?,
-) {
+fun rememberImagePicker(
+    onValueChange: (Bitmap) -> Unit
+): ManagedActivityResultLauncher<String, Uri> {
     val context = LocalContext.current
-    val density = LocalDensity.current
 
-    var imageWidth by remember {
-        mutableStateOf(0.dp)
-    }
-
-    val pickImage = rememberLauncherForActivityResult(
+    return rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
         val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -62,6 +56,22 @@ fun CltImagePicker(
         }
         onValueChange(bitmap)
     }
+}
+
+@Composable
+fun CltImagePicker(
+    modifier: Modifier = Modifier,
+    value: Bitmap?,
+    onValueChange: (Bitmap) -> Unit,
+    error: String?,
+) {
+    val density = LocalDensity.current
+    var imageWidth by remember {
+        mutableStateOf(0.dp)
+    }
+    val pickImage = rememberImagePicker(
+        onValueChange = onValueChange
+    )
 
     Surface(
         modifier = modifier.onGloballyPositioned {
