@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 const val userProfileScreen = "/users"
 const val updateUserScreen = "/update/user"
 const val updateUserPasswordScreen = "/update/user-password"
+const val deleteUserScreen = "/delete/user"
 
 fun NavHostController.navigateToUserProfile(
     userId: String?,
@@ -33,6 +34,17 @@ fun NavHostController.navigateToUpdatePasswordScreen(
     popUpTo: String? = null
 ) {
     navigate(updateUserPasswordScreen) {
+        popUpTo ?: return@navigate
+        popUpTo(popUpTo) {
+            inclusive = true
+        }
+    }
+}
+
+fun NavHostController.navigateToDeleteAccountScreen(
+    popUpTo: String? = null
+) {
+    navigate(deleteUserScreen) {
         popUpTo ?: return@navigate
         popUpTo(popUpTo) {
             inclusive = true

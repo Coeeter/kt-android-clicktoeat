@@ -5,9 +5,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.nasportfolio.common.navigation.deleteUserScreen
 import com.nasportfolio.common.navigation.updateUserPasswordScreen
 import com.nasportfolio.common.navigation.updateUserScreen
 import com.nasportfolio.common.navigation.userProfileScreen
+import com.nasportfolio.user.delete.DeleteAccountScreen
 import com.nasportfolio.user.profile.UserProfileScreen
 import com.nasportfolio.user.update.account.UpdateUserScreen
 import com.nasportfolio.user.update.password.UpdatePasswordScreen
@@ -30,5 +32,8 @@ fun NavGraphBuilder.userComposable(navController: NavHostController) {
     }
     composable(route = updateUserPasswordScreen) {
         UpdatePasswordScreen(navController = navController)
+    }
+    composable(route = deleteUserScreen) {
+        DeleteAccountScreen(navController = navController)
     }
 }

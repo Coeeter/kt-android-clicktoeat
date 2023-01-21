@@ -29,6 +29,7 @@ import com.nasportfolio.common.components.buttons.CltButton
 import com.nasportfolio.common.components.effects.CltLaunchFlowCollector
 import com.nasportfolio.common.components.form.CltInput
 import com.nasportfolio.common.components.navigation.BottomAppBarRefreshListener
+import com.nasportfolio.common.navigation.navigateToDeleteAccountScreen
 import com.nasportfolio.common.navigation.navigateToUpdatePasswordScreen
 import com.nasportfolio.common.navigation.navigateToUserProfile
 import com.nasportfolio.common.navigation.userProfileScreen
@@ -181,7 +182,7 @@ fun UpdateUserScreen(
                     enabled = true,
                     onClick = navController::navigateToUpdatePasswordScreen
                 )
-                Spacer(modifier = Modifier.width(5.dp))
+                Spacer(modifier = Modifier.width(15.dp))
                 CltButton(
                     modifier = Modifier.weight(1f),
                     text = "Delete Account",
@@ -193,7 +194,7 @@ fun UpdateUserScreen(
                             Color(0xFFFF5E5E)
                         )
                     ),
-                    onClick = { /*TODO*/ }
+                    onClick = navController::navigateToDeleteAccountScreen
                 )
             }
         }
