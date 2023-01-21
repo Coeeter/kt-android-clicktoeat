@@ -207,11 +207,8 @@ private fun navigateBack(
     if (!state.isUpdated) return run {
         navController.popBackStack()
     }
-    state.userId?.let {
-        navController.navigateToUserProfile(
-            userId = it,
-            fromNav = true,
-            popUpTo = "$userProfileScreen/{userId}/{fromNav}"
-        )
-    }
+    navController.navigateToUserProfile(
+        userId = "null",
+        popUpTo = "$userProfileScreen/{userId}"
+    )
 }

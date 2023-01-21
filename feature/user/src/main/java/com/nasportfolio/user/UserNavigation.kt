@@ -14,17 +14,12 @@ import com.nasportfolio.user.update.password.UpdatePasswordScreen
 
 fun NavGraphBuilder.userComposable(navController: NavHostController) {
     composable(
-        route = "$userProfileScreen/{userId}/{fromNav}",
+        route = "$userProfileScreen/{userId}",
         arguments = listOf(
             navArgument(name = "userId") {
                 type = NavType.StringType
                 nullable = false
                 defaultValue = ""
-            },
-            navArgument(name = "fromNav") {
-                type = NavType.BoolType
-                nullable = false
-                defaultValue = false
             }
         )
     ) {

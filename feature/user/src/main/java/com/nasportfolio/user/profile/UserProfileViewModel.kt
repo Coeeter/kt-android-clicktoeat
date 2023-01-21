@@ -42,14 +42,13 @@ class UserProfileViewModel @Inject constructor(
     val photoUpdatedChannel = _photoUpdatedChannel.receiveAsFlow()
 
     init {
-        getLoggedInUser()
-        savedStateHandle.get<String>("userId")?.let {
-            getUser(userId = it)
-            getComments(userId = it)
-            getFavoriteRestaurants(userId = it)
-        }
-        savedStateHandle.get<Boolean>("fromNav")?.let {
-            _state.update { state -> state.copy(fromNav = it) }
+        savedStateHandle.get<String>("userId")?.let { userId ->
+            _state.update { state -> state.copy(fromNav = userId == "null") }
+            getLoggedInUser(currentUser = userId == "null")
+            if (userId == "null") return@let
+            getUser(userId = userId)
+            getComments(userId = userId)
+            getFavoriteRestaurants(userId = userId)
         }
     }
 
@@ -81,14 +80,19 @@ class UserProfileViewModel @Inject constructor(
         }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
     }
 
-    private fun getLoggedInUser() {
+    private fun getLoggedInUser(currentUser: Boolean) {
         getCurrentLoggedInUser().onEach {
             when (it) {
                 is Resource.Success -> _state.update { state ->
+                    if (currentUser) {
+                        getUser(userId = it.result.id)
+                        getComments(userId = it.result.id)
+                        getFavoriteRestaurants(userId = it.result.id)
+                    }
                     state.copy(
                         isUserLoading = false,
                         isRefreshing = false,
-                        loggedInUserId = it.result.id
+                        loggedInUserId = it.result.id,
                     )
                 }
                 is Resource.Loading -> _state.update { state ->
@@ -170,7 +174,7 @@ class UserProfileViewModel @Inject constructor(
 
     fun refresh() {
         _state.update { state -> state.copy(isRefreshing = true) }
-        getLoggedInUser()
+        getLoggedInUser(currentUser = false)
         _state.value.user?.let {
             getUser(userId = it.id)
             getFavoriteRestaurants(userId = it.id)

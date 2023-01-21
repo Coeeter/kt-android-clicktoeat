@@ -38,7 +38,6 @@ class MainActivity : ComponentActivity(), BottomAppBarRefreshListener {
                 ) {
                     val navController = rememberNavController()
                     val bottomPadding = rememberBottomBarPadding()
-                    val userId by mainViewModel.userId.collectAsState()
                     val profileImage by mainViewModel.profileImage.collectAsState()
 
                     val listener = remember {
@@ -62,8 +61,7 @@ class MainActivity : ComponentActivity(), BottomAppBarRefreshListener {
                             CltBottomBar(
                                 navController = navController,
                                 bottomPadding = bottomPadding,
-                                profileImage = profileImage,
-                                userId = userId
+                                profileImage = profileImage
                             )
                         }
                     ) {

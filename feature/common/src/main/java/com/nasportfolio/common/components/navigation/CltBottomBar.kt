@@ -53,7 +53,7 @@ enum class BottomNavigationBarItem(
         label = "Search"
     ),
     Profile(
-        route = "$userProfileScreen/{userId}/{fromNav}",
+        route = "$userProfileScreen/{userId}",
         selectedIcon = Icons.Default.Person,
         label = "Profile"
     )
@@ -69,21 +69,20 @@ fun CltBottomBar(
     bottomPadding: MutableState<Int>,
     navController: NavHostController,
     profileImage: Bitmap? = null,
-    userId: String? = null
 ) {
     val items = BottomNavigationBarItem.values()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     val currentArgs = navBackStackEntry?.arguments?.let {
-        currentDestination?.arguments?.get("fromNav")?.type?.get(
+        currentDestination?.arguments?.get("userId")?.type?.get(
             it,
-            key = "fromNav"
+            key = "userId"
         )
     }
     val currentRoute = currentDestination?.route
     val isVisible = rememberSaveable(currentRoute) {
         currentArgs?.let {
-            return@rememberSaveable it == true
+            return@rememberSaveable it == "null"
         }
         currentRoute in items.map { it.route }
     }
@@ -157,13 +156,10 @@ fun CltBottomBar(
                             return@BottomNavigationItem
                         }
                         navController.navigate(
-                            route = if (userId != null && isCurrentRouteProfile) {
+                            route = if (isCurrentRouteProfile) {
                                 item.route.replace(
                                     oldValue = "{userId}",
-                                    newValue = userId
-                                ).replace(
-                                    oldValue = "{fromNav}",
-                                    newValue = true.toString()
+                                    newValue = "null"
                                 )
                             } else {
                                 item.route
@@ -173,7 +169,7 @@ fun CltBottomBar(
                                 saveState = true
                             }
                             launchSingleTop = true
-                            restoreState = item.route != currentRoute
+                            restoreState = item.route != currentRoute && !isCurrentRouteProfile
                         }
                     }
                 )
