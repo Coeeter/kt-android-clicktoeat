@@ -20,7 +20,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.buttons.CltButton
@@ -43,7 +42,10 @@ fun DeleteAccountScreen(
     val state by deleteAccountViewModel.state.collectAsState()
     val brush = remember {
         Brush.linearGradient(
-            colors = listOf(lightOrange, mediumOrange)
+            colors = listOf(
+                Color(0xFFFF5E5E),
+                Color(0xFFE60000)
+            )
         )
     }
     var showDeleteDialog by remember {
@@ -140,6 +142,7 @@ fun DeleteAccountScreen(
                         text = "Delete Account",
                         withLoading = true,
                         enabled = !state.isLoading,
+                        gradient = brush,
                         onClick = {
                             focusManager.clearFocus()
                             showDeleteDialog = true

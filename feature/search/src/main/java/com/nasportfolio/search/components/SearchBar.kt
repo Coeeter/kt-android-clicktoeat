@@ -1,5 +1,8 @@
 package com.nasportfolio.search.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.KeyboardActions
@@ -34,16 +37,22 @@ fun SearchBar(
             )
         },
         trailingIcon = {
-            IconButton(
-                onClick = {
-                    focusManager.clearFocus()
-                    searchScreenViewModel.clearQuery()
-                }
+            AnimatedVisibility(
+                visible = state.query.isNotEmpty(),
+                enter = fadeIn(),
+                exit = fadeOut()
             ) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = null,
-                )
+                IconButton(
+                    onClick = {
+                        focusManager.clearFocus()
+                        searchScreenViewModel.clearQuery()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = null,
+                    )
+                }
             }
         },
         colors = TextFieldDefaults.textFieldColors(

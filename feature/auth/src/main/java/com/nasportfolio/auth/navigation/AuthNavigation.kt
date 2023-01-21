@@ -4,12 +4,10 @@ import android.content.Intent
 import androidx.navigation.*
 import androidx.navigation.compose.composable
 import com.nasportfolio.auth.AuthScreen
+import com.nasportfolio.auth.forgotPassword.ForgotPasswordScreen
 import com.nasportfolio.auth.resetpassword.ResetPasswordFromEmailScreen
 import com.nasportfolio.auth.splash.SplashScreen
-import com.nasportfolio.common.navigation.authScreenRoute
-import com.nasportfolio.common.navigation.resetPasswordFromEmailDeepLink
-import com.nasportfolio.common.navigation.resetPasswordFromEmailRoute
-import com.nasportfolio.common.navigation.splashScreenRoute
+import com.nasportfolio.common.navigation.*
 
 fun NavGraphBuilder.authScreenComposable(navController: NavHostController) {
     composable(splashScreenRoute) {
@@ -17,6 +15,9 @@ fun NavGraphBuilder.authScreenComposable(navController: NavHostController) {
     }
     composable(authScreenRoute) {
         AuthScreen(navController = navController)
+    }
+    composable(route = forgotPasswordRoute) {
+        ForgotPasswordScreen(navController = navController)
     }
     composable(
         route = resetPasswordFromEmailRoute,

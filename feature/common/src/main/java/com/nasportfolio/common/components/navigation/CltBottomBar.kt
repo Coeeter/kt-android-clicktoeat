@@ -118,10 +118,7 @@ fun CltBottomBar(
                 val hasProfileImage = profileImage != null
                 val isCurrentRouteProfile = item.route == BottomNavigationBarItem.Profile.route
                 var isSelected = currentRoute == item.route
-
-                if (isCurrentRouteProfile) {
-                    isSelected = currentArgs == true
-                }
+                if (isCurrentRouteProfile) isSelected = currentArgs == "null"
 
                 BottomNavigationItem(
                     selected = isSelected,

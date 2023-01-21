@@ -33,6 +33,7 @@ import com.nasportfolio.common.components.effects.CltLaunchFlowCollector
 import com.nasportfolio.common.components.form.CltInput
 import com.nasportfolio.common.components.typography.CltHeading
 import com.nasportfolio.common.navigation.authScreenRoute
+import com.nasportfolio.common.navigation.navigateToForgetPassword
 import com.nasportfolio.common.navigation.navigateToHomeScreen
 import kotlinx.coroutines.launch
 
@@ -99,7 +100,7 @@ internal fun LoginForm(
                         vertical = 8.dp,
                         horizontal = 5.dp
                     ),
-                    onClick = { /*TODO*/ },
+                    onClick = navController::navigateToForgetPassword,
                 ) {
                     Text(text = "Forgot password?")
                 }
