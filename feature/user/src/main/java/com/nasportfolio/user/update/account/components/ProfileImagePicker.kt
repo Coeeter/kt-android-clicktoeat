@@ -1,4 +1,4 @@
-package com.nasportfolio.user.update.components
+package com.nasportfolio.user.update.account.components
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
@@ -25,9 +25,7 @@ import com.nasportfolio.common.components.loading.CltShimmer
 import com.nasportfolio.common.modifier.gradientBackground
 import com.nasportfolio.common.theme.lightOrange
 import com.nasportfolio.common.theme.mediumOrange
-import com.nasportfolio.user.update.UpdateUserEvent
-import com.nasportfolio.user.update.UpdateUserState
-import com.nasportfolio.user.update.UpdateUserViewModel
+import com.nasportfolio.user.update.account.UpdateUserState
 
 @Composable
 fun ProfileImagePicker(

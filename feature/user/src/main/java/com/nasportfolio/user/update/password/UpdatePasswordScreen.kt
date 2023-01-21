@@ -1,8 +1,9 @@
-package com.nasportfolio.user.update
+package com.nasportfolio.user.update.password
 
-import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -10,13 +11,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.input.ImeAction
@@ -26,63 +30,52 @@ import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.buttons.CltButton
 import com.nasportfolio.common.components.effects.CltLaunchFlowCollector
 import com.nasportfolio.common.components.form.CltInput
-import com.nasportfolio.common.components.navigation.BottomAppBarRefreshListener
-import com.nasportfolio.common.navigation.navigateToUserProfile
-import com.nasportfolio.common.navigation.userProfileScreen
-import com.nasportfolio.user.update.components.ProfileImagePicker
+import com.nasportfolio.common.modifier.gradientBackground
+import com.nasportfolio.common.theme.lightOrange
+import com.nasportfolio.common.theme.mediumOrange
 
 @Composable
-fun UpdateUserScreen(
+fun UpdatePasswordScreen(
     navController: NavHostController,
-    updateUserViewModel: UpdateUserViewModel = hiltViewModel()
+    updatePasswordViewModel: UpdatePasswordViewModel = hiltViewModel(),
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val focusManager = LocalFocusManager.current
-    val activity = LocalContext.current as BottomAppBarRefreshListener
     val scaffoldState = rememberScaffoldState()
-    val state by updateUserViewModel.state.collectAsState()
+    val state by updatePasswordViewModel.state.collectAsState()
+
+    val brush = Brush.linearGradient(
+        colors = listOf(
+            lightOrange,
+            mediumOrange
+        )
+    )
 
     CltLaunchFlowCollector(
         lifecycleOwner = lifecycleOwner,
-        flow = updateUserViewModel.errorChannel
+        flow = updatePasswordViewModel.errorChannel,
     ) {
         scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
         scaffoldState.snackbarHostState.showSnackbar(it, "Okay")
     }
 
-    CltLaunchFlowCollector(
-        lifecycleOwner = lifecycleOwner,
-        flow = updateUserViewModel.updatedChannel
-    ) {
-        activity.refresh()
+    LaunchedEffect(state.isUpdated) {
+        if (!state.isUpdated) return@LaunchedEffect
         scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
         scaffoldState.snackbarHostState.showSnackbar(
-            message = "User updated successfully!",
+            message = "Successfully updated password",
             actionLabel = "Okay"
         )
-    }
-
-    BackHandler(enabled = true) {
-        navigateBack(
-            state = state,
-            navController = navController
-        )
+        navController.popBackStack()
     }
 
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
-                title = { Text(text = "Update user") },
+                title = { Text(text = "Update password") },
                 navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            navigateBack(
-                                state = state,
-                                navController = navController
-                            )
-                        }
-                    ) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = null
@@ -99,19 +92,22 @@ fun UpdateUserScreen(
                 .padding(horizontal = 16.dp, vertical = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ProfileImagePicker(
-                state = state,
-                updatePhoto = {
-                    updateUserViewModel.onEvent(
-                        event = UpdateUserEvent.OnImageChange(it)
-                    )
-                },
-                deletePhoto = {
-                    updateUserViewModel.onEvent(
-                        event = UpdateUserEvent.OnRemoveImage
-                    )
-                }
-            )
+            Box(
+                modifier = Modifier
+                    .size(200.dp)
+                    .clip(CircleShape)
+                    .border(width = 5.dp, brush = brush, shape = CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(30.dp)
+                        .gradientBackground(brush = brush),
+                )
+            }
             Spacer(modifier = Modifier.height(20.dp))
             Surface(
                 elevation = 4.dp,
@@ -123,9 +119,10 @@ fun UpdateUserScreen(
                         .padding(10.dp)
                 ) {
                     CltInput(
-                        value = state.username,
-                        label = "Username",
-                        error = state.usernameError,
+                        value = state.oldPassword,
+                        label = "Old password",
+                        error = state.oldPasswordError,
+                        isPassword = true,
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Next
                         ),
@@ -133,16 +130,35 @@ fun UpdateUserScreen(
                             onNext = { focusManager.moveFocus(FocusDirection.Down) }
                         ),
                         onValueChange = {
-                            updateUserViewModel.onEvent(
-                                event = UpdateUserEvent.OnUsernameChange(it)
+                            updatePasswordViewModel.onEvent(
+                                event = UpdatePasswordEvent.OnOldPasswordChange(it)
                             )
                         }
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     CltInput(
-                        value = state.email,
-                        label = "Email",
-                        error = state.emailError,
+                        value = state.newPassword,
+                        label = "New password",
+                        error = state.newPasswordError,
+                        isPassword = true,
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                        ),
+                        onValueChange = {
+                            updatePasswordViewModel.onEvent(
+                                event = UpdatePasswordEvent.OnNewPasswordChange(it)
+                            )
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    CltInput(
+                        value = state.confirmNewPassword,
+                        label = "Confirm password",
+                        error = state.confirmNewPasswordError,
+                        isPassword = true,
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Done
                         ),
@@ -150,41 +166,25 @@ fun UpdateUserScreen(
                             onDone = { focusManager.clearFocus() }
                         ),
                         onValueChange = {
-                            updateUserViewModel.onEvent(
-                                event = UpdateUserEvent.OnEmailChange(it)
+                            updatePasswordViewModel.onEvent(
+                                event = UpdatePasswordEvent.OnConfirmNewPasswordChange(it)
                             )
                         }
                     )
                     Spacer(modifier = Modifier.height(20.dp))
                     CltButton(
-                        text = "Update Account",
+                        text = "Update Password",
                         withLoading = true,
                         enabled = !state.isSubmitting,
                         onClick = {
                             focusManager.clearFocus()
-                            updateUserViewModel.onEvent(
-                                event = UpdateUserEvent.OnSubmit
+                            updatePasswordViewModel.onEvent(
+                                event = UpdatePasswordEvent.OnSubmit
                             )
                         }
                     )
                 }
             }
         }
-    }
-}
-
-private fun navigateBack(
-    state: UpdateUserState,
-    navController: NavHostController
-) {
-    if (!state.isUpdated) return run {
-        navController.popBackStack()
-    }
-    state.userId?.let {
-        navController.navigateToUserProfile(
-            userId = it,
-            fromNav = true,
-            popUpTo = "$userProfileScreen/{userId}/{fromNav}"
-        )
     }
 }
