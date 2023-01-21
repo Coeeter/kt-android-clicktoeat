@@ -5,6 +5,7 @@ import com.nasportfolio.domain.comment.Comment
 import com.nasportfolio.domain.restaurant.TransformedRestaurant
 
 data class RestaurantsDetailState(
+    val oldCommentSize: Int = 0,
     val restaurant: TransformedRestaurant? = null,
     val isLoading: Boolean = true,
     val shouldNavigateBack: Boolean = false,

@@ -46,13 +46,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.nasportfolio.common.components.CltCommentCard
 import com.nasportfolio.common.components.buttons.CltButton
+import com.nasportfolio.common.components.effects.CltLaunchFlowCollector
 import com.nasportfolio.common.components.form.CltInput
 import com.nasportfolio.common.modifier.gradientBackground
 import com.nasportfolio.common.navigation.navigateToRestaurantDetails
@@ -61,11 +60,9 @@ import com.nasportfolio.common.theme.lightOrange
 import com.nasportfolio.common.theme.mediumOrange
 import com.nasportfolio.common.utils.toStringAsFixed
 import com.nasportfolio.domain.comment.Comment
-import com.nasportfolio.common.components.CltCommentCard
-import com.nasportfolio.common.components.effects.CltLaunchFlowCollector
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun CommentScreen(
     navController: NavHostController,
@@ -129,54 +126,49 @@ fun CommentScreen(
         ) {
             if (!state.isLoading)
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(
+                        vertical = 10.dp,
+                        horizontal = 16.dp
+                    )
                 ) {
                     item {
-                        Box(
-                            modifier = Modifier.padding(
-                                end = 16.dp,
-                                start = 16.dp,
-                                top = 10.dp
-                            )
-                        ) {
-                            CreateReviewForm(commentViewModel = commentViewModel)
-                        }
+                        CreateReviewForm(commentViewModel = commentViewModel)
                     }
-                    item {
-                        Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-                            if (state.comments.isNotEmpty()) Reviews(comments = state.comments)
-                            if (state.comments.isEmpty()) EmptyReviews()
-                        }
+                    if (state.comments.isNotEmpty()) item {
+                        ReviewMetaData(comments = state.comments)
                     }
-                    items(
+                    if (state.comments.isEmpty()) item {
+                        EmptyReviews()
+                    }
+                    if (state.comments.isNotEmpty()) items(
                         count = state.comments.size,
                         key = { state.comments[it].id },
                     ) { index ->
                         state.currentUserId?.let { userId ->
-                            if (index == 0) Spacer(modifier = Modifier.height(10.dp))
-                            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                                CltCommentCard(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    comment = state.comments[index],
-                                    navController = navController,
-                                    currentUserId = userId,
-                                    editComment = {
-                                        commentViewModel.onEvent(
-                                            event = CommentsScreenEvent.OpenEditCommentDialog(
-                                                index = index
-                                            )
+                            CltCommentCard(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .animateItemPlacement(),
+                                comment = state.comments[index],
+                                navController = navController,
+                                currentUserId = userId,
+                                editComment = {
+                                    commentViewModel.onEvent(
+                                        event = CommentsScreenEvent.OpenEditCommentDialog(
+                                            index = index
                                         )
-                                    },
-                                    deleteComment = {
-                                        commentViewModel.onEvent(
-                                            event = CommentsScreenEvent.OnDeleteComment(
-                                                index = index
-                                            )
+                                    )
+                                },
+                                deleteComment = {
+                                    commentViewModel.onEvent(
+                                        event = CommentsScreenEvent.OnDeleteComment(
+                                            index = index
                                         )
-                                    }
-                                )
-                                Spacer(modifier = Modifier.height(10.dp))
-                            }
+                                    )
+                                }
+                            )
                         }
                     }
                 }
@@ -306,74 +298,76 @@ private fun CreateReviewForm(commentViewModel: CommentViewModel) {
                 )
             }
         }
-        Spacer(modifier = Modifier.height(10.dp))
     }
 }
 
 @Composable
-private fun Reviews(comments: List<Comment>) {
-    Column {
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            elevation = 4.dp,
-            shape = RoundedCornerShape(10.dp)
+private fun ReviewMetaData(comments: List<Comment>) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = 4.dp,
+        shape = RoundedCornerShape(10.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = 20.dp,
+                    end = 20.dp,
+                    bottom = 10.dp,
+                    top = 5.dp
+                ),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, end = 20.dp, bottom = 10.dp, top = 5.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Text(text = buildAnnotatedString(comments = comments))
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.End
             ) {
-                Text(text = buildAnnotatedString(comments = comments))
-                Column(
-                    modifier = Modifier.weight(1f),
-                    horizontalAlignment = Alignment.End
-                ) {
-                    Spacer(modifier = Modifier.height(10.dp))
-                    repeat(5) {
-                        val animatedWidth by animateFloatAsState(
-                            targetValue = calculatePercentOfUsers(
-                                comments = comments,
-                                rating = 5 - it
-                            ),
-                            animationSpec = tween(
-                                durationMillis = 500,
-                                easing = FastOutSlowInEasing,
-                            )
-                        )
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row {
-                                repeat(5 - it) {
-                                    Icon(
-                                        modifier = Modifier.size(10.dp),
-                                        imageVector = Icons.Default.Star,
-                                        contentDescription = null,
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.width(5.dp))
-                            LinearProgressIndicator(
-                                progress = animatedWidth,
-                                modifier = Modifier
-                                    .width(150.dp)
-                                    .clip(CircleShape),
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(2.dp))
-                    }
-                    Text(
-                        text = "${comments.size} reviews",
-                        color = MaterialTheme.colors.onBackground.copy(
-                            alpha = if (isSystemInDarkTheme()) 0.5f else 0.7f
+                Spacer(modifier = Modifier.height(10.dp))
+                repeat(5) {
+                    val animatedWidth by animateFloatAsState(
+                        targetValue = calculatePercentOfUsers(
+                            comments = comments,
+                            rating = 5 - it
+                        ),
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing,
                         )
                     )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row {
+                            repeat(5 - it) {
+                                Icon(
+                                    modifier = Modifier.size(10.dp),
+                                    imageVector = Icons.Default.Star,
+                                    contentDescription = null,
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(5.dp))
+                        LinearProgressIndicator(
+                            progress = animatedWidth,
+                            modifier = Modifier
+                                .width(150.dp)
+                                .clip(CircleShape),
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(2.dp))
                 }
+                Text(
+                    text = "${comments.size} reviews",
+                    color = MaterialTheme.colors.onBackground.copy(
+                        alpha = if (isSystemInDarkTheme()) 0.5f else 0.7f
+                    )
+                )
             }
         }
     }

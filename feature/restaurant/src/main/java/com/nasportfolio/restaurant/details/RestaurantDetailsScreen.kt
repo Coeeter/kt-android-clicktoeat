@@ -6,9 +6,11 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -56,6 +58,7 @@ import com.nasportfolio.restaurant.details.components.BranchesSection
 import com.nasportfolio.restaurant.details.components.DataSection
 import com.nasportfolio.restaurant.details.components.ParallaxToolbar
 import com.nasportfolio.restaurant.details.components.ReviewMetaDataSection
+import kotlin.math.min
 
 @SuppressLint("MissingPermission")
 @OptIn(ExperimentalComposeUiApi::class)
@@ -286,6 +289,7 @@ private fun SpeedDial(
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ScreenContent(
     restaurant: TransformedRestaurant,
@@ -296,6 +300,15 @@ private fun ScreenContent(
     setIsScrollEnabled: (Boolean) -> Unit,
     setOpenDeleteDialog: (String) -> Unit
 ) {
+    val lazyListState = rememberLazyListState()
+
+    LaunchedEffect(state.oldCommentSize) {
+        if (state.oldCommentSize == 0) return@LaunchedEffect
+        val size = state.restaurant?.comments?.size ?: return@LaunchedEffect
+        if (state.oldCommentSize >= size) return@LaunchedEffect
+        lazyListState.animateScrollToItem(0)
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -347,43 +360,40 @@ private fun ScreenContent(
                 ),
                 exit = fadeOut()
             ) {
-                LazyRow {
-                    item { Spacer(modifier = Modifier.width(16.dp)) }
+                LazyRow(
+                    state = lazyListState,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp)
+                ) {
                     items(
-                        count = if (restaurant.comments.size <= 3) {
-                            restaurant.comments.size
-                        } else {
-                            3
-                        },
+                        count = min(restaurant.comments.size, 3),
                         key = {
                             restaurant.comments[it].id
-                        }
+                        },
                     ) {
-                        Row {
-                            var width = config.screenWidthDp.dp - 32.dp
-                            if (restaurant.comments.size != 1) width -= 10.dp
-                            CltCommentCard(
-                                modifier = Modifier.width(width),
-                                comment = restaurant.comments[it],
-                                navController = navController,
-                                currentUserId = userId,
-                                editComment = {
-                                    restaurantDetailsViewModel.onEvent(
-                                        RestaurantDetailsEvent.OpenEditCommentDialog(
-                                            index = it
-                                        )
+                        var width = config.screenWidthDp.dp - 32.dp
+                        if (restaurant.comments.size != 1) width -= 10.dp
+                        CltCommentCard(
+                            modifier = Modifier
+                                .width(width)
+                                .animateItemPlacement(),
+                            comment = restaurant.comments[it],
+                            navController = navController,
+                            currentUserId = userId,
+                            editComment = {
+                                restaurantDetailsViewModel.onEvent(
+                                    RestaurantDetailsEvent.OpenEditCommentDialog(
+                                        index = it
                                     )
-                                },
-                                deleteComment = {
-                                    restaurantDetailsViewModel.onEvent(
-                                        RestaurantDetailsEvent.DeleteComment(index = it)
-                                    )
-                                }
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-                        }
+                                )
+                            },
+                            deleteComment = {
+                                restaurantDetailsViewModel.onEvent(
+                                    RestaurantDetailsEvent.DeleteComment(index = it)
+                                )
+                            }
+                        )
                     }
-                    item { Spacer(modifier = Modifier.width(6.dp)) }
                 }
             }
         }

@@ -175,6 +175,7 @@ class RestaurantDetailsViewModel @Inject constructor(
                         rating = 0,
                         review = "",
                         isUpdated = true,
+                        oldCommentSize = restaurant.comments.size,
                         restaurant = restaurant.copy(
                             comments = newCommentList
                         ),
@@ -256,7 +257,8 @@ class RestaurantDetailsViewModel @Inject constructor(
         _state.update { state ->
             oldState = state
             state.copy(
-                restaurant = state.restaurant!!.copy(
+                oldCommentSize = state.restaurant!!.comments.size,
+                restaurant = state.restaurant.copy(
                     comments = state.restaurant.comments.toMutableList().apply {
                         removeAt(index)
                     }
