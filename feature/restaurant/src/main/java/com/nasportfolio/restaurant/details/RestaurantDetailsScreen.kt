@@ -34,15 +34,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.CltCommentCard
 import com.nasportfolio.common.components.buttons.CltButton
 import com.nasportfolio.common.components.buttons.CltSpeedDialFab
 import com.nasportfolio.common.components.buttons.CltSpeedDialFabItem
 import com.nasportfolio.common.components.buttons.rememberSpeedDialState
+import com.nasportfolio.common.components.effects.CltLaunchFlowCollector
 import com.nasportfolio.common.components.form.CltInput
 import com.nasportfolio.common.components.loading.CltShimmer
 import com.nasportfolio.common.components.typography.CltHeading
@@ -58,7 +56,6 @@ import com.nasportfolio.restaurant.details.components.BranchesSection
 import com.nasportfolio.restaurant.details.components.DataSection
 import com.nasportfolio.restaurant.details.components.ParallaxToolbar
 import com.nasportfolio.restaurant.details.components.ReviewMetaDataSection
-import kotlinx.coroutines.launch
 
 @SuppressLint("MissingPermission")
 @OptIn(ExperimentalComposeUiApi::class)
@@ -84,15 +81,12 @@ fun RestaurantDetailsScreen(
         mutableStateOf<String?>(null)
     }
 
-    LaunchedEffect(true) {
-        lifecycleOwner.lifecycleScope.launch {
-            lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                restaurantDetailsViewModel.errorChannel.collect {
-                    scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
-                    scaffoldState.snackbarHostState.showSnackbar(it, "Okay")
-                }
-            }
-        }
+    CltLaunchFlowCollector(
+        lifecycleOwner = lifecycleOwner,
+        flow = restaurantDetailsViewModel.errorChannel
+    ) {
+        scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
+        scaffoldState.snackbarHostState.showSnackbar(it, "Okay")
     }
 
     LaunchedEffect(state.isLoading) {

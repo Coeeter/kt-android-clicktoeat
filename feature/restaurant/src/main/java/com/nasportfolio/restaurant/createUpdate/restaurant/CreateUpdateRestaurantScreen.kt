@@ -23,11 +23,9 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.buttons.CltButton
+import com.nasportfolio.common.components.effects.CltLaunchFlowCollector
 import com.nasportfolio.common.components.form.CltImagePicker
 import com.nasportfolio.common.components.form.CltInput
 import com.nasportfolio.common.navigation.createUpdateRestaurantScreenRoute
@@ -35,7 +33,6 @@ import com.nasportfolio.common.navigation.navigateToCreateBranch
 import com.nasportfolio.common.navigation.navigateToRestaurantDetails
 import com.nasportfolio.common.navigation.restaurantDetailScreenRoute
 import com.nasportfolio.common.theme.mediumOrange
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -49,18 +46,12 @@ fun CreateUpdateRestaurantScreen(
     val state by createUpdateRestaurantViewModel.state.collectAsState()
     val scaffoldState = rememberScaffoldState()
 
-    LaunchedEffect(true) {
-        lifecycleOwner.lifecycleScope.launch {
-            lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                createUpdateRestaurantViewModel.errorChannel.collect {
-                    scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
-                    scaffoldState.snackbarHostState.showSnackbar(
-                        message = it,
-                        actionLabel = "Okay"
-                    )
-                }
-            }
-        }
+    CltLaunchFlowCollector(
+        lifecycleOwner = lifecycleOwner,
+        flow = createUpdateRestaurantViewModel.errorChannel
+    ) {
+        scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
+        scaffoldState.snackbarHostState.showSnackbar(it, "Okay")
     }
 
     LaunchedEffect(state.insertId, state.isUpdateComplete) {

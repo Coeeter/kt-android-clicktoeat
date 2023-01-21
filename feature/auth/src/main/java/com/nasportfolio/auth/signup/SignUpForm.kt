@@ -30,16 +30,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.buttons.CltButton
+import com.nasportfolio.common.components.effects.CltLaunchFlowCollector
 import com.nasportfolio.common.components.form.CltInput
 import com.nasportfolio.common.components.typography.CltHeading
 import com.nasportfolio.common.navigation.authScreenRoute
 import com.nasportfolio.common.navigation.navigateToHomeScreen
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -54,15 +51,12 @@ fun SignUpForm(
     val lifecycleOwner = LocalLifecycleOwner.current
     val state by signUpViewModel.signUpState.collectAsState()
 
-    LaunchedEffect(true) {
-        lifecycleOwner.lifecycleScope.launch {
-            lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                signUpViewModel.errorChannel.collect {
-                    scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
-                    scaffoldState.snackbarHostState.showSnackbar(it, "Okay")
-                }
-            }
-        }
+    CltLaunchFlowCollector(
+        lifecycleOwner = lifecycleOwner,
+        flow = signUpViewModel.errorChannel
+    ) {
+        scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
+        scaffoldState.snackbarHostState.showSnackbar(it, "Okay")
     }
 
     LaunchedEffect(state.isCreated) {

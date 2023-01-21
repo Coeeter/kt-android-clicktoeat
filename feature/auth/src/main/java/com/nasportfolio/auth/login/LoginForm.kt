@@ -29,6 +29,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.buttons.CltButton
+import com.nasportfolio.common.components.effects.CltLaunchFlowCollector
 import com.nasportfolio.common.components.form.CltInput
 import com.nasportfolio.common.components.typography.CltHeading
 import com.nasportfolio.common.navigation.authScreenRoute
@@ -48,15 +49,12 @@ internal fun LoginForm(
     val lifecycleOwner = LocalLifecycleOwner.current
     val state by loginViewModel.loginState.collectAsState()
 
-    LaunchedEffect(true) {
-        lifecycleOwner.lifecycleScope.launch {
-            lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                loginViewModel.errorChannel.collect {
-                    scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
-                    scaffoldState.snackbarHostState.showSnackbar(it, "Okay")
-                }
-            }
-        }
+    CltLaunchFlowCollector(
+        lifecycleOwner = lifecycleOwner,
+        flow = loginViewModel.errorChannel
+    ) {
+        scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
+        scaffoldState.snackbarHostState.showSnackbar(it, "Okay")
     }
 
     LaunchedEffect(state.isLoggedIn) {

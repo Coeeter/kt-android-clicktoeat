@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.nasportfolio.common.components.navigation.BottomAppBarRefreshListener
 import com.nasportfolio.common.components.navigation.BottomNavigationBarItem
 import com.nasportfolio.common.components.navigation.CltBottomBar
 import com.nasportfolio.common.components.navigation.rememberBottomBarPadding
@@ -24,7 +25,7 @@ import com.nasportfolio.common.theme.ClickToEatTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), BottomAppBarRefreshListener {
     private val mainViewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,4 +76,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun refresh() = mainViewModel.updateImage()
 }

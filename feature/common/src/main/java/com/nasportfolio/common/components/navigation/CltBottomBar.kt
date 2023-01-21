@@ -7,7 +7,6 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.BottomAppBar
@@ -33,6 +32,10 @@ import com.nasportfolio.common.navigation.homeScreenRoute
 import com.nasportfolio.common.navigation.searchScreenRoute
 import com.nasportfolio.common.navigation.userProfileScreen
 import com.nasportfolio.common.theme.mediumOrange
+
+interface BottomAppBarRefreshListener {
+    fun refresh()
+}
 
 enum class BottomNavigationBarItem(
     val route: String,

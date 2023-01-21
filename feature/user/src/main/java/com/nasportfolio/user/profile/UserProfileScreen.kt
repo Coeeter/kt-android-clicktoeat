@@ -4,30 +4,28 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ExperimentalMotionApi
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.CltCommentCard
 import com.nasportfolio.common.components.CltRestaurantCard
 import com.nasportfolio.common.components.TopBar
+import com.nasportfolio.common.components.effects.CltLaunchFlowCollector
 import com.nasportfolio.common.components.form.rememberImagePicker
 import com.nasportfolio.common.components.loading.CltLoadingRestaurantCard
+import com.nasportfolio.common.components.navigation.BottomAppBarRefreshListener
 import com.nasportfolio.common.components.typography.CltHeading
 import com.nasportfolio.common.navigation.navigateToRestaurantDetails
 import com.nasportfolio.user.profile.components.EmptyRestaurants
 import com.nasportfolio.user.profile.components.EmptyReviews
 import com.nasportfolio.user.profile.components.ToolbarWithContent
 import com.nasportfolio.user.profile.components.UserStats
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMotionApi::class)
 @Composable
@@ -36,6 +34,7 @@ fun UserProfileScreen(
     userProfileViewModel: UserProfileViewModel = hiltViewModel()
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
+    val activity = LocalContext.current as BottomAppBarRefreshListener
     val scaffoldState = rememberScaffoldState()
     val state by userProfileViewModel.state.collectAsState()
 
@@ -43,15 +42,19 @@ fun UserProfileScreen(
         userProfileViewModel.editPhoto(bitmap = it)
     }
 
-    LaunchedEffect(true) {
-        lifecycleOwner.lifecycleScope.launch {
-            lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                userProfileViewModel.errorChannel.collect {
-                    scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
-                    scaffoldState.snackbarHostState.showSnackbar(it, "Okay")
-                }
-            }
-        }
+    CltLaunchFlowCollector(
+        lifecycleOwner = lifecycleOwner,
+        flow = userProfileViewModel.errorChannel
+    ) {
+        scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
+        scaffoldState.snackbarHostState.showSnackbar(it, "Okay")
+    }
+
+    CltLaunchFlowCollector(
+        lifecycleOwner = lifecycleOwner,
+        flow = userProfileViewModel.photoUpdatedChannel
+    ) {
+        activity.refresh()
     }
 
     Scaffold(scaffoldState = scaffoldState) {

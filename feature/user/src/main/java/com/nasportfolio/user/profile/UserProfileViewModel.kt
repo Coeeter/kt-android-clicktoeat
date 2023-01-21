@@ -38,6 +38,9 @@ class UserProfileViewModel @Inject constructor(
     private val _errorChannel = Channel<String>()
     val errorChannel = _errorChannel.receiveAsFlow()
 
+    private val _photoUpdatedChannel = Channel<Boolean>()
+    val photoUpdatedChannel = _photoUpdatedChannel.receiveAsFlow()
+
     init {
         getLoggedInUser()
         savedStateHandle.get<String>("userId")?.let {
@@ -211,12 +214,15 @@ class UserProfileViewModel @Inject constructor(
         val byteArray = baos.toByteArray()
         updateAccountUseCase.updateImage(byteArray).onEach {
             when (it) {
-                is Resource.Success -> _state.update { state ->
-                    bitmapCache[it.result.image!!.url] = bitmap.asImageBitmap()
-                    state.copy(
-                        user = it.result,
-                        isUserLoading = false
-                    )
+                is Resource.Success -> {
+                    _state.update { state ->
+                        bitmapCache[it.result.image!!.url] = bitmap.asImageBitmap()
+                        state.copy(
+                            user = it.result,
+                            isUserLoading = false
+                        )
+                    }
+                    _photoUpdatedChannel.send(true)
                 }
                 is Resource.Failure -> {
                     if (it.error !is ResourceError.DefaultError) return@onEach
@@ -233,14 +239,17 @@ class UserProfileViewModel @Inject constructor(
     fun deletePhoto() {
         updateAccountUseCase.deleteImage().onEach {
             when (it) {
-                is Resource.Success -> _state.update { state ->
-                    bitmapCache.remove(state.user!!.image!!.url)
-                    state.copy(
-                        user = state.user.copy(
-                            image = null
-                        ),
-                        isUserLoading = false
-                    )
+                is Resource.Success -> {
+                    _state.update { state ->
+                        bitmapCache.remove(state.user!!.image!!.url)
+                        state.copy(
+                            user = state.user.copy(
+                                image = null
+                            ),
+                            isUserLoading = false
+                        )
+                    }
+                    _photoUpdatedChannel.send(true)
                 }
                 is Resource.Failure -> {
                     if (it.error !is ResourceError.DefaultError) return@onEach
