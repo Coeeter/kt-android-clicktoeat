@@ -18,13 +18,8 @@ class UpdateAccountUseCase @Inject constructor(
     private val validatePassword: ValidatePassword,
     private val validateConfirmPassword: ValidateConfirmPassword,
 ) {
-    operator fun invoke(
-        username: String,
-        email: String,
-        password: String,
-        confirmPassword: String
-    ) = flow<Resource<User>> {
-        when (val error = validateFields(username, email, password, confirmPassword)) {
+    operator fun invoke(username: String, email: String) = flow<Resource<User>> {
+        when (val error = validateFields(username, email)) {
             is Resource.Failure -> return@flow emit(Resource.Failure(error.error))
             else -> emit(Resource.Loading(isLoading = true))
         }
@@ -38,7 +33,6 @@ class UpdateAccountUseCase @Inject constructor(
             token = currentTokenResource.result,
             username = username,
             email = email,
-            password = password
         )
         if (updatedTokenResource !is Resource.Success) {
             val error = (currentTokenResource as Resource.Failure).error
@@ -46,6 +40,29 @@ class UpdateAccountUseCase @Inject constructor(
         }
         userRepository.saveToken(updatedTokenResource.result)
         emit(userRepository.validateToken(updatedTokenResource.result))
+    }
+
+    fun updatePassword(password: String, confirmPassword: String) = flow<Resource<Unit>> {
+        when (val error = validatePassword(password, confirmPassword)) {
+            is Resource.Failure -> return@flow emit(Resource.Failure(error.error))
+            else -> emit(Resource.Loading(isLoading = true))
+        }
+        emit(Resource.Loading(isLoading = true))
+        val currentTokenResource = userRepository.getToken()
+        if (currentTokenResource !is Resource.Success) {
+            val error = (currentTokenResource as Resource.Failure).error
+            return@flow emit(Resource.Failure(error = error))
+        }
+        val updatedTokenResource = userRepository.updateAccount(
+            token = currentTokenResource.result,
+            password = password
+        )
+        if (updatedTokenResource !is Resource.Success) {
+            val error = (currentTokenResource as Resource.Failure).error
+            return@flow emit(Resource.Failure(error = error))
+        }
+        userRepository.saveToken(updatedTokenResource.result)
+        emit(Resource.Success(Unit))
     }
 
     fun updateImage(image: ByteArray) = flow<Resource<User>> {
@@ -88,8 +105,6 @@ class UpdateAccountUseCase @Inject constructor(
     private fun validateFields(
         username: String,
         email: String,
-        password: String,
-        confirmPassword: String
     ): Resource<Unit> {
         val usernameValidationError = validateUsername(
             value = username
@@ -97,6 +112,27 @@ class UpdateAccountUseCase @Inject constructor(
         val emailValidationError = validateEmail(
             value = email
         )
+        if (
+            emailValidationError != null ||
+            usernameValidationError != null
+        ) {
+            return Resource.Failure(
+                ResourceError.FieldError(
+                    message = "Invalid fields provided",
+                    errors = listOfNotNull(
+                        usernameValidationError,
+                        emailValidationError,
+                    )
+                )
+            )
+        }
+        return Resource.Success(Unit)
+    }
+
+    private fun validatePassword(
+        password: String,
+        confirmPassword: String
+    ): Resource<Unit> {
         val passwordValidationError = validatePassword(
             value = password,
             flag = ValidatePassword.CREATE_FLAG
@@ -106,19 +142,15 @@ class UpdateAccountUseCase @Inject constructor(
             password = password
         )
         if (
-            emailValidationError != null ||
             passwordValidationError != null ||
-            usernameValidationError != null ||
             confirmPasswordValidationError != null
         ) {
             return Resource.Failure(
                 ResourceError.FieldError(
                     message = "Invalid fields provided",
                     errors = listOfNotNull(
-                        usernameValidationError,
-                        emailValidationError,
+                        confirmPasswordValidationError,
                         passwordValidationError,
-                        confirmPasswordValidationError
                     )
                 )
             )

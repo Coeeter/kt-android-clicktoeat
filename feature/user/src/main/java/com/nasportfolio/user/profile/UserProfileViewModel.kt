@@ -225,6 +225,7 @@ class UserProfileViewModel @Inject constructor(
                     _photoUpdatedChannel.send(true)
                 }
                 is Resource.Failure -> {
+                    _state.value = _state.value.copy(isUserLoading = false)
                     if (it.error !is ResourceError.DefaultError) return@onEach
                     val defaultError = (it.error as ResourceError.DefaultError).error
                     _errorChannel.send(defaultError)
@@ -252,6 +253,7 @@ class UserProfileViewModel @Inject constructor(
                     _photoUpdatedChannel.send(true)
                 }
                 is Resource.Failure -> {
+                    _state.value = _state.value.copy(isUserLoading = false)
                     if (it.error !is ResourceError.DefaultError) return@onEach
                     val defaultError = (it.error as ResourceError.DefaultError).error
                     _errorChannel.send(defaultError)

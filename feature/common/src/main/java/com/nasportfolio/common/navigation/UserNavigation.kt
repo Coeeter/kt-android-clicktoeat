@@ -7,9 +7,10 @@ const val updateUserScreen = "/update/user"
 
 fun NavHostController.navigateToUserProfile(
     userId: String,
+    fromNav: Boolean = false,
     popUpTo: String? = null
 ) {
-    navigate("$userProfileScreen/$userId/false") {
+    navigate("$userProfileScreen/$userId/$fromNav") {
         popUpTo ?: return@navigate
         popUpTo(popUpTo) {
             inclusive = true
