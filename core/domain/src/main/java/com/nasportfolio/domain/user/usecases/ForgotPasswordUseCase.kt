@@ -35,8 +35,7 @@ class ForgotPasswordUseCase @Inject constructor(
     }
 
     fun resetPassword(
-        tokenizedEmail: String,
-        credential: String,
+        token: String,
         password: String,
         confirmPassword: String
     ) = flow<Resource<Unit>> {
@@ -44,16 +43,8 @@ class ForgotPasswordUseCase @Inject constructor(
             is Resource.Failure -> return@flow emit(Resource.Failure(error.error))
             else -> emit(Resource.Loading(isLoading = true))
         }
-        val tokenResource = userRepository.validateCredential(
-            tokenizedEmail = tokenizedEmail,
-            credential = credential
-        )
-        if (tokenResource !is Resource.Success) {
-            if (tokenResource !is Resource.Failure) throw IllegalStateException()
-            return@flow emit(Resource.Failure(tokenResource.error))
-        }
         val result = userRepository.updateAccount(
-            token = tokenResource.result,
+            token = token,
             password = password
         )
         when (result) {

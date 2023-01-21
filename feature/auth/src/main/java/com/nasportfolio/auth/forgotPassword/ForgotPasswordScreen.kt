@@ -72,28 +72,9 @@ fun ForgotPasswordScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Password,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(120.dp)
-                        .gradientBackground(
-                            brush = Brush.linearGradient(
-                                colors = listOf(
-                                    lightOrange,
-                                    mediumOrange
-                                )
-                            )
-                        ),
-                )
-                Text(
-                    text = "?",
-                    fontSize = 75.sp,
-                    modifier = Modifier.gradientBackground(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .gradientBackground(
                         brush = Brush.linearGradient(
                             colors = listOf(
                                 lightOrange,
@@ -101,7 +82,15 @@ fun ForgotPasswordScreen(
                             )
                         )
                     ),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Password,
+                    contentDescription = null,
+                    modifier = Modifier.size(120.dp),
                 )
+                Text(text = "?", fontSize = 75.sp)
             }
             Spacer(modifier = Modifier.height(20.dp))
             Surface(

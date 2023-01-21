@@ -37,15 +37,8 @@ fun NavGraphBuilder.authScreenComposable(navController: NavHostController) {
                 type = NavType.StringType
             }
         )
-    ) { entry ->
-        val email = entry.arguments?.getString("email")
-        val credential = entry.arguments?.getString("credential")
-
-        ResetPasswordFromEmailScreen(
-            email = email,
-            credential = credential,
-            navController = navController
-        )
+    ) {
+        ResetPasswordFromEmailScreen(navController = navController)
     }
 }
 
