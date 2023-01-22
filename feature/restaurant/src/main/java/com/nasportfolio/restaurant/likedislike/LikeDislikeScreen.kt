@@ -2,6 +2,7 @@ package com.nasportfolio.restaurant.likedislike
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,6 +35,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.nasportfolio.common.components.effects.CltLaunchFlowCollector
 import com.nasportfolio.common.components.images.CltImageFromNetwork
 import com.nasportfolio.common.components.loading.CltShimmer
+import com.nasportfolio.common.navigation.navigateToUserProfile
 import com.nasportfolio.common.theme.mediumOrange
 import com.nasportfolio.domain.user.User
 import com.nasportfolio.restaurant.likedislike.components.EmptyItems
@@ -70,6 +72,7 @@ fun LikeDislikeScreen(
                     users = state.comment?.likes ?: emptyList(),
                     isLoading = state.isLoading,
                     tabItem = this,
+                    navController = navController
                 )
             }
         ),
@@ -80,6 +83,7 @@ fun LikeDislikeScreen(
                     users = state.comment?.dislikes ?: emptyList(),
                     isLoading = state.isLoading,
                     tabItem = this,
+                    navController = navController
                 )
             }
         )
@@ -158,7 +162,8 @@ fun LikeDislikeScreen(
 private fun UserList(
     users: List<User>,
     isLoading: Boolean,
-    tabItem: TabItem
+    tabItem: TabItem,
+    navController: NavHostController
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -173,7 +178,11 @@ private fun UserList(
         }
         if (!isLoading && users.isNotEmpty()) items(users) { user ->
             Surface(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigateToUserProfile(userId = user.id)
+                    },
                 elevation = 4.dp,
                 shape = RoundedCornerShape(10.dp)
             ) {

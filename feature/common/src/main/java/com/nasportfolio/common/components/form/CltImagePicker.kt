@@ -86,8 +86,7 @@ fun CltImagePicker(
                 Image(
                     bitmap = it.asImageBitmap(),
                     contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
+                    modifier = Modifier.fillMaxSize()
                 )
             } ?: Icon(
                 modifier = Modifier.fillMaxSize(0.5f),
