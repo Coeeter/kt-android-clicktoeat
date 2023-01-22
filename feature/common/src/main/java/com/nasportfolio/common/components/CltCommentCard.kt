@@ -14,6 +14,7 @@ import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -128,35 +129,39 @@ fun CltCommentCard(
                         fontSize = 20.sp
                     )
                 }
-                if (currentUserId == comment.user.id && topBar != TopBar.Restaurant) {
-                    Box(contentAlignment = Alignment.Center) {
-                        IconButton(
-                            modifier = Modifier.offset(x = 10.dp),
-                            onClick = { isMenuExpanded = true }
-                        ) {
-                            Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+                val shouldShowBtn = currentUserId == comment.user.id && topBar != TopBar.Restaurant
+                Box(contentAlignment = Alignment.Center) {
+                    IconButton(
+                        modifier = Modifier
+                            .offset(x = 10.dp)
+                            .alpha(if (shouldShowBtn) 1f else 0f),
+                        onClick = {
+                            if (!shouldShowBtn) return@IconButton
+                            isMenuExpanded = true
                         }
-                        DropdownMenu(
-                            expanded = isMenuExpanded,
-                            onDismissRequest = { isMenuExpanded = false }
+                    ) {
+                        Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+                    }
+                    DropdownMenu(
+                        expanded = isMenuExpanded,
+                        onDismissRequest = { isMenuExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            onClick = {
+                                isMenuExpanded = false
+                                editComment()
+                            }
                         ) {
-                            DropdownMenuItem(
-                                onClick = {
-                                    isMenuExpanded = false
-                                    editComment()
-                                }
-                            ) {
-                                Text(text = "Edit Comment")
+                            Text(text = "Edit Comment")
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                        DropdownMenuItem(
+                            onClick = {
+                                isMenuExpanded = false
+                                deleteComment()
                             }
-                            Spacer(modifier = Modifier.height(10.dp))
-                            DropdownMenuItem(
-                                onClick = {
-                                    isMenuExpanded = false
-                                    deleteComment()
-                                }
-                            ) {
-                                Text(text = "Delete Comment")
-                            }
+                        ) {
+                            Text(text = "Delete Comment")
                         }
                     }
                 }
