@@ -8,9 +8,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.ThumbDown
+import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,6 +23,7 @@ import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.images.CltImageFromNetwork
 import com.nasportfolio.common.components.loading.CltShimmer
 import com.nasportfolio.common.components.typography.CltHeading
+import com.nasportfolio.common.navigation.navigateToLikeDislikeScreen
 import com.nasportfolio.common.navigation.navigateToRestaurantDetails
 import com.nasportfolio.common.navigation.navigateToUserProfile
 import com.nasportfolio.common.theme.mediumOrange
@@ -43,7 +44,9 @@ fun CltCommentCard(
     comment: Comment,
     currentUserId: String,
     editComment: () -> Unit,
-    deleteComment: () -> Unit
+    deleteComment: () -> Unit,
+    likeComment: () -> Unit,
+    dislikeComment: () -> Unit
 ) {
     var isMenuExpanded by remember {
         mutableStateOf(false)
@@ -160,7 +163,6 @@ fun CltCommentCard(
             }
             Spacer(modifier = Modifier.height(5.dp))
             Text(text = comment.review)
-            Spacer(modifier = Modifier.height(5.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.Star,
@@ -174,8 +176,57 @@ fun CltCommentCard(
                     fontSize = 18.sp
                 )
                 Text(text = "/5", fontSize = 18.sp)
+                Spacer(modifier = Modifier.width(30.dp))
+                IconButton(
+                    onClick = {
+                        if (currentUserId == comment.user.id)
+                            return@IconButton navController.navigateToLikeDislikeScreen(
+                                commentId = comment.id,
+                                index = 0
+                            )
+                        likeComment()
+                    }
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = comment.likes.size.toString(), fontSize = 16.sp)
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Icon(
+                            imageVector = if (currentUserId in comment.likes.map { it.id }) {
+                                Icons.Filled.ThumbUp
+                            } else {
+                                Icons.Outlined.ThumbUp
+                            },
+                            contentDescription = null,
+                            tint = mediumOrange
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(5.dp))
+                IconButton(
+                    onClick = {
+                        if (currentUserId == comment.user.id)
+                            return@IconButton navController.navigateToLikeDislikeScreen(
+                                commentId = comment.id,
+                                index = 1
+                            )
+                        dislikeComment()
+                    }
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = comment.dislikes.size.toString(), fontSize = 16.sp)
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Icon(
+                            imageVector = if (currentUserId in comment.dislikes.map { it.id }) {
+                                Icons.Filled.ThumbDown
+                            } else {
+                                Icons.Outlined.ThumbDown
+                            },
+                            contentDescription = null,
+                            tint = mediumOrange
+                        )
+                    }
+                }
             }
-            Spacer(modifier = Modifier.height(10.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = SimpleDateFormat(

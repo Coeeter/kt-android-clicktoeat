@@ -2,7 +2,9 @@ package com.nasportfolio.domain.restaurant.usecases
 
 import com.nasportfolio.domain.comment.Comment
 import com.nasportfolio.domain.comment.CommentRepository
+import com.nasportfolio.domain.likesdislikes.dislike.DislikeRepository
 import com.nasportfolio.domain.favorites.FavoriteRepository
+import com.nasportfolio.domain.likesdislikes.like.LikeRepository
 import com.nasportfolio.domain.restaurant.Restaurant
 import com.nasportfolio.domain.restaurant.RestaurantRepository
 import com.nasportfolio.domain.restaurant.TransformedRestaurant
@@ -22,7 +24,9 @@ class GetRestaurantsUseCase @Inject constructor(
     private val getCurrentLoggedInUserUseCase: GetCurrentLoggedInUser,
     private val favoriteRepository: FavoriteRepository,
     private val commentRepository: CommentRepository,
-    private val restaurantRepository: RestaurantRepository
+    private val restaurantRepository: RestaurantRepository,
+    private val likeRepository: LikeRepository,
+    private val dislikeRepository: DislikeRepository
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
     operator fun invoke(filter: Filter = Filter.None) =
@@ -129,7 +133,42 @@ class GetRestaurantsUseCase @Inject constructor(
         return@coroutineScope Resource.Success(
             OtherData(
                 comments = when (val comments = deferredComments.await()) {
-                    is Resource.Success -> comments.result
+                    is Resource.Success -> {
+                        val deferredLikes = comments.result.map {
+                            async { likeRepository.getUsersWhoLikedComment(it.id) }
+                        }
+                        val deferredDislikes = comments.result.map {
+                            async { dislikeRepository.getUsersWhoDislikedComments(it.id) }
+                        }
+                        val likes = deferredLikes.awaitAll()
+                        val dislikes = deferredDislikes.awaitAll()
+                        comments.result.mapIndexed { index, comment ->
+                            val likesOfComment = likes[index]
+                            val dislikesOfComment = dislikes[index]
+                            if (likesOfComment !is Resource.Success<List<User>>) {
+                                return@coroutineScope Resource.Failure(
+                                    (likesOfComment as Resource.Failure).error
+                                )
+                            }
+                            if (dislikesOfComment !is Resource.Success<List<User>>) {
+                                return@coroutineScope Resource.Failure(
+                                    (dislikesOfComment as Resource.Failure).error
+                                )
+                            }
+                            Comment(
+                                id = comment.id,
+                                review = comment.review,
+                                rating = comment.rating,
+                                parentComment = comment.parentComment,
+                                createdAt = comment.createdAt,
+                                updatedAt = comment.updatedAt,
+                                user = comment.user,
+                                restaurant = comment.restaurant,
+                                likes = likesOfComment.result,
+                                dislikes = dislikesOfComment.result
+                            )
+                        }
+                    }
                     is Resource.Failure -> return@coroutineScope Resource.Failure(
                         comments.error
                     )

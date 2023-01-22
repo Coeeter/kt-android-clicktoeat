@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.nasportfolio.common.components.images.bitmapCache
 import com.nasportfolio.domain.comment.usecases.GetCommentsUseCase
 import com.nasportfolio.domain.favorites.usecases.ToggleFavoriteUseCase
+import com.nasportfolio.domain.likesdislikes.usecases.ToggleLikeDislike
 import com.nasportfolio.domain.restaurant.usecases.GetRestaurantsUseCase
 import com.nasportfolio.domain.user.usecases.GetCurrentLoggedInUser
 import com.nasportfolio.domain.user.usecases.GetUsersUseCase
@@ -30,6 +31,7 @@ class UserProfileViewModel @Inject constructor(
     private val getCurrentLoggedInUser: GetCurrentLoggedInUser,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val updateAccountUseCase: UpdateAccountUseCase,
+    private val toggleLikeDislike: ToggleLikeDislike,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _state = MutableStateFlow(UserProfileState())
@@ -265,6 +267,35 @@ class UserProfileViewModel @Inject constructor(
                 is Resource.Loading -> _state.update { state ->
                     state.copy(isUserLoading = it.isLoading)
                 }
+            }
+        }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
+    }
+
+    fun likeComment(index: Int) {
+        likeDislikeComment(index = index, action = ToggleLikeDislike.Action.Like)
+    }
+
+    fun dislikeComment(index: Int) {
+        likeDislikeComment(index = index, action = ToggleLikeDislike.Action.Dislike)
+    }
+
+    private fun likeDislikeComment(index: Int, action: ToggleLikeDislike.Action) {
+        val comment = _state.value.comments[index]
+        toggleLikeDislike(comment = comment, action = action).onEach {
+            when (it) {
+                is Resource.Success -> _state.update { state ->
+                    state.copy(
+                        comments = state.comments.toMutableList().apply {
+                            set(index, it.result)
+                        }
+                    )
+                }
+                is Resource.Failure -> {
+                    if (it.error !is ResourceError.DefaultError) return@onEach
+                    val defaultError = (it.error as ResourceError.DefaultError).error
+                    _errorChannel.send(defaultError)
+                }
+                is Resource.Loading -> Unit
             }
         }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
     }

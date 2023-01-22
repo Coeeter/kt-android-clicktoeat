@@ -11,6 +11,7 @@ import com.nasportfolio.restaurant.createUpdate.branch.CreateUpdateBranchScreen
 import com.nasportfolio.restaurant.createUpdate.restaurant.CreateUpdateRestaurantScreen
 import com.nasportfolio.restaurant.details.RestaurantDetailsScreen
 import com.nasportfolio.restaurant.home.HomeScreen
+import com.nasportfolio.restaurant.likedislike.LikeDislikeScreen
 
 fun NavGraphBuilder.restaurantComposable(
     navController: NavHostController
@@ -66,5 +67,22 @@ fun NavGraphBuilder.restaurantComposable(
         )
     ) {
         CommentScreen(navController = navController)
+    }
+    composable(
+        route = "$likeDislikeRoute/{commentId}/{index}",
+        arguments = listOf(
+            navArgument(name = "commentId") {
+                defaultValue = ""
+                type = NavType.StringType
+                nullable = false
+            },
+            navArgument(name = "index") {
+                defaultValue = 0
+                type = NavType.IntType
+                nullable = false
+            }
+        )
+    ) {
+        LikeDislikeScreen(navController = navController)
     }
 }

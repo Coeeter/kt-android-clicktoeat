@@ -15,6 +15,7 @@ import com.nasportfolio.domain.comment.usecases.CreateCommentUseCase
 import com.nasportfolio.domain.comment.usecases.DeleteCommentUseCase
 import com.nasportfolio.domain.comment.usecases.EditCommentUseCase
 import com.nasportfolio.domain.favorites.usecases.ToggleFavoriteUseCase
+import com.nasportfolio.domain.likesdislikes.usecases.ToggleLikeDislike
 import com.nasportfolio.domain.restaurant.usecases.DeleteRestaurantUseCase
 import com.nasportfolio.domain.restaurant.usecases.GetRestaurantsUseCase
 import com.nasportfolio.domain.user.usecases.GetCurrentLoggedInUser
@@ -40,6 +41,7 @@ class RestaurantDetailsViewModel @Inject constructor(
     private val fusedLocationProviderClient: FusedLocationProviderClient,
     private val deleteRestaurantUseCase: DeleteRestaurantUseCase,
     private val deleteBranchUseCase: DeleteBranchUseCase,
+    private val toggleLikeDislike: ToggleLikeDislike,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _state = MutableStateFlow(RestaurantsDetailState())
@@ -334,7 +336,29 @@ class RestaurantDetailsViewModel @Inject constructor(
                 else -> Unit
             }
         }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
+    }
 
+    private fun likeDislikeComment(index: Int, action: ToggleLikeDislike.Action) {
+        val comment = _state.value.restaurant?.comments?.get(index) ?: return
+        toggleLikeDislike(comment = comment, action = action).onEach {
+            when (it) {
+                is Resource.Success -> _state.update { state ->
+                    state.copy(
+                        restaurant = state.restaurant!!.copy(
+                            comments = state.restaurant.comments.toMutableList().apply {
+                                set(index, it.result)
+                            }
+                        )
+                    )
+                }
+                is Resource.Failure -> {
+                    if (it.error !is ResourceError.DefaultError) return@onEach
+                    val defaultError = (it.error as ResourceError.DefaultError).error
+                    _errorChannel.send(defaultError)
+                }
+                is Resource.Loading -> Unit
+            }
+        }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
     }
 
     private fun setAnimationIsDone(isDone: Boolean) {
@@ -414,6 +438,18 @@ class RestaurantDetailsViewModel @Inject constructor(
             }
             is RestaurantDetailsEvent.DeleteBranch -> {
                 deleteBranch(branchId = event.branchId)
+            }
+            is RestaurantDetailsEvent.LikeComment -> {
+                likeDislikeComment(
+                    index = event.index,
+                    action = ToggleLikeDislike.Action.Like
+                )
+            }
+            is RestaurantDetailsEvent.DislikeComment -> {
+                likeDislikeComment(
+                    index = event.index,
+                    action = ToggleLikeDislike.Action.Dislike
+                )
             }
         }
     }

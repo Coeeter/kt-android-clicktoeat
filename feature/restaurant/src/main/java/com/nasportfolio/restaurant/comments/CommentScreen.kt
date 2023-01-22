@@ -167,6 +167,20 @@ fun CommentScreen(
                                             index = index
                                         )
                                     )
+                                },
+                                likeComment = {
+                                    commentViewModel.onEvent(
+                                        event = CommentsScreenEvent.LikeComment(
+                                            index = index
+                                        )
+                                    )
+                                },
+                                dislikeComment = {
+                                    commentViewModel.onEvent(
+                                        event = CommentsScreenEvent.DislikeComment(
+                                            index = index
+                                        )
+                                    )
                                 }
                             )
                         }

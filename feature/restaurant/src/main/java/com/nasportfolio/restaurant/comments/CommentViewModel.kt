@@ -7,6 +7,7 @@ import com.nasportfolio.domain.comment.usecases.CreateCommentUseCase
 import com.nasportfolio.domain.comment.usecases.DeleteCommentUseCase
 import com.nasportfolio.domain.comment.usecases.EditCommentUseCase
 import com.nasportfolio.domain.comment.usecases.GetCommentsUseCase
+import com.nasportfolio.domain.likesdislikes.usecases.ToggleLikeDislike
 import com.nasportfolio.domain.user.usecases.GetCurrentLoggedInUser
 import com.nasportfolio.domain.utils.Resource
 import com.nasportfolio.domain.utils.ResourceError
@@ -23,6 +24,7 @@ class CommentViewModel @Inject constructor(
     private val editCommentUseCase: EditCommentUseCase,
     private val deleteCommentUseCase: DeleteCommentUseCase,
     private val getCurrentLoggedInUser: GetCurrentLoggedInUser,
+    private val toggleLikeDislike: ToggleLikeDislike,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _state = MutableStateFlow(CommentScreenState())
@@ -200,6 +202,27 @@ class CommentViewModel @Inject constructor(
         }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
     }
 
+    private fun likeDislikeComment(index: Int, action: ToggleLikeDislike.Action) {
+        val comment = _state.value.comments[index]
+        toggleLikeDislike(comment = comment, action = action).onEach {
+            when (it) {
+                is Resource.Success -> _state.update { state ->
+                    state.copy(
+                        comments = state.comments.toMutableList().apply {
+                            set(index, it.result)
+                        }
+                    )
+                }
+                is Resource.Failure -> {
+                    if (it.error !is ResourceError.DefaultError) return@onEach
+                    val defaultError= (it.error as ResourceError.DefaultError).error
+                    _errorChannel.send(defaultError)
+                }
+                is Resource.Loading -> Unit
+            }
+        }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
+    }
+
     fun onEvent(event: CommentsScreenEvent) {
         when (event) {
             is CommentsScreenEvent.OnReviewChangedEvent -> _state.update { state ->
@@ -261,6 +284,18 @@ class CommentViewModel @Inject constructor(
             is CommentsScreenEvent.RefreshPage -> {
                 getComments()
                 getCurrentUser()
+            }
+            is CommentsScreenEvent.LikeComment -> {
+                likeDislikeComment(
+                    index = event.index,
+                    action = ToggleLikeDislike.Action.Like
+                )
+            }
+            is CommentsScreenEvent.DislikeComment -> {
+                likeDislikeComment(
+                    index = event.index,
+                    action = ToggleLikeDislike.Action.Dislike
+                )
             }
         }
     }

@@ -391,6 +391,16 @@ private fun ScreenContent(
                                 restaurantDetailsViewModel.onEvent(
                                     RestaurantDetailsEvent.DeleteComment(index = it)
                                 )
+                            },
+                            likeComment = {
+                                restaurantDetailsViewModel.onEvent(
+                                    event = RestaurantDetailsEvent.LikeComment(index = it)
+                                )
+                            },
+                            dislikeComment = {
+                                restaurantDetailsViewModel.onEvent(
+                                    event = RestaurantDetailsEvent.DislikeComment(index = it)
+                                )
                             }
                         )
                     }

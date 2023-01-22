@@ -6,6 +6,7 @@ import com.nasportfolio.data.common.DefaultMessageDto
 import com.nasportfolio.data.utils.Constants.NO_RESPONSE
 import com.nasportfolio.data.utils.tryWithIoHandling
 import com.nasportfolio.domain.comment.Comment
+import com.nasportfolio.domain.likesdislikes.like.Like
 import com.nasportfolio.domain.user.User
 import com.nasportfolio.domain.utils.Resource
 import com.nasportfolio.domain.utils.ResourceError
@@ -26,6 +27,27 @@ class RemoteLikeDaoImpl @Inject constructor(
         gson = gson,
         path = "/api/likes"
     ) {
+
+    override suspend fun getAllLikes(): Resource<List<Like>> = tryWithIoHandling {
+        val (json, code) = get()
+        json ?: return@tryWithIoHandling Resource.Failure(
+            ResourceError.DefaultError(NO_RESPONSE)
+        )
+        return@tryWithIoHandling when (code) {
+            200 -> Resource.Success(
+                gson.fromJson(
+                    json,
+                    object : TypeToken<List<Like>>() {}.type
+                )
+            )
+            else -> Resource.Failure(
+                gson.fromJson<ResourceError.DefaultError>(
+                    json,
+                    object : TypeToken<ResourceError.DefaultError>() {}.type
+                )
+            )
+        }
+    }
 
     override suspend fun getLikedCommentsOfUser(userId: String): Resource<List<Comment>> =
         tryWithIoHandling {

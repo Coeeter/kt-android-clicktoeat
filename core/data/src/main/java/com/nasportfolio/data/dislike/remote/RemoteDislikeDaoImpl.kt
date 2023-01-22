@@ -6,6 +6,7 @@ import com.nasportfolio.data.common.DefaultMessageDto
 import com.nasportfolio.data.utils.Constants.NO_RESPONSE
 import com.nasportfolio.data.utils.tryWithIoHandling
 import com.nasportfolio.domain.comment.Comment
+import com.nasportfolio.domain.likesdislikes.dislike.Dislike
 import com.nasportfolio.domain.user.User
 import com.nasportfolio.domain.utils.Resource
 import com.nasportfolio.domain.utils.ResourceError
@@ -27,6 +28,27 @@ class RemoteDislikeDaoImpl @Inject constructor(
         gson = gson,
         path = "/api/dislikes"
     ) {
+
+    override suspend fun getAllDislikes(): Resource<List<Dislike>> = tryWithIoHandling {
+        val (json, code) = get()
+        json ?: return@tryWithIoHandling Resource.Failure(
+            ResourceError.DefaultError(NO_RESPONSE)
+        )
+        return@tryWithIoHandling when (code) {
+            200 -> Resource.Success(
+                gson.fromJson(
+                    json,
+                    object : TypeToken<List<Dislike>>() {}.type
+                )
+            )
+            else -> Resource.Failure(
+                gson.fromJson<ResourceError.DefaultError>(
+                    json,
+                    object : TypeToken<ResourceError.DefaultError>() {}.type
+                )
+            )
+        }
+    }
 
     override suspend fun getDislikedCommentsOfUser(userId: String): Resource<List<Comment>> =
         tryWithIoHandling {

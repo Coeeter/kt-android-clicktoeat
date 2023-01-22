@@ -120,7 +120,13 @@ fun UserProfileScreen(
                                 currentUserId = it1,
                                 topBar = TopBar.Restaurant,
                                 editComment = {},
-                                deleteComment = {}
+                                deleteComment = {},
+                                likeComment = {
+                                    userProfileViewModel.likeComment(index = it)
+                                },
+                                dislikeComment = {
+                                    userProfileViewModel.dislikeComment(index = it)
+                                }
                             )
                             Spacer(modifier = Modifier.height(10.dp))
                         }

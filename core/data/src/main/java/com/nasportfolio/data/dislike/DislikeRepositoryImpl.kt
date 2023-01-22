@@ -2,7 +2,8 @@ package com.nasportfolio.data.dislike
 
 import com.nasportfolio.data.dislike.remote.RemoteDislikeDao
 import com.nasportfolio.domain.comment.Comment
-import com.nasportfolio.domain.dislike.DislikeRepository
+import com.nasportfolio.domain.likesdislikes.dislike.Dislike
+import com.nasportfolio.domain.likesdislikes.dislike.DislikeRepository
 import com.nasportfolio.domain.user.User
 import com.nasportfolio.domain.utils.Resource
 import javax.inject.Inject
@@ -10,6 +11,10 @@ import javax.inject.Inject
 class DislikeRepositoryImpl @Inject constructor(
     private val remoteDislikeDao: RemoteDislikeDao
 ) : DislikeRepository {
+    override suspend fun getAllDislikes(): Resource<List<Dislike>> {
+        return remoteDislikeDao.getAllDislikes()
+    }
+
     override suspend fun getDislikedCommentsOfUser(
         userId: String
     ): Resource<List<Comment>> = remoteDislikeDao.getDislikedCommentsOfUser(

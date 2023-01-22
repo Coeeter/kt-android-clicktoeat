@@ -2,7 +2,8 @@ package com.nasportfolio.data.like
 
 import com.nasportfolio.data.like.remote.RemoteLikeDao
 import com.nasportfolio.domain.comment.Comment
-import com.nasportfolio.domain.like.LikeRepository
+import com.nasportfolio.domain.likesdislikes.like.Like
+import com.nasportfolio.domain.likesdislikes.like.LikeRepository
 import com.nasportfolio.domain.user.User
 import com.nasportfolio.domain.utils.Resource
 import javax.inject.Inject
@@ -10,6 +11,10 @@ import javax.inject.Inject
 class LikeRepositoryImpl @Inject constructor(
     private val remoteLikeDao: RemoteLikeDao
 ) : LikeRepository {
+    override suspend fun getAllLikes(): Resource<List<Like>> {
+        return remoteLikeDao.getAllLikes()
+    }
+
     override suspend fun getLikedCommentsOfUser(
         userId: String
     ): Resource<List<Comment>> = remoteLikeDao.getLikedCommentsOfUser(

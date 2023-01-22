@@ -15,4 +15,7 @@ sealed class CommentsScreenEvent {
     class OnDeleteComment(val index: Int) : CommentsScreenEvent()
 
     object RefreshPage : CommentsScreenEvent()
+
+    class LikeComment(val index: Int): CommentsScreenEvent()
+    class DislikeComment(val index: Int): CommentsScreenEvent()
 }
