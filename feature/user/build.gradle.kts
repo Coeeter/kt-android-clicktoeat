@@ -64,11 +64,6 @@ dependencies {
     implementation("com.google.accompanist:accompanist-swiperefresh:0.20.0")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
-    // for google maps
-    implementation("com.google.maps.android:maps-compose:2.5.0")
-    implementation("com.google.android.gms:play-services-maps:18.0.2")
-    implementation("com.google.android.gms:play-services-location:19.0.1")
-
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1")

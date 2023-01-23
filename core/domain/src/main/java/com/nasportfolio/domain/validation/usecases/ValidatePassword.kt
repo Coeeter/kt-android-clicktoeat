@@ -15,16 +15,21 @@ class ValidatePassword @Inject constructor() {
         when (flag) {
             CREATE_FLAG -> {
                 isValidated = regex.toRegex().matches(value)
-                error = "Password should be 8 letters long, contain one special character, number, lowercase and uppercase characters"
+                error = Error.InvalidEmail.message
             }
             LOGIN_FLAG -> {
                 isValidated = value.isNotEmpty() && value.isNotBlank()
-                error = "Password required!"
+                error = Error.MissingEmail.message
             }
             else -> throw IllegalArgumentException("Invalid flag provided")
         }
         if (isValidated) return null
         return ResourceError.FieldErrorItem(field, error)
+    }
+
+    enum class Error(val message: String) {
+        InvalidEmail("Password should be 8 letters long, contain one special character, number, lowercase and uppercase characters"),
+        MissingEmail("Password required")
     }
 
     companion object {

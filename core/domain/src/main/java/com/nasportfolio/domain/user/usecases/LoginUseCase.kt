@@ -37,11 +37,7 @@ class LoginUseCase @Inject constructor(
             )
             return@flow emit(error)
         }
-        emit(
-            Resource.Loading<Unit>(
-                isLoading = true
-            )
-        )
+        emit(Resource.Loading<Unit>(isLoading = true))
         val loginResult = userRepository.login(
             email = email,
             password = password

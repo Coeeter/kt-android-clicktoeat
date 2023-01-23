@@ -96,7 +96,10 @@ class UpdateAccountUseCase @Inject constructor(
             deleteImage = true
         )
         when (deleteResult) {
-            is Resource.Success -> emit(Resource.Success(Unit))
+            is Resource.Success -> {
+                userRepository.saveToken(deleteResult.result)
+                emit(Resource.Success(Unit))
+            }
             is Resource.Failure -> emit(Resource.Failure(deleteResult.error))
             else -> throw IllegalStateException()
         }
