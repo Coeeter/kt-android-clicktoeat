@@ -25,6 +25,10 @@ class EditCommentUseCase @Inject constructor(
         review: String,
         rating: Int
     ) = flow<Resource<Comment>> {
+        validate(
+            review = review,
+            rating = rating
+        )?.let { return@flow emit(Resource.Failure(it)) }
         emit(Resource.Loading(isLoading = true))
         val tokenResource = userRepository.getToken()
         if (tokenResource !is Resource.Success) {
@@ -34,10 +38,6 @@ class EditCommentUseCase @Inject constructor(
             }
             return@flow
         }
-        validate(
-            review = review,
-            rating = rating
-        )?.let { return@flow emit(Resource.Failure(it)) }
         val commentResource = commentRepository.updateComment(
             token = tokenResource.result,
             commentId = commentId,
