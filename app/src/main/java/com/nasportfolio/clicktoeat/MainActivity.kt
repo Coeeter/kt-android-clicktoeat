@@ -10,9 +10,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.rememberScaffoldState
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
@@ -29,6 +27,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity(), BottomAppBarRefreshListener {
     private val mainViewModel: MainViewModel by viewModels()
+    lateinit var bottomPadding: MutableState<Int>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,9 +37,9 @@ class MainActivity : ComponentActivity(), BottomAppBarRefreshListener {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
+                    bottomPadding = rememberBottomBarPadding()
                     val lifecycleOwner = LocalLifecycleOwner.current
                     val navController = rememberNavController()
-                    val bottomPadding = rememberBottomBarPadding()
                     val scaffoldState = rememberScaffoldState()
                     val profileImage by mainViewModel.profileImage.collectAsState()
                     val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -82,4 +81,7 @@ class MainActivity : ComponentActivity(), BottomAppBarRefreshListener {
     }
 
     override fun refresh() = mainViewModel.updateImage()
+    override fun setIsVisible(isVisible: Boolean) {
+        bottomPadding.value = if (isVisible) 56 else 0
+    }
 }

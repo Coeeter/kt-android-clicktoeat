@@ -15,7 +15,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.nasportfolio.common.components.navigation.BottomAppBarRefreshListener
 import com.nasportfolio.common.theme.mediumOrange
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -31,6 +33,7 @@ fun CltFloatingActionButton(
     onClick: () -> Unit,
     content: @Composable () -> Unit
 ) {
+    val activity = LocalContext.current as BottomAppBarRefreshListener
     val scope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
     var isClicked by remember {
@@ -132,6 +135,7 @@ fun CltFloatingActionButton(
         onClick = {
             isClicked = withNavigation
             scope.launch {
+                activity.setIsVisible(false)
                 delay(durationMillis.toLong())
                 onClick()
             }

@@ -35,6 +35,7 @@ import com.nasportfolio.common.theme.mediumOrange
 
 interface BottomAppBarRefreshListener {
     fun refresh()
+    fun setIsVisible(isVisible: Boolean)
 }
 
 enum class BottomNavigationBarItem(
@@ -96,7 +97,7 @@ fun CltBottomBar(
     }
 
     AnimatedVisibility(
-        visible = isVisible,
+        visible = isVisible && bottomPadding.value == 56,
         enter = slideInVertically(
             animationSpec = tween(
                 durationMillis = 750
