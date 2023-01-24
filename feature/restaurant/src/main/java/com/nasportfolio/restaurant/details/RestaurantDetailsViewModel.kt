@@ -62,20 +62,43 @@ class RestaurantDetailsViewModel @Inject constructor(
     }
 
     private fun getCurrentLocation() {
-        val task = fusedLocationProviderClient.getCurrentLocation(
-            LocationRequest.PRIORITY_HIGH_ACCURACY,
-            object : CancellationToken() {
-                override fun isCancellationRequested() = false
-                override fun onCanceledRequested(p0: OnTokenCanceledListener) =
-                    CancellationTokenSource().token
+        try {
+            val task = fusedLocationProviderClient.getCurrentLocation(
+                LocationRequest.PRIORITY_HIGH_ACCURACY,
+                object : CancellationToken() {
+                    override fun isCancellationRequested() = false
+                    override fun onCanceledRequested(p0: OnTokenCanceledListener) =
+                        CancellationTokenSource().token
+                }
+            )
+            task.addOnCompleteListener {
+                it.exception?.let {
+                    return@addOnCompleteListener runBlocking {
+                        _errorChannel.send(it.message.toString())
+                    }
+                }
+                it.result ?: return@addOnCompleteListener getLastLocation()
+                _state.update { state ->
+                    state.copy(
+                        currentLocation = LatLng(
+                            it.result.latitude,
+                            it.result.longitude
+                        )
+                    )
+                }
             }
-        )
-        task.addOnCompleteListener {
+        } catch (e: Exception) {
+        }
+    }
+
+    private fun getLastLocation() {
+        fusedLocationProviderClient.lastLocation.addOnCompleteListener {
             it.exception?.let {
                 return@addOnCompleteListener runBlocking {
                     _errorChannel.send(it.message.toString())
                 }
             }
+            it.result ?: return@addOnCompleteListener
             _state.update { state ->
                 state.copy(
                     currentLocation = LatLng(

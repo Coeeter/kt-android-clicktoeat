@@ -9,6 +9,7 @@ import com.nasportfolio.domain.validation.usecases.ValidateEmail
 import com.nasportfolio.domain.validation.usecases.ValidatePassword
 import com.nasportfolio.domain.validation.usecases.ValidateUsername
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 class UpdateAccountUseCase @Inject constructor(
@@ -63,6 +64,22 @@ class UpdateAccountUseCase @Inject constructor(
         }
         userRepository.saveToken(updatedTokenResource.result)
         emit(Resource.Success(Unit))
+    }
+
+    fun updateFcmToken(fcmToken: String?): String? = runBlocking {
+        val tokenResource = userRepository.getToken()
+        if (tokenResource !is Resource.Success)
+            return@runBlocking (tokenResource as Resource.Failure).error.toString()
+        val user = userRepository.validateToken(token = tokenResource.result)
+        if (user !is Resource.Success)
+            return@runBlocking (user as Resource.Failure).error.toString()
+        val result = userRepository.updateAccount(
+            token = tokenResource.result,
+            fcmToken = fcmToken ?: "delete"
+        )
+        if (result !is Resource.Success)
+            return@runBlocking (result as Resource.Failure).error.toString()
+        return@runBlocking null
     }
 
     fun updateImage(image: ByteArray) = flow<Resource<User>> {

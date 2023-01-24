@@ -12,8 +12,8 @@ import com.google.android.gms.tasks.OnTokenCanceledListener
 import com.nasportfolio.domain.branch.usecases.GetBranchUseCase
 import com.nasportfolio.domain.favorites.usecases.ToggleFavoriteUseCase
 import com.nasportfolio.domain.restaurant.usecases.GetRestaurantsUseCase
-import com.nasportfolio.domain.user.UserRepository
 import com.nasportfolio.domain.user.usecases.GetCurrentLoggedInUser
+import com.nasportfolio.domain.user.usecases.LogOutUseCase
 import com.nasportfolio.domain.utils.Resource
 import com.nasportfolio.domain.utils.ResourceError
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,7 +26,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val userRepository: UserRepository,
+    private val logOutUseCase: LogOutUseCase,
     private val getRestaurantsUseCase: GetRestaurantsUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val getCurrentLoggedInUser: GetCurrentLoggedInUser,
@@ -172,6 +172,7 @@ class HomeViewModel @Inject constructor(
                     _errorChannel.send(it.message.toString())
                 }
             }
+            it.result ?: return@addOnCompleteListener getLastLocation()
             _state.update { state ->
                 state.copy(
                     currentLocation = LatLng(
@@ -183,7 +184,25 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun logout() {
-        userRepository.removeToken()
+    @SuppressLint("MissingPermission")
+    private fun getLastLocation() {
+        fusedLocationProviderClient.lastLocation.addOnCompleteListener {
+            it.exception?.let {
+                return@addOnCompleteListener runBlocking {
+                    _errorChannel.send(it.message.toString())
+                }
+            }
+            it.result ?: return@addOnCompleteListener
+            _state.update { state ->
+                state.copy(
+                    currentLocation = LatLng(
+                        it.result.latitude,
+                        it.result.longitude
+                    )
+                )
+            }
+        }
     }
+
+    fun logout() = logOutUseCase()
 }

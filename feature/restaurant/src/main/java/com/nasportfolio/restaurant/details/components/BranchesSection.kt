@@ -25,13 +25,14 @@ import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
-import com.nasportfolio.common.components.typography.CltHeading
 import com.nasportfolio.common.components.loading.CltShimmer
+import com.nasportfolio.common.components.typography.CltHeading
 import com.nasportfolio.common.modifier.gradientBackground
 import com.nasportfolio.common.navigation.navigateToUpdateBranch
 import com.nasportfolio.common.theme.lightOrange
@@ -59,15 +60,20 @@ fun BranchesSection(
 
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(
-            LatLng(1.35, 103.87),
-            10f
+            LatLng(1.3610, 103.8200),
+            10.25f
         )
     }
 
     LaunchedEffect(state.currentLocation, isMapLoaded, state.restaurant?.branches) {
+        if (state.isAnimationDone) return@LaunchedEffect
+        if (!isMapLoaded) {
+            delay(2000L)
+            isMapLoaded = true
+            return@LaunchedEffect
+        }
         state.restaurant?.branches ?: return@LaunchedEffect
         state.currentLocation ?: return@LaunchedEffect
-        if (!isMapLoaded || state.isAnimationDone) return@LaunchedEffect
         val position = CameraPosition.fromLatLngZoom(
             state.currentLocation,
             16f
@@ -161,23 +167,25 @@ fun BranchesSection(
             }
         }
         Spacer(modifier = Modifier.height(5.dp))
-        state.currentLocation?.let { currentLocation ->
+        Box {
             Map(
                 setIsScrollEnabled = setIsScrollEnabled,
                 cameraPositionState = cameraPositionState,
                 state = state,
-                currentLocation = currentLocation,
+                currentLocation = state.currentLocation,
                 setIsMapLoaded = { isMapLoaded = it },
                 setIsMarkerClicked = { branch ->
                     selectedBranch = branch
                 }
             )
-        } ?: CltShimmer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(1f)
-                .border(2.dp, mediumOrange)
-        )
+            if (!isMapLoaded) CltShimmer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .border(2.dp, mediumOrange)
+                    .zIndex(100f)
+            )
+        }
     }
 }
 
@@ -187,7 +195,7 @@ private fun Map(
     setIsScrollEnabled: (Boolean) -> Unit,
     cameraPositionState: CameraPositionState,
     state: RestaurantsDetailState,
-    currentLocation: LatLng,
+    currentLocation: LatLng?,
     setIsMapLoaded: (Boolean) -> Unit,
     setIsMarkerClicked: (Branch?) -> Unit
 ) {
@@ -239,11 +247,13 @@ private fun Map(
                 }
             }
         }
-        Marker(
-            state = MarkerState(
-                position = currentLocation
-            ),
-            title = "Your location"
-        )
+        currentLocation?.let {
+            Marker(
+                state = MarkerState(
+                    position = it
+                ),
+                title = "Your location"
+            )
+        }
     }
 }

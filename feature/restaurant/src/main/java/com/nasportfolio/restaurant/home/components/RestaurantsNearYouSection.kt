@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
@@ -22,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -60,9 +62,18 @@ fun RestaurantsNearYouSection(
         )
     }
 
-    LaunchedEffect(state.currentLocation, isMapLoaded) {
+    LaunchedEffect(state.currentLocation, isMapLoaded, state.isRefreshing) {
+        if (state.isRefreshing) {
+            isAnimationDone = false
+            return@LaunchedEffect
+        }
+        if (isAnimationDone) return@LaunchedEffect
+        if (!isMapLoaded) {
+            delay(2000L)
+            isMapLoaded = true
+            return@LaunchedEffect
+        }
         state.currentLocation ?: return@LaunchedEffect
-        if (isAnimationDone || !isMapLoaded || state.isRefreshing) return@LaunchedEffect
         val position = CameraPosition.fromLatLngZoom(
             state.currentLocation,
             16f
@@ -77,7 +88,6 @@ fun RestaurantsNearYouSection(
                 10.25f
             )
         )
-        isMapLoaded = false
         isAnimationDone = true
     }
 
@@ -119,7 +129,7 @@ fun RestaurantsNearYouSection(
             }
         }
         Spacer(modifier = Modifier.height(5.dp))
-        if (state.currentLocation != null && !state.isRefreshing) GoogleMap(
+        if (!state.isRefreshing && !state.isLoading) GoogleMap(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 5.dp)
@@ -168,19 +178,22 @@ fun RestaurantsNearYouSection(
                     }
                 }
             }
-            Marker(
-                state = MarkerState(
-                    position = state.currentLocation
-                ),
-                title = "Your location"
-            )
+            state.currentLocation?.let {
+                Marker(
+                    state = MarkerState(
+                        position = state.currentLocation
+                    ),
+                    title = "Your location"
+                )
+            }
         }
-        else CltShimmer(
+        if (state.isRefreshing || state.isLoading) CltShimmer(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 5.dp)
                 .aspectRatio(1f)
                 .border(2.dp, mediumOrange)
+                .zIndex(100f)
         )
     }
 }

@@ -2,17 +2,20 @@ package com.nasportfolio.auth.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.messaging.FirebaseMessaging
 import com.nasportfolio.domain.user.usecases.LoginUseCase
 import com.nasportfolio.domain.utils.Resource
 import com.nasportfolio.domain.utils.ResourceError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
 internal class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
+    private val firebaseMessaging: FirebaseMessaging
 ) : ViewModel() {
     private val _errorChannel = Channel<String>()
     val errorChannel = _errorChannel.receiveAsFlow()
@@ -43,34 +46,50 @@ internal class LoginViewModel @Inject constructor(
     }
 
     private fun login() {
-        val email = _loginState.value.email
-        val password = _loginState.value.password
-        loginUseCase(
-            email = email,
-            password = password,
-        ).onEach { result ->
-            when (result) {
-                is Resource.Success -> _loginState.update { state ->
-                    state.copy(
-                        isLoading = false,
-                        isLoggedIn = true
-                    )
-                }
-                is Resource.Failure -> {
-                    when (result.error) {
-                        is ResourceError.FieldError -> handleFieldError(
-                            result.error as ResourceError.FieldError
-                        )
-                        is ResourceError.DefaultError -> handleDefaultError(
-                            result.error as ResourceError.DefaultError
+        getToken { token ->
+            val email = _loginState.value.email
+            val password = _loginState.value.password
+            loginUseCase(
+                email = email,
+                password = password,
+                fcmToken = token
+            ).onEach { result ->
+                when (result) {
+                    is Resource.Success -> _loginState.update { state ->
+                        state.copy(
+                            isLoading = false,
+                            isLoggedIn = true
                         )
                     }
+                    is Resource.Failure -> {
+                        when (result.error) {
+                            is ResourceError.FieldError -> handleFieldError(
+                                result.error as ResourceError.FieldError
+                            )
+                            is ResourceError.DefaultError -> handleDefaultError(
+                                result.error as ResourceError.DefaultError
+                            )
+                        }
+                    }
+                    is Resource.Loading -> _loginState.update { state ->
+                        state.copy(isLoading = result.isLoading)
+                    }
                 }
-                is Resource.Loading -> _loginState.update { state ->
-                    state.copy(isLoading = result.isLoading)
+            }.launchIn(viewModelScope)
+        }
+    }
+
+    private fun getToken(callback: (String) -> Unit) {
+        firebaseMessaging.token.addOnCompleteListener {
+            if (it.exception != null) return@addOnCompleteListener runBlocking {
+                it.exception!!.printStackTrace()
+                _errorChannel.send(it.exception!!.message.toString())
+                _loginState.update { state ->
+                    state.copy(isLoading = false)
                 }
             }
-        }.launchIn(viewModelScope)
+            callback(it.result)
+        }
     }
 
     private suspend fun handleDefaultError(

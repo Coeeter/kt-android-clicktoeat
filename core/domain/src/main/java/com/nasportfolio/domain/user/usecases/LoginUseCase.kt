@@ -16,7 +16,8 @@ class LoginUseCase @Inject constructor(
 ) {
     operator fun invoke(
         email: String,
-        password: String
+        password: String,
+        fcmToken: String? = null
     ): Flow<Resource<Unit>> = flow {
         val emailValidationError = validateEmail(
             value = email
@@ -45,6 +46,9 @@ class LoginUseCase @Inject constructor(
         when (loginResult) {
             is Resource.Success -> {
                 userRepository.saveToken(loginResult.result)
+                fcmToken?.let {
+                    userRepository.updateAccount(token = loginResult.result, fcmToken = fcmToken)
+                }
                 emit(Resource.Success(Unit))
             }
             is Resource.Failure -> {
