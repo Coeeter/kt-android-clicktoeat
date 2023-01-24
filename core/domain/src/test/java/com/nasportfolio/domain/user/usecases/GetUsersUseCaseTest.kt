@@ -10,8 +10,8 @@ import org.junit.Test
 
 class GetUsersUseCaseTest {
 
-    lateinit var fakeUserRepository: FakeUserRepository
-    lateinit var getUsersUseCase: GetUsersUseCase
+    private lateinit var fakeUserRepository: FakeUserRepository
+    private lateinit var getUsersUseCase: GetUsersUseCase
 
     @Before
     fun setUp() {

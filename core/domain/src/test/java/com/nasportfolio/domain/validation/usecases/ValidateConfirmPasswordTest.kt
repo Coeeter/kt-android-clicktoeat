@@ -7,7 +7,7 @@ import org.junit.Test
 
 class ValidateConfirmPasswordTest {
 
-    lateinit var validateConfirmPassword: ValidateConfirmPassword
+    private lateinit var validateConfirmPassword: ValidateConfirmPassword
 
     @Before
     fun setUp() {

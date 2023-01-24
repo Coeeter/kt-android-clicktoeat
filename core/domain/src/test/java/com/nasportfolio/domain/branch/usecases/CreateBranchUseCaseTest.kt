@@ -3,7 +3,6 @@ package com.nasportfolio.domain.branch.usecases
 import com.nasportfolio.domain.branch.FakeBranchRepository
 import com.nasportfolio.domain.user.FakeUserRepository
 import com.nasportfolio.domain.utils.Resource
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
@@ -14,7 +13,7 @@ import org.junit.Test
 class CreateBranchUseCaseTest {
 
     private lateinit var fakeBranchRepository: FakeBranchRepository
-    lateinit var createBranchUseCase: CreateBranchUseCase
+    private lateinit var createBranchUseCase: CreateBranchUseCase
 
     @Before
     fun setUp() {

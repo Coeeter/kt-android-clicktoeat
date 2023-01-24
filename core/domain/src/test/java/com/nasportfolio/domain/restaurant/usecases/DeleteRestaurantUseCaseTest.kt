@@ -12,8 +12,8 @@ import org.junit.Test
 
 class DeleteRestaurantUseCaseTest {
 
-    lateinit var fakeRestaurantRepository: FakeRestaurantRepository
-    lateinit var deleteRestaurantUseCase: DeleteRestaurantUseCase
+    private lateinit var fakeRestaurantRepository: FakeRestaurantRepository
+    private lateinit var deleteRestaurantUseCase: DeleteRestaurantUseCase
 
     @Before
     fun setUp() {

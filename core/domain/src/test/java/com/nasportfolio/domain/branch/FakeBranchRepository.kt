@@ -23,7 +23,7 @@ class FakeBranchRepository : BranchRepository {
     }
 
     private fun createRestaurant(index: String) = Restaurant(
-        id = index.toString(),
+        id = index,
         name = "name $index",
         description = "description $index",
         image = Image(

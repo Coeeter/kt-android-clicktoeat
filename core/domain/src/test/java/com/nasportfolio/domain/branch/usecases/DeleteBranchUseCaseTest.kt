@@ -12,8 +12,8 @@ import org.junit.Test
 
 class DeleteBranchUseCaseTest {
 
-    lateinit var deleteBranchUseCase: DeleteBranchUseCase
-    lateinit var fakeBranchRepository: FakeBranchRepository
+    private lateinit var deleteBranchUseCase: DeleteBranchUseCase
+    private lateinit var fakeBranchRepository: FakeBranchRepository
 
     @Before
     fun setUp() {

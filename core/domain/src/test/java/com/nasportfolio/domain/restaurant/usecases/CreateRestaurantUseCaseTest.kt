@@ -17,9 +17,9 @@ import org.mockito.MockitoAnnotations
 
 class CreateRestaurantUseCaseTest {
 
-    lateinit var fakeRestaurantRepository: FakeRestaurantRepository
-    lateinit var createRestaurantUseCase: CreateRestaurantUseCase
-    lateinit var closeable: AutoCloseable
+    private lateinit var fakeRestaurantRepository: FakeRestaurantRepository
+    private lateinit var createRestaurantUseCase: CreateRestaurantUseCase
+    private lateinit var closeable: AutoCloseable
 
     @Mock
     lateinit var bitmap: Bitmap

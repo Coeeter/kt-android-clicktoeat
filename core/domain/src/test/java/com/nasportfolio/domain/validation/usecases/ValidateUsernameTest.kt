@@ -7,7 +7,7 @@ import org.junit.Test
 
 class ValidateUsernameTest {
 
-    lateinit var validateUsername: ValidateUsername
+    private lateinit var validateUsername: ValidateUsername
 
     @Before
     fun setUp() {

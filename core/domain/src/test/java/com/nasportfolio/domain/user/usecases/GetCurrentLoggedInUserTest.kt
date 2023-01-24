@@ -11,7 +11,7 @@ import org.junit.Test
 class GetCurrentLoggedInUserTest {
 
     private lateinit var fakeUserRepository: FakeUserRepository
-    lateinit var getCurrentLoggedInUser: GetCurrentLoggedInUser
+    private lateinit var getCurrentLoggedInUser: GetCurrentLoggedInUser
 
     @Before
     fun setUp() {

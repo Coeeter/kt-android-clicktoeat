@@ -14,7 +14,7 @@ import org.junit.Test
 class DeleteAccountUseCaseTest {
 
     private lateinit var fakeUserRepository: FakeUserRepository
-    lateinit var deleteAccountUseCase: DeleteAccountUseCase
+    private lateinit var deleteAccountUseCase: DeleteAccountUseCase
 
     @Before
     fun setUp() {

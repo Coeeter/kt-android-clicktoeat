@@ -12,8 +12,8 @@ import org.junit.Test
 
 class DeleteCommentUseCaseTest {
 
-    lateinit var deleteCommentUseCase: DeleteCommentUseCase
-    lateinit var fakeCommentRepository: FakeCommentRepository
+    private lateinit var deleteCommentUseCase: DeleteCommentUseCase
+    private lateinit var fakeCommentRepository: FakeCommentRepository
 
     @Before
     fun setUp() {

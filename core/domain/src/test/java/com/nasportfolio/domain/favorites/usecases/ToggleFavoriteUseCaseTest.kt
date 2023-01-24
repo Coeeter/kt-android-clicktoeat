@@ -1,6 +1,7 @@
 package com.nasportfolio.domain.favorites.usecases
 
 import com.nasportfolio.domain.favorites.FakeFavoriteRepository
+import com.nasportfolio.domain.restaurant.FakeRestaurantRepository
 import com.nasportfolio.domain.restaurant.TransformedRestaurant
 import com.nasportfolio.domain.user.FakeUserRepository
 import com.nasportfolio.domain.utils.Resource
@@ -15,9 +16,10 @@ import org.mockito.kotlin.whenever
 
 class ToggleFavoriteUseCaseTest {
 
-    lateinit var toggleFavoriteUseCase: ToggleFavoriteUseCase
-    lateinit var fakeFavoriteRepository: FakeFavoriteRepository
-    lateinit var closeable: AutoCloseable
+    private lateinit var toggleFavoriteUseCase: ToggleFavoriteUseCase
+    private lateinit var fakeFavoriteRepository: FakeFavoriteRepository
+    private lateinit var fakeUserRepository: FakeUserRepository
+    private lateinit var closeable: AutoCloseable
 
     @Mock
     lateinit var transformedRestaurant: TransformedRestaurant
@@ -25,10 +27,14 @@ class ToggleFavoriteUseCaseTest {
     @Before
     fun setUp() {
         closeable = MockitoAnnotations.openMocks(this)
-        fakeFavoriteRepository = FakeFavoriteRepository()
+        fakeUserRepository = FakeUserRepository()
+        fakeFavoriteRepository = FakeFavoriteRepository(
+            fakeUserRepository = fakeUserRepository,
+            fakeRestaurantRepository = FakeRestaurantRepository()
+        )
         toggleFavoriteUseCase = ToggleFavoriteUseCase(
             favoriteRepository = fakeFavoriteRepository,
-            userRepository = FakeUserRepository()
+            userRepository = fakeUserRepository
         )
     }
 
@@ -42,11 +48,11 @@ class ToggleFavoriteUseCaseTest {
         runBlocking {
             whenever(transformedRestaurant.isFavoriteByCurrentUser).thenReturn(false)
             whenever(transformedRestaurant.id).thenReturn("id")
-            val oldFavList = fakeFavoriteRepository.favoriteRestaurants
+            val oldFavList = fakeFavoriteRepository.favorites
             val result = toggleFavoriteUseCase(transformedRestaurant)
             assertTrue(result is Resource.Success)
-            assertNotNull(fakeFavoriteRepository.favoriteRestaurants.find { it == transformedRestaurant.id })
-            assertTrue(fakeFavoriteRepository.favoriteRestaurants.size > oldFavList.size)
+            assertNotNull(fakeFavoriteRepository.favorites.find { it.restaurantId == transformedRestaurant.id })
+            assertTrue(fakeFavoriteRepository.favorites.size > oldFavList.size)
         }
 
     @Test
@@ -54,14 +60,19 @@ class ToggleFavoriteUseCaseTest {
         runBlocking {
             whenever(transformedRestaurant.isFavoriteByCurrentUser).thenReturn(true)
             whenever(transformedRestaurant.id).thenReturn("id")
-            fakeFavoriteRepository.favoriteRestaurants =
-                fakeFavoriteRepository.favoriteRestaurants.toMutableList().apply {
-                    add("id")
+            fakeFavoriteRepository.favorites =
+                fakeFavoriteRepository.favorites.toMutableList().apply {
+                    add(
+                        FakeFavoriteRepository.Favorite(
+                            userId = fakeUserRepository.users.last().id,
+                            restaurantId = transformedRestaurant.id
+                        )
+                    )
                 }
-            val oldFavList = fakeFavoriteRepository.favoriteRestaurants
+            val oldFavList = fakeFavoriteRepository.favorites
             val result = toggleFavoriteUseCase(transformedRestaurant)
             assertTrue(result is Resource.Success)
-            assertNull(fakeFavoriteRepository.favoriteRestaurants.find { it == transformedRestaurant.id })
-            assertTrue(fakeFavoriteRepository.favoriteRestaurants.size < oldFavList.size)
+            assertNull(fakeFavoriteRepository.favorites.find { it.restaurantId == transformedRestaurant.id })
+            assertTrue(fakeFavoriteRepository.favorites.size < oldFavList.size)
         }
 }

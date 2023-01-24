@@ -1,62 +1,42 @@
 package com.nasportfolio.domain.comment.usecases
 
 import com.nasportfolio.domain.comment.FakeCommentRepository
-import com.nasportfolio.domain.likesdislikes.dislike.DislikeRepository
-import com.nasportfolio.domain.likesdislikes.like.LikeRepository
+import com.nasportfolio.domain.likesdislikes.FakeDislikeRepository
+import com.nasportfolio.domain.likesdislikes.FakeLikeRepository
+import com.nasportfolio.domain.user.FakeUserRepository
 import com.nasportfolio.domain.utils.Resource
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentMatchers.anyString
-import org.mockito.Mock
-import org.mockito.MockitoAnnotations
-import org.mockito.kotlin.whenever
 import java.util.*
 
 class GetCommentsUseCaseTest {
 
     private lateinit var getCommentsUseCase: GetCommentsUseCase
     private lateinit var fakeCommentRepository: FakeCommentRepository
-    private lateinit var closeable: AutoCloseable
-
-    @Mock
-    lateinit var likeRepository: LikeRepository
-
-    @Mock
-    lateinit var dislikeRepository: DislikeRepository
 
     @Before
     fun setUp() {
-        closeable = MockitoAnnotations.openMocks(this)
         fakeCommentRepository = FakeCommentRepository()
+        val fakeUserRepository = FakeUserRepository()
         getCommentsUseCase = GetCommentsUseCase(
             commentRepository = fakeCommentRepository,
-            likeRepository = likeRepository,
-            dislikeRepository = dislikeRepository
+            likeRepository = FakeLikeRepository(
+                fakeCommentRepository = fakeCommentRepository,
+                fakeUserRepository = fakeUserRepository
+            ),
+            dislikeRepository = FakeDislikeRepository(
+                fakeCommentRepository = fakeCommentRepository,
+                fakeUserRepository = fakeUserRepository
+            )
         )
-    }
-
-    @After
-    fun tearDown() {
-        closeable.close()
     }
 
     @Test
     fun `Invoke should return success resource related to restaurant id`() = runBlocking {
-        whenever(
-            likeRepository.getUsersWhoLikedComment(anyString())
-        ).thenReturn(
-            Resource.Success(emptyList())
-        )
-        whenever(
-            dislikeRepository.getUsersWhoDislikedComments(anyString())
-        ).thenReturn(
-            Resource.Success(emptyList())
-        )
         val index = Random().nextInt(fakeCommentRepository.comments.size)
         val comment = fakeCommentRepository.comments[index]
         val result = getCommentsUseCase(restaurantId = comment.restaurant.id).toList()
@@ -69,16 +49,6 @@ class GetCommentsUseCaseTest {
 
     @Test
     fun `byUser should return success resource related to user id`() = runBlocking {
-        whenever(
-            likeRepository.getUsersWhoLikedComment(anyString())
-        ).thenReturn(
-            Resource.Success(emptyList())
-        )
-        whenever(
-            dislikeRepository.getUsersWhoDislikedComments(anyString())
-        ).thenReturn(
-            Resource.Success(emptyList())
-        )
         val index = Random().nextInt(fakeCommentRepository.comments.size)
         val comment = fakeCommentRepository.comments[index]
         val result = getCommentsUseCase.byUser(userId = comment.user.id).toList()
@@ -91,16 +61,6 @@ class GetCommentsUseCaseTest {
 
     @Test
     fun `byId should return success resource related to comment id`() = runBlocking {
-        whenever(
-            likeRepository.getUsersWhoLikedComment(anyString())
-        ).thenReturn(
-            Resource.Success(emptyList())
-        )
-        whenever(
-            dislikeRepository.getUsersWhoDislikedComments(anyString())
-        ).thenReturn(
-            Resource.Success(emptyList())
-        )
         val index = Random().nextInt(fakeCommentRepository.comments.size)
         val comment = fakeCommentRepository.comments[index]
         val result = getCommentsUseCase.byId(commentId = comment.id).toList()
