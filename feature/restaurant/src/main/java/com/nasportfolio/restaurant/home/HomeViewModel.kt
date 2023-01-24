@@ -204,5 +204,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun logout() = logOutUseCase()
+    fun logout() {
+        viewModelScope.launch(Dispatchers.IO) {
+            logOutUseCase()
+        }
+    }
 }
