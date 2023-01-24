@@ -39,9 +39,4 @@ class NotificationService : FirebaseMessagingService() {
         private val _snackBarChannel = Channel<String>()
         val snackBarChannel = _snackBarChannel.receiveAsFlow()
     }
-
-    data class NotificationData(
-        val message: String,
-        val commentId: String
-    )
 }
