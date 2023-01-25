@@ -1,5 +1,6 @@
 package com.nasportfolio.user.update.account
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -21,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -33,8 +35,10 @@ import com.nasportfolio.common.navigation.navigateToDeleteAccountScreen
 import com.nasportfolio.common.navigation.navigateToUpdatePasswordScreen
 import com.nasportfolio.common.navigation.navigateToUserProfile
 import com.nasportfolio.common.navigation.userProfileScreen
+import com.nasportfolio.test.tags.TestTags
 import com.nasportfolio.user.update.account.components.ProfileImagePicker
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun UpdateUserScreen(
     navController: NavHostController,
@@ -130,6 +134,7 @@ fun UpdateUserScreen(
                         value = state.username,
                         label = "Username",
                         error = state.usernameError,
+                        testTag = TestTags.USERNAME_INPUT,
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Next
                         ),
@@ -161,6 +166,7 @@ fun UpdateUserScreen(
                     )
                     Spacer(modifier = Modifier.height(20.dp))
                     CltButton(
+                        modifier = Modifier.testTag(TestTags.UPDATE_ACCOUNT_BTN),
                         text = "Update Account",
                         withLoading = true,
                         enabled = !state.isSubmitting,

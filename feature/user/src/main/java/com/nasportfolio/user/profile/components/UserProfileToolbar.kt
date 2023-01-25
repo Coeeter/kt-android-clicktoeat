@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -35,6 +36,7 @@ import com.nasportfolio.common.modifier.gradientBackground
 import com.nasportfolio.common.navigation.navigateToUpdateUser
 import com.nasportfolio.common.theme.lightOrange
 import com.nasportfolio.common.theme.mediumOrange
+import com.nasportfolio.test.tags.TestTags
 
 @OptIn(ExperimentalMotionApi::class)
 @Composable
@@ -124,7 +126,10 @@ fun UserProfileToolbar(
                             top = 4.dp
                         )
                     ) {
-                        IconButton(onClick = navController::navigateToUpdateUser) {
+                        IconButton(
+                            modifier = Modifier.testTag(TestTags.EDIT_PROFILE_BTN),
+                            onClick = navController::navigateToUpdateUser
+                        ) {
                             Box(contentAlignment = Alignment.TopEnd) {
                                 Icon(
                                     imageVector = Icons.Default.Edit,

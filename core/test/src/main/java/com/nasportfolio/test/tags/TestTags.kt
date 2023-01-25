@@ -14,4 +14,7 @@ object TestTags {
     const val BOTTOM_NAV_SEARCH = "BOTTOM_NAV_SEARCH"
     const val BOTTOM_NAV_PROFILE = "BOTTOM_NAV_PROFILE"
     const val LOG_OUT_BTN = "LOG_OUT_BTN"
+    const val EDIT_PROFILE_BTN = "EDIT_PROFILE_BTN"
+    const val USERNAME_INPUT = "USERNAME_INPUT"
+    const val UPDATE_ACCOUNT_BTN = "UPDATE_ACCOUNT_BTN"
 }
