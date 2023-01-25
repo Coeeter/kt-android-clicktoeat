@@ -1,4 +1,4 @@
-package com.nasportfolio.clicktoeat.restaurant
+package com.nasportfolio.clicktoeat.common
 
 import androidx.activity.compose.setContent
 import androidx.compose.ui.test.assertCountEquals

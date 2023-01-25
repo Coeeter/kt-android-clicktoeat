@@ -16,9 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import com.nasportfolio.search.SearchScreenState
 import com.nasportfolio.search.SearchScreenViewModel
+import com.nasportfolio.test.tags.TestTags
 
 @Composable
 fun SearchBar(
@@ -27,6 +29,9 @@ fun SearchBar(
     focusManager: FocusManager
 ) {
     TextField(
+        modifier = Modifier
+            .fillMaxSize()
+            .testTag(TestTags.SEARCH_INPUT),
         value = state.query,
         onValueChange = searchScreenViewModel::onQuery,
         label = { Text(text = "Search") },
@@ -81,6 +86,5 @@ fun SearchBar(
             }
         ),
         shape = RectangleShape,
-        modifier = Modifier.fillMaxSize()
     )
 }

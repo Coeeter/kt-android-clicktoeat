@@ -10,8 +10,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.rememberScaffoldState
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -19,7 +17,6 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
@@ -27,7 +24,6 @@ import androidx.test.uiautomator.UiSelector
 import com.nasportfolio.auth.navigation.authScreenComposable
 import com.nasportfolio.clicktoeat.*
 import com.nasportfolio.common.components.effects.CltLaunchFlowCollector
-import com.nasportfolio.common.components.navigation.BottomNavigationBarItem
 import com.nasportfolio.common.components.navigation.CltBottomBar
 import com.nasportfolio.common.components.navigation.rememberBottomBarPadding
 import com.nasportfolio.common.navigation.homeScreenRoute
@@ -44,7 +40,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import javax.inject.Inject
 
 @HiltAndroidTest
 @UninstallModules(RepoModule::class)

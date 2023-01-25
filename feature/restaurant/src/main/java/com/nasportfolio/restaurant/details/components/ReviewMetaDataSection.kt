@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -47,6 +48,7 @@ import com.nasportfolio.domain.comment.Comment
 import com.nasportfolio.domain.restaurant.TransformedRestaurant
 import com.nasportfolio.restaurant.details.RestaurantDetailsEvent
 import com.nasportfolio.restaurant.details.RestaurantDetailsViewModel
+import com.nasportfolio.test.tags.TestTags
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -104,6 +106,7 @@ private fun CreateReviewForm(
                     bringIntoViewRequester.bringIntoView()
                 }
             },
+            testTag = TestTags.REVIEW_INPUT,
             value = state.review,
             label = "Review",
             error = state.reviewError,
@@ -143,7 +146,8 @@ private fun CreateReviewForm(
                     TextButton(
                         modifier = Modifier
                             .clip(CircleShape)
-                            .size(35.dp),
+                            .size(35.dp)
+                            .testTag(TestTags.STAR),
                         contentPadding = PaddingValues(5.dp),
                         onClick = {
                             focusManager.clearFocus()
@@ -170,6 +174,7 @@ private fun CreateReviewForm(
             }
             Spacer(modifier = Modifier.width(10.dp))
             CltButton(
+                modifier = Modifier.testTag(TestTags.CREATE_REVIEW_BTN),
                 text = "Submit",
                 withLoading = true,
                 enabled = !state.isSubmitting,

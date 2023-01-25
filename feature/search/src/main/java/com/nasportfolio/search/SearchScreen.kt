@@ -1,5 +1,6 @@
 package com.nasportfolio.search
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -23,7 +25,9 @@ import com.nasportfolio.common.components.typography.CltHeading
 import com.nasportfolio.common.navigation.navigateToRestaurantDetails
 import com.nasportfolio.common.navigation.navigateToUserProfile
 import com.nasportfolio.search.components.*
+import com.nasportfolio.test.tags.TestTags
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SearchScreen(
@@ -82,7 +86,8 @@ fun SearchScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 5.dp)
-                            .animateItemPlacement(),
+                            .animateItemPlacement()
+                            .testTag(TestTags.SEARCH_SCREEN_ITEM),
                         restaurant = it,
                         state = state,
                         onFavBtnClicked = {
@@ -112,7 +117,8 @@ fun SearchScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 5.dp)
-                            .animateItemPlacement(),
+                            .animateItemPlacement()
+                            .testTag(TestTags.SEARCH_SCREEN_ITEM),
                         user = it,
                         state = state,
                         onClick = {
