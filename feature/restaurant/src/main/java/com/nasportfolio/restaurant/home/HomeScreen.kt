@@ -116,6 +116,7 @@ fun HomeScreen(
                 },
                 actions = {
                     IconButton(
+                        modifier = Modifier.testTag(TestTags.LOG_OUT_BTN),
                         onClick = {
                             homeViewModel.logout()
                             navController.navigateToAuthScreen(

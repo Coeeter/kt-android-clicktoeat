@@ -10,4 +10,8 @@ object TestTags {
     const val FAVORITE_BTN = "FAVORITE_BTN"
     const val LAZY_COLUMN = "LAZY_COLUMN"
     const val ADD_RESTAURANT_FAB = "ADD_RESTAURANT_FAB"
+    const val BOTTOM_NAV_HOME = "BOTTOM_NAV_HOME"
+    const val BOTTOM_NAV_SEARCH = "BOTTOM_NAV_SEARCH"
+    const val BOTTOM_NAV_PROFILE = "BOTTOM_NAV_PROFILE"
+    const val LOG_OUT_BTN = "LOG_OUT_BTN"
 }

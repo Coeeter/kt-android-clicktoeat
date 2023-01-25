@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -32,6 +33,7 @@ import com.nasportfolio.common.navigation.homeScreenRoute
 import com.nasportfolio.common.navigation.searchScreenRoute
 import com.nasportfolio.common.navigation.userProfileScreen
 import com.nasportfolio.common.theme.mediumOrange
+import com.nasportfolio.test.tags.TestTags
 
 interface BottomAppBarRefreshListener {
     fun refresh()
@@ -41,22 +43,26 @@ interface BottomAppBarRefreshListener {
 enum class BottomNavigationBarItem(
     val route: String,
     val selectedIcon: ImageVector,
-    val label: String
+    val label: String,
+    val testTag: String
 ) {
     Home(
         route = homeScreenRoute,
         selectedIcon = Icons.Default.Home,
-        label = "Home"
+        label = "Home",
+        testTag = TestTags.BOTTOM_NAV_HOME
     ),
     Search(
         route = searchScreenRoute,
         selectedIcon = Icons.Default.Search,
-        label = "Search"
+        label = "Search",
+        testTag = TestTags.BOTTOM_NAV_SEARCH
     ),
     Profile(
         route = "$userProfileScreen/{userId}",
         selectedIcon = Icons.Default.Person,
-        label = "Profile"
+        label = "Profile",
+        testTag = TestTags.BOTTOM_NAV_PROFILE
     )
 }
 
@@ -122,6 +128,7 @@ fun CltBottomBar(
                 if (isCurrentRouteProfile) isSelected = currentArgs == "null"
 
                 BottomNavigationItem(
+                    modifier = Modifier.testTag(item.testTag),
                     selected = isSelected,
                     selectedContentColor = mediumOrange,
                     icon = {

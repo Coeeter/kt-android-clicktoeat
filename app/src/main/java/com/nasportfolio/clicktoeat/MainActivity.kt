@@ -1,5 +1,6 @@
 package com.nasportfolio.clicktoeat
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -32,6 +33,7 @@ class MainActivity : ComponentActivity(), BottomAppBarRefreshListener {
     private val mainViewModel: MainViewModel by viewModels()
     lateinit var bottomPadding: MutableState<Int>
 
+    @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
