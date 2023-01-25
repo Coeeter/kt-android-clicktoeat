@@ -58,9 +58,10 @@ import com.nasportfolio.restaurant.details.components.BranchesSection
 import com.nasportfolio.restaurant.details.components.DataSection
 import com.nasportfolio.restaurant.details.components.ParallaxToolbar
 import com.nasportfolio.restaurant.details.components.ReviewMetaDataSection
+import com.nasportfolio.test.tags.TestTags
 import kotlin.math.min
 
-@SuppressLint("MissingPermission")
+@SuppressLint("MissingPermission", "UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun RestaurantDetailsScreen(
@@ -237,6 +238,7 @@ private fun SpeedDial(
     val speedDialState = rememberSpeedDialState()
 
     CltSpeedDialFab(
+        testTag = TestTags.EDIT_RESTAURANT_FAB,
         state = speedDialState,
         buttons = {
             CltSpeedDialFabItem(
@@ -253,6 +255,7 @@ private fun SpeedDial(
                 Icon(imageVector = Icons.Default.AddLocation, contentDescription = null)
             }
             CltSpeedDialFabItem(
+                testTag = TestTags.EDIT_RESTAURANT_SPEED_DIAL,
                 backgroundColor = mediumOrange,
                 hint = "Edit restaurant",
                 onClick = {

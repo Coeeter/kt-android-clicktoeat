@@ -1,5 +1,6 @@
 package com.nasportfolio.restaurant.createUpdate.restaurant
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -33,7 +35,9 @@ import com.nasportfolio.common.navigation.navigateToCreateBranch
 import com.nasportfolio.common.navigation.navigateToRestaurantDetails
 import com.nasportfolio.common.navigation.restaurantDetailScreenRoute
 import com.nasportfolio.common.theme.mediumOrange
+import com.nasportfolio.test.tags.TestTags
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CreateUpdateRestaurantScreen(
@@ -118,6 +122,7 @@ fun CreateUpdateRestaurantScreen(
                         .padding(10.dp)
                 ) {
                     CltInput(
+                        testTag = TestTags.RESTAURANT_NAME_INPUT,
                         value = state.name,
                         label = "Name",
                         error = state.nameError,
@@ -153,6 +158,7 @@ fun CreateUpdateRestaurantScreen(
                     )
                     Spacer(modifier = Modifier.height(30.dp))
                     CltButton(
+                        modifier = Modifier.testTag(TestTags.UPDATE_RESTAURANT_BTN),
                         text = "Submit",
                         withLoading = true,
                         enabled = !state.isLoading,

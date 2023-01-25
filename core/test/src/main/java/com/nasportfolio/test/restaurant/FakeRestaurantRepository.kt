@@ -72,7 +72,11 @@ class FakeRestaurantRepository : RestaurantRepository {
         )
         val updatedImage = image?.let {
             val id = restaurant.image.id + 1
-            Image(id = id, key = "key $id", url = "url $id")
+            Image(
+                id = id,
+                key = "key $id",
+                url = "https://3.bp.blogspot.com/-VVp3WvJvl84/X0Vu6EjYqDI/AAAAAAAAPjU/ZOMKiUlgfg8ok8DY8Hc-ocOvGdB0z86AgCLcBGAsYHQ/s1600/jetpack%2Bcompose%2Bicon_RGB.png"
+            )
         } ?: restaurant.image
         restaurant = restaurant.copy(
             name = name ?: restaurant.name,

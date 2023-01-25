@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.nasportfolio.common.theme.mediumOrange
@@ -30,6 +31,7 @@ fun rememberSpeedDialState() = remember {
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CltSpeedDialFab(
+    testTag: String = "",
     state: SpeedDialState,
     buttons: @Composable ColumnScope.() -> Unit,
     expandedChild: @Composable () -> Unit,
@@ -78,6 +80,7 @@ fun CltSpeedDialFab(
             }
         }
         FloatingActionButton(
+            modifier = Modifier.testTag(testTag),
             backgroundColor = mediumOrange,
             onClick = {
                 state.isExpanded = !state.isExpanded
@@ -98,6 +101,7 @@ fun CltSpeedDialFab(
 
 @Composable
 fun CltSpeedDialFabItem(
+    testTag: String = "",
     hint: String,
     backgroundColor: Color = MaterialTheme.colors.secondary,
     onClick: () -> Unit,
@@ -130,7 +134,9 @@ fun CltSpeedDialFabItem(
         FloatingActionButton(
             backgroundColor = backgroundColor,
             onClick = onClick,
-            modifier = Modifier.size(46.dp)
+            modifier = Modifier
+                .size(46.dp)
+                .testTag(testTag)
         ) {
             component()
         }
