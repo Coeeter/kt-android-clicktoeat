@@ -19,14 +19,12 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.buttons.CltButton
 import com.nasportfolio.common.components.effects.CltLaunchFlowCollector
@@ -35,7 +33,7 @@ import com.nasportfolio.common.components.typography.CltHeading
 import com.nasportfolio.common.navigation.authScreenRoute
 import com.nasportfolio.common.navigation.navigateToForgetPassword
 import com.nasportfolio.common.navigation.navigateToHomeScreen
-import kotlinx.coroutines.launch
+import com.nasportfolio.test.tags.TestTags
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -107,7 +105,9 @@ internal fun LoginForm(
             }
             Spacer(modifier = Modifier.height(5.dp))
             CltButton(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag(TestTags.LOGIN_BUTTON),
                 text = "Login",
                 withLoading = true,
                 enabled = !state.isLoading,
@@ -137,6 +137,7 @@ private fun LoginInputs(
 ) {
     CltInput(
         modifier = Modifier.fillMaxWidth(),
+        testTag = TestTags.EMAIL_INPUT,
         value = state.email,
         label = "Email",
         error = state.emailError,
@@ -158,6 +159,7 @@ private fun LoginInputs(
     Spacer(modifier = Modifier.height(10.dp))
     CltInput(
         modifier = Modifier.fillMaxWidth(),
+        testTag = TestTags.PASSWORD_INPUT,
         value = state.password,
         label = "Password",
         error = state.passwordError,

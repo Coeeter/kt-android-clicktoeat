@@ -29,7 +29,7 @@ class ValidatePassword @Inject constructor() {
 
     enum class Error(val message: String) {
         InvalidEmail("Password should be 8 letters long, contain one special character, number, lowercase and uppercase characters"),
-        MissingEmail("Password required")
+        MissingEmail("Password required!")
     }
 
     companion object {

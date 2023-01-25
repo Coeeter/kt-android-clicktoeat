@@ -22,7 +22,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.nasportfolio.clicktoeat.HiltRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -67,6 +67,7 @@ dependencies {
     implementation(project(":feature:restaurant"))
     implementation(project(":feature:search"))
     implementation(project(":feature:user"))
+    androidTestImplementation(project(":core:test"))
 
     // androidx
     implementation("androidx.core:core-ktx:1.7.0")
@@ -110,4 +111,6 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
     debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")
+    androidTestImplementation("com.google.dagger:hilt-android-testing:2.37")
+    kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.37")
 }
