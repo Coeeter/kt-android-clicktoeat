@@ -1,12 +1,12 @@
 package com.nasportfolio.test.likesdislikes
 
 import com.nasportfolio.domain.comment.Comment
-import com.nasportfolio.test.comment.FakeCommentRepository
 import com.nasportfolio.domain.likesdislikes.dislike.Dislike
 import com.nasportfolio.domain.likesdislikes.dislike.DislikeRepository
-import com.nasportfolio.test.user.FakeUserRepository
 import com.nasportfolio.domain.user.User
 import com.nasportfolio.domain.utils.Resource
+import com.nasportfolio.test.comment.FakeCommentRepository
+import com.nasportfolio.test.user.FakeUserRepository
 
 class FakeDislikeRepository(
     private val fakeCommentRepository: FakeCommentRepository,

@@ -28,8 +28,6 @@ import com.nasportfolio.common.components.form.CltInput
 import com.nasportfolio.common.modifier.gradientBackground
 import com.nasportfolio.common.navigation.deleteUserScreen
 import com.nasportfolio.common.navigation.navigateToAuthScreen
-import com.nasportfolio.common.theme.lightOrange
-import com.nasportfolio.common.theme.mediumOrange
 
 @Composable
 fun DeleteAccountScreen(

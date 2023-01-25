@@ -1,6 +1,5 @@
 package com.nasportfolio.clicktoeat.auth
 
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule

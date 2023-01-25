@@ -2,8 +2,8 @@ package com.nasportfolio.domain.restaurant.usecases
 
 import com.nasportfolio.domain.comment.Comment
 import com.nasportfolio.domain.comment.CommentRepository
-import com.nasportfolio.domain.likesdislikes.dislike.DislikeRepository
 import com.nasportfolio.domain.favorites.FavoriteRepository
+import com.nasportfolio.domain.likesdislikes.dislike.DislikeRepository
 import com.nasportfolio.domain.likesdislikes.like.LikeRepository
 import com.nasportfolio.domain.restaurant.Restaurant
 import com.nasportfolio.domain.restaurant.RestaurantRepository

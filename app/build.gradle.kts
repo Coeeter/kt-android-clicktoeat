@@ -110,6 +110,7 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0-alpha02")
     debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")
     androidTestImplementation("com.google.dagger:hilt-android-testing:2.42")
     kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.42")

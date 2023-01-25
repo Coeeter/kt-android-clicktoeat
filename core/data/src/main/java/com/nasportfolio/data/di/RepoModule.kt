@@ -9,8 +9,8 @@ import com.nasportfolio.data.restaurant.RestaurantRepositoryImpl
 import com.nasportfolio.data.user.UserRepositoryImpl
 import com.nasportfolio.domain.branch.BranchRepository
 import com.nasportfolio.domain.comment.CommentRepository
-import com.nasportfolio.domain.likesdislikes.dislike.DislikeRepository
 import com.nasportfolio.domain.favorites.FavoriteRepository
+import com.nasportfolio.domain.likesdislikes.dislike.DislikeRepository
 import com.nasportfolio.domain.likesdislikes.like.LikeRepository
 import com.nasportfolio.domain.restaurant.RestaurantRepository
 import com.nasportfolio.domain.user.UserRepository

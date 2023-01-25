@@ -1,11 +1,11 @@
 package com.nasportfolio.test.favorites
 
 import com.nasportfolio.domain.favorites.FavoriteRepository
-import com.nasportfolio.test.restaurant.FakeRestaurantRepository
 import com.nasportfolio.domain.restaurant.Restaurant
-import com.nasportfolio.test.user.FakeUserRepository
 import com.nasportfolio.domain.user.User
 import com.nasportfolio.domain.utils.Resource
+import com.nasportfolio.test.restaurant.FakeRestaurantRepository
+import com.nasportfolio.test.user.FakeUserRepository
 
 class FakeFavoriteRepository(
     private val fakeUserRepository: FakeUserRepository,
