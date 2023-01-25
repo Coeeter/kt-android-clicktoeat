@@ -57,13 +57,13 @@ fun UserProfileScreen(
         activity.refresh()
     }
 
-    Scaffold(scaffoldState = scaffoldState) {
+    Scaffold(scaffoldState = scaffoldState) { padding ->
         ToolbarWithContent(
             state = state,
             navController = navController,
             isRefreshing = state.isRefreshing,
             refresh = userProfileViewModel::refresh,
-            editPhoto = { pickImage.launch("image/*") },
+            editPhoto = pickImage::launchImageOnly,
             deletePhoto = userProfileViewModel::deletePhoto,
         ) {
             Column(

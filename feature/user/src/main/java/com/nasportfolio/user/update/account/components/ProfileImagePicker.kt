@@ -100,7 +100,7 @@ fun ProfileImagePicker(
                 DropdownMenuItem(
                     onClick = {
                         isMenuExpanded = false
-                        pickImage.launch("image/*")
+                        pickImage.launchImageOnly()
                     }
                 ) {
                     Text(text = "Upload a photo")

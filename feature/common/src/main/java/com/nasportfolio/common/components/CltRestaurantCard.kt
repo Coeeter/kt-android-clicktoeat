@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -25,6 +26,7 @@ import com.nasportfolio.common.theme.lightOrange
 import com.nasportfolio.common.theme.mediumOrange
 import com.nasportfolio.common.utils.toStringAsFixed
 import com.nasportfolio.domain.restaurant.TransformedRestaurant
+import com.nasportfolio.test.tags.TestTags
 
 @Composable
 fun CltRestaurantCard(
@@ -74,7 +76,8 @@ fun CltRestaurantCard(
                         modifier = Modifier
                             .offset(x = 5.dp)
                             .clip(CircleShape)
-                            .size(40.dp),
+                            .size(40.dp)
+                            .testTag(TestTags.FAVORITE_BTN),
                         onClick = { toggleFavorite(restaurant.id) }
                     ) {
                         Box(

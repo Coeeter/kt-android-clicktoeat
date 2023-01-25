@@ -1,17 +1,14 @@
 package com.nasportfolio.clicktoeat
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
-import androidx.core.content.getSystemService
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.nasportfolio.domain.user.usecases.UpdateAccountUseCase
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class NotificationService : FirebaseMessagingService() {
 
     @Inject

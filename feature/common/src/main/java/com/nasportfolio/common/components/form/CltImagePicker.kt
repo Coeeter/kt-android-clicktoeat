@@ -7,6 +7,7 @@ import android.os.Build
 import android.provider.MediaStore
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.spring
@@ -24,7 +25,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -32,20 +32,32 @@ import androidx.compose.ui.unit.dp
 import com.nasportfolio.common.components.buttons.CltButton
 import com.nasportfolio.common.theme.mediumOrange
 
+data class ImagePicker(
+    private val picker: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>
+) {
+    fun launchImageOnly() {
+        val pickVisualMediaRequest = PickVisualMediaRequest(
+            mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
+        )
+        picker.launch(pickVisualMediaRequest)
+    }
+}
+
 @Composable
 fun rememberImagePicker(
     onValueChange: (Bitmap) -> Unit
-): ManagedActivityResultLauncher<String, Uri> {
+): ImagePicker {
     val context = LocalContext.current
 
-    return rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
+    val picker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
+        uri ?: return@rememberLauncherForActivityResult
         val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             ImageDecoder.decodeBitmap(
                 ImageDecoder.createSource(
                     context.contentResolver,
-                    uri!!
+                    uri
                 )
             )
         } else {
@@ -56,6 +68,8 @@ fun rememberImagePicker(
         }
         onValueChange(bitmap)
     }
+
+    return ImagePicker(picker = picker)
 }
 
 @Composable
@@ -117,6 +131,6 @@ fun CltImagePicker(
         text = value?.let { "Change picture" } ?: "Choose picture",
         withLoading = true,
         enabled = true,
-        onClick = { pickImage.launch("image/*") }
+        onClick = { pickImage.launchImageOnly() }
     )
 }

@@ -6,11 +6,10 @@ plugins {
 }
 
 android {
-    compileSdk = 32
+    compileSdk = 33
 
     defaultConfig {
-        minSdk = 23
-        targetSdk = 32
+        minSdk = 24
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFile("consumer-rules.pro")
@@ -42,8 +41,8 @@ dependencies {
     implementation("com.google.code.gson:gson:2.8.0")
 
     // for dagger hilt
-    implementation("com.google.dagger:hilt-android:2.38.1")
-    kapt("com.google.dagger:hilt-android-compiler:2.37")
+    implementation("com.google.dagger:hilt-android:2.42")
+    kapt("com.google.dagger:hilt-android-compiler:2.42")
 
     implementation(project(":core:network"))
     implementation(project(":core:domain"))

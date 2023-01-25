@@ -34,13 +34,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.text.ParagraphStyle
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -394,8 +391,10 @@ private fun calculatePercentOfUsers(comments: List<Comment>, rating: Int): Float
 }
 
 @Composable
-private fun buildAnnotatedString(comments: List<Comment>) =
-    buildAnnotatedString {
+private fun buildAnnotatedString(comments: List<Comment>): AnnotatedString {
+    val onBackground = MaterialTheme.colors.onBackground
+    val systemInDarkTheme = isSystemInDarkTheme()
+    return buildAnnotatedString {
         val averageRating = comments.sumOf { it.rating } / comments.size.toDouble()
 
         withStyle(
@@ -416,8 +415,8 @@ private fun buildAnnotatedString(comments: List<Comment>) =
             withStyle(
                 SpanStyle(
                     fontSize = 18.sp,
-                    color = MaterialTheme.colors.onBackground.copy(
-                        alpha = if (isSystemInDarkTheme()) {
+                    color = onBackground.copy(
+                        alpha = if (systemInDarkTheme) {
                             0.5f
                         } else {
                             0.7f
@@ -429,9 +428,13 @@ private fun buildAnnotatedString(comments: List<Comment>) =
             }
         }
     }
+}
 
 @Composable
 private fun EmptyReviews() {
+    val systemInDarkTheme = isSystemInDarkTheme()
+    val onBackground = MaterialTheme.colors.onBackground
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -445,7 +448,7 @@ private fun EmptyReviews() {
                         y = if (it == 0) 10.dp else (-10).dp
                     ),
                 shape = RoundedCornerShape(10.dp),
-                elevation = if (isSystemInDarkTheme()) {
+                elevation = if (systemInDarkTheme) {
                     if (it == 0) 4.dp else 20.dp
                 } else {
                     if (it == 0) 10.dp else 12.dp
@@ -461,7 +464,7 @@ private fun EmptyReviews() {
                             .size(30.dp)
                             .clip(CircleShape)
                             .background(
-                                color = MaterialTheme.colors.onBackground.copy(
+                                color = onBackground.copy(
                                     alpha = 0.3f
                                 )
                             )
@@ -475,7 +478,7 @@ private fun EmptyReviews() {
                                     .height(15.dp)
                                     .clip(RoundedCornerShape(10.dp))
                                     .background(
-                                        color = MaterialTheme.colors.onBackground.copy(
+                                        color = onBackground.copy(
                                             alpha = 0.2f
                                         )
                                     )
@@ -493,8 +496,8 @@ private fun EmptyReviews() {
                 }
                 withStyle(
                     SpanStyle(
-                        color = MaterialTheme.colors.onBackground.copy(
-                            alpha = if (isSystemInDarkTheme()) {
+                        color = onBackground.copy(
+                            alpha = if (systemInDarkTheme) {
                                 0.5f
                             } else {
                                 0.7f

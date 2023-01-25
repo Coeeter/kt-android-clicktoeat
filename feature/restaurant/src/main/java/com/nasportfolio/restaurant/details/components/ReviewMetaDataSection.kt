@@ -28,13 +28,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.ParagraphStyle
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -273,6 +270,9 @@ private fun Reviews(restaurant: TransformedRestaurant) {
 
 @Composable
 private fun EmptyReviews() {
+    val onBackground = MaterialTheme.colors.onBackground
+    val systemInDarkTheme = isSystemInDarkTheme()
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -286,7 +286,7 @@ private fun EmptyReviews() {
                         y = if (it == 0) 10.dp else (-10).dp
                     ),
                 shape = RoundedCornerShape(10.dp),
-                elevation = if (isSystemInDarkTheme()) {
+                elevation = if (systemInDarkTheme) {
                     if (it == 0) 4.dp else 20.dp
                 } else {
                     if (it == 0) 10.dp else 12.dp
@@ -302,7 +302,7 @@ private fun EmptyReviews() {
                             .size(30.dp)
                             .clip(CircleShape)
                             .background(
-                                color = MaterialTheme.colors.onBackground.copy(
+                                color = onBackground.copy(
                                     alpha = 0.3f
                                 )
                             )
@@ -316,7 +316,7 @@ private fun EmptyReviews() {
                                     .height(15.dp)
                                     .clip(RoundedCornerShape(10.dp))
                                     .background(
-                                        color = MaterialTheme.colors.onBackground.copy(
+                                        color = onBackground.copy(
                                             alpha = 0.2f
                                         )
                                     )
@@ -334,8 +334,8 @@ private fun EmptyReviews() {
                 }
                 withStyle(
                     SpanStyle(
-                        color = MaterialTheme.colors.onBackground.copy(
-                            alpha = if (isSystemInDarkTheme()) {
+                        color = onBackground.copy(
+                            alpha = if (systemInDarkTheme) {
                                 0.5f
                             } else {
                                 0.7f
@@ -357,8 +357,11 @@ private fun calculatePercentOfUsers(comments: List<Comment>, rating: Int): Float
 }
 
 @Composable
-private fun buildAnnotatedString(restaurant: TransformedRestaurant) =
-    buildAnnotatedString {
+private fun buildAnnotatedString(restaurant: TransformedRestaurant): AnnotatedString {
+    val onBackground = MaterialTheme.colors.onBackground
+    val systemInDarkTheme = isSystemInDarkTheme()
+
+    return buildAnnotatedString {
         withStyle(
             ParagraphStyle(
                 textAlign = TextAlign.Center,
@@ -377,8 +380,8 @@ private fun buildAnnotatedString(restaurant: TransformedRestaurant) =
             withStyle(
                 SpanStyle(
                     fontSize = 18.sp,
-                    color = MaterialTheme.colors.onBackground.copy(
-                        alpha = if (isSystemInDarkTheme()) {
+                    color = onBackground.copy(
+                        alpha = if (systemInDarkTheme) {
                             0.5f
                         } else {
                             0.7f
@@ -390,3 +393,4 @@ private fun buildAnnotatedString(restaurant: TransformedRestaurant) =
             }
         }
     }
+}

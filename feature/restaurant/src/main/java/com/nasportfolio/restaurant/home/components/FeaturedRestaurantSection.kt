@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.CltRestaurantCard
@@ -16,6 +17,7 @@ import com.nasportfolio.common.components.loading.CltLoadingRestaurantCard
 import com.nasportfolio.common.navigation.navigateToRestaurantDetails
 import com.nasportfolio.restaurant.home.HomeState
 import com.nasportfolio.restaurant.home.HomeViewModel
+import com.nasportfolio.test.tags.TestTags
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -52,7 +54,9 @@ fun FeaturedRestaurantsSection(
                 val index = state.featuredRestaurants[it]
 
                 CltRestaurantCard(
-                    modifier = Modifier.width(width),
+                    modifier = Modifier
+                        .width(width)
+                        .testTag(TestTags.FEATURED_RESTAURANT_TAG),
                     restaurant = state.restaurantList[index],
                     toggleFavorite = { restaurantId ->
                         homeViewModel.toggleFavorite(restaurantId)

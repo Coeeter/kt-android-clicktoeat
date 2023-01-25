@@ -1,11 +1,13 @@
-package com.nasportfolio.clicktoeat
+package com.nasportfolio.clicktoeat.auth
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import androidx.test.filters.LargeTest
 import com.nasportfolio.auth.navigation.authScreenComposable
+import com.nasportfolio.clicktoeat.MainActivity
 import com.nasportfolio.common.navigation.authScreenRoute
 import com.nasportfolio.common.theme.ClickToEatTheme
 import com.nasportfolio.data.di.RepoModule
@@ -37,7 +39,7 @@ class LoginTest {
     @Before
     fun setUp() {
         hiltRule.inject()
-        composeRule.setContent {
+        composeRule.activity.setContent {
             ClickToEatTheme {
                 val navController = rememberNavController()
                 NavHost(
@@ -53,25 +55,39 @@ class LoginTest {
 
     @Test
     fun loginWithEmptyField_showError() {
-        composeRule.onNodeWithTag(TestTags.LOGIN_BUTTON).assertIsDisplayed().performClick()
-        composeRule.onNodeWithText("Email required!").assertIsDisplayed()
-        composeRule.onNodeWithText("Password required!").assertIsDisplayed()
+        composeRule.onNodeWithTag(TestTags.LOGIN_BUTTON)
+            .assertIsDisplayed()
+            .performClick()
+        composeRule.onNodeWithText("Email required!")
+            .assertIsDisplayed()
+        composeRule.onNodeWithText("Password required!")
+            .assertIsDisplayed()
     }
 
     @Test
     fun loginWithInvalidField_showError() {
-        composeRule.onNodeWithTag(TestTags.EMAIL_INPUT).performTextInput("Totally invalid email here")
-        composeRule.onNodeWithTag(TestTags.PASSWORD_INPUT).performTextInput("StrongPassword!")
-        composeRule.onNodeWithTag(TestTags.LOGIN_BUTTON).assertIsDisplayed().performClick()
-        composeRule.onNodeWithText("Invalid email provided").assertIsDisplayed()
+        composeRule.onNodeWithTag(TestTags.EMAIL_INPUT)
+            .performTextInput("Totally invalid email here")
+        composeRule.onNodeWithTag(TestTags.PASSWORD_INPUT)
+            .performTextInput("StrongPassword!")
+        composeRule.onNodeWithTag(TestTags.LOGIN_BUTTON)
+            .assertIsDisplayed()
+            .performClick()
+        composeRule.onNodeWithText("Invalid email provided")
+            .assertIsDisplayed()
     }
 
     @Test
     fun loginWithValidField_navigateToHomeScreen() {
         val user = (fakeUserRepository as FakeUserRepository).users.last()
-        composeRule.onNodeWithTag(TestTags.EMAIL_INPUT).performTextInput(user.email)
-        composeRule.onNodeWithTag(TestTags.PASSWORD_INPUT).performTextInput("StrongPassword!")
-        composeRule.onNodeWithTag(TestTags.LOGIN_BUTTON).assertIsDisplayed().performClick()
-        composeRule.onNodeWithText("Welcome, ${user.username}").assertIsDisplayed()
+        composeRule.onNodeWithTag(TestTags.EMAIL_INPUT)
+            .performTextInput(user.email)
+        composeRule.onNodeWithTag(TestTags.PASSWORD_INPUT)
+            .performTextInput("StrongPassword!")
+        composeRule.onNodeWithTag(TestTags.LOGIN_BUTTON)
+            .assertIsDisplayed()
+            .performClick()
+        composeRule.onNodeWithText("Welcome, ${user.username}")
+            .assertIsDisplayed()
     }
 }

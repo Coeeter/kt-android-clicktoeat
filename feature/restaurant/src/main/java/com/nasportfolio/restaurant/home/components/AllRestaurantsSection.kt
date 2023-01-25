@@ -7,12 +7,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.navigation.NavHostController
 import com.nasportfolio.common.components.CltRestaurantCard
 import com.nasportfolio.common.components.loading.CltLoadingRestaurantCard
 import com.nasportfolio.common.navigation.navigateToRestaurantDetails
 import com.nasportfolio.restaurant.home.HomeState
 import com.nasportfolio.restaurant.home.HomeViewModel
+import com.nasportfolio.test.tags.TestTags
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalFoundationApi::class)
 fun LazyListScope.allRestaurantsSection(
@@ -33,7 +35,9 @@ fun LazyListScope.allRestaurantsSection(
         Row {
             repeat(chunk.size) {
                 CltRestaurantCard(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .testTag(TestTags.ALL_RESTAURANTS_TAG),
                     restaurant = chunk[it],
                     toggleFavorite = { restaurantId ->
                         homeViewModel.toggleFavorite(restaurantId)

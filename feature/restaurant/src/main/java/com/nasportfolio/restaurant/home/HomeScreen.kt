@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -38,6 +39,7 @@ import com.nasportfolio.common.navigation.homeScreenRoute
 import com.nasportfolio.common.navigation.navigateToAuthScreen
 import com.nasportfolio.common.navigation.navigateToCreateRestaurant
 import com.nasportfolio.restaurant.home.components.*
+import com.nasportfolio.test.tags.TestTags
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -132,6 +134,7 @@ fun HomeScreen(
         },
         floatingActionButton = {
             CltFloatingActionButton(
+                modifier = Modifier.testTag(TestTags.ADD_RESTAURANT_FAB),
                 onClick = navController::navigateToCreateRestaurant
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = null)
@@ -148,7 +151,8 @@ fun HomeScreen(
             if (state.isLoading || state.restaurantList.isNotEmpty()) LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .scrollEnabled(isScrollEnabled),
+                    .scrollEnabled(isScrollEnabled)
+                    .testTag(TestTags.LAZY_COLUMN),
                 contentPadding = PaddingValues(5.dp)
             ) {
                 item {
