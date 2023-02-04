@@ -1,10 +1,13 @@
 package com.nasportfolio.user
 
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.runtime.remember
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.nasportfolio.common.components.animation.CltAnimatedFadeThrough
 import com.nasportfolio.common.navigation.deleteUserScreen
 import com.nasportfolio.common.navigation.updateUserPasswordScreen
 import com.nasportfolio.common.navigation.updateUserScreen
@@ -25,7 +28,14 @@ fun NavGraphBuilder.userComposable(navController: NavHostController) {
             }
         )
     ) {
-        UserProfileScreen(navController = navController)
+        val visibleState = remember(it) {
+            MutableTransitionState(it.arguments?.getString("userId") != "null").apply {
+                targetState = it.destination.route == "$userProfileScreen/{userId}"
+            }
+        }
+        CltAnimatedFadeThrough(visibleState = visibleState) {
+            UserProfileScreen(navController = navController)
+        }
     }
     composable(route = updateUserScreen) {
         UpdateUserScreen(navController = navController)

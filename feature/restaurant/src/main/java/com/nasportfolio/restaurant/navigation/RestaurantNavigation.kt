@@ -1,10 +1,13 @@
 package com.nasportfolio.restaurant.navigation
 
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.runtime.remember
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.nasportfolio.common.components.animation.CltAnimatedFadeThrough
 import com.nasportfolio.common.navigation.*
 import com.nasportfolio.restaurant.comments.CommentScreen
 import com.nasportfolio.restaurant.createUpdate.branch.CreateUpdateBranchScreen
@@ -17,7 +20,14 @@ fun NavGraphBuilder.restaurantComposable(
     navController: NavHostController
 ) {
     composable(homeScreenRoute) {
-        HomeScreen(navController = navController)
+        val state = remember(it) {
+            MutableTransitionState(false).apply {
+                targetState = it.destination.route == homeScreenRoute
+            }
+        }
+        CltAnimatedFadeThrough(visibleState = state) {
+            HomeScreen(navController = navController)
+        }
     }
     composable(
         route = "$createUpdateRestaurantScreenRoute/{restaurantId}",
