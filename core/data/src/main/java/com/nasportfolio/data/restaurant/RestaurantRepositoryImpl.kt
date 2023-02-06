@@ -20,26 +20,35 @@ class RestaurantRepositoryImpl @Inject constructor(
 ) : RestaurantRepository {
     private val localRestaurantDao = cltLocalDatabase.getRestaurantDao()
 
-    override fun getAllRestaurants(fetchFromRemote: Boolean): Flow<Resource<List<Restaurant>>> =
-        localRestaurantDao.getRestaurantsWithBranches()
-            .map { list -> list.map { it.toExternalRestaurant() } }
-            .map { list ->
-                if (list.isNotEmpty() && !fetchFromRemote) return@map Resource.Success(
-                    list.mapNotNull { it }
-                )
-                val restaurants = remoteRestaurantDao.getAllRestaurants()
-                if (restaurants !is Resource.Success) return@map restaurants
-                val restaurantEntityList = restaurants.result.map { it.toRestaurantEntity() }
-                localRestaurantDao.deleteAllRestaurants()
-                localRestaurantDao.insertRestaurants(*restaurantEntityList.toTypedArray())
-                restaurants
-            }
+    override fun getAllRestaurants(
+        fetchFromRemote: Boolean
+    ): Flow<Resource<List<Restaurant>>> = flow {
+        val localRestaurants = localRestaurantDao.getRestaurantsWithBranches().first()
+        if (localRestaurants.isNotEmpty() && !fetchFromRemote) return@flow emitAll(
+            localRestaurantDao.getRestaurantsWithBranches()
+                .map { list -> list.mapNotNull { it.toExternalRestaurant() } }
+                .map { list -> Resource.Success(list) }
+                .conflate()
+        )
+        val restaurants = remoteRestaurantDao.getAllRestaurants()
+        if (restaurants !is Resource.Success) return@flow emit(restaurants)
+        val restaurantEntityList = restaurants.result.map { it.toRestaurantEntity() }
+        localRestaurantDao.deleteAllRestaurants()
+        localRestaurantDao.insertRestaurants(*restaurantEntityList.toTypedArray())
+        emitAll(
+            localRestaurantDao.getRestaurantsWithBranches()
+                .map { list -> list.mapNotNull { it.toExternalRestaurant() } }
+                .map { list -> Resource.Success(list) }
+                .conflate()
+        )
+    }
 
 
     override fun getRestaurantById(id: String): Flow<Resource<Restaurant>> {
         return localRestaurantDao.getRestaurantById(restaurantId = id)
             .mapNotNull { it.toExternalRestaurant() }
             .map { Resource.Success(it) }
+            .conflate()
     }
 
     override suspend fun createRestaurant(

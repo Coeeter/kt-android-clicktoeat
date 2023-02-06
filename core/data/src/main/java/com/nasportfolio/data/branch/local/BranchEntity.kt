@@ -21,7 +21,7 @@ data class BranchWithRestaurant(
     val branchEntity: BranchEntity,
     @Relation(
         parentColumn = "restaurant_id",
-        entityColumn = "id"
+        entityColumn = "restaurantId"
     )
     val restaurantEntity: RestaurantEntity?,
 )

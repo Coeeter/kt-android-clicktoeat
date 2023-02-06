@@ -22,7 +22,7 @@ data class RestaurantWithBranches(
     @Embedded
     val restaurantEntity: RestaurantEntity?,
     @Relation(
-        parentColumn = "id",
+        parentColumn = "restaurantId",
         entityColumn = "restaurant_id"
     )
     val branches: List<BranchEntity>

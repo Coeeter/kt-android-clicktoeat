@@ -1,5 +1,7 @@
 package com.nasportfolio.domain.restaurant.usecases
 
+import com.nasportfolio.domain.comment.Comment
+import com.nasportfolio.domain.comment.CommentRepository
 import com.nasportfolio.domain.comment.usecases.GetCommentsUseCase
 import com.nasportfolio.domain.favorites.FavoriteRepository
 import com.nasportfolio.domain.restaurant.Restaurant
@@ -15,6 +17,7 @@ class GetRestaurantsUseCase @Inject constructor(
     private val favoriteRepository: FavoriteRepository,
     private val restaurantRepository: RestaurantRepository,
     private val getCommentsUseCase: GetCommentsUseCase,
+    private val commentRepository: CommentRepository,
 ) {
     sealed class Filter {
         object None : Filter()
@@ -27,38 +30,36 @@ class GetRestaurantsUseCase @Inject constructor(
     ): Flow<Resource<List<TransformedRestaurant>>> =
         restaurantRepository.getAllRestaurants(fetchFromRemote = fetchFromRemote)
             .onStart { emit(Resource.Loading(isLoading = true)) }
-            .map {
-                if (it !is Resource.Success) {
-                    return@map when (it) {
-                        is Resource.Failure -> Resource.Failure(it.error)
-                        is Resource.Loading -> Resource.Loading(it.isLoading)
+            .combine(getCommentsUseCase.all()) { restaurantList, comments ->
+                if (restaurantList !is Resource.Success) {
+                    return@combine when (restaurantList) {
+                        is Resource.Failure -> Resource.Failure(restaurantList.error)
+                        is Resource.Loading -> Resource.Loading(restaurantList.isLoading)
                         else -> throw IllegalStateException()
                     }
                 }
-                val result = withContext(Dispatchers.IO) {
-                    coroutineScope {
-                        it.result
-                            .map { restaurant ->
-                                async {
-                                    transformedRestaurant(restaurant) ?: throw Exception(
-                                        "Unable to fetch latest restaurant data. Please try again later"
-                                    )
-                                }
-                            }
-                            .awaitAll()
-                            .filter { restaurant ->
-                                when (filter) {
-                                    is Filter.GetUsersFavoriteRestaurants -> {
-                                        restaurant.favoriteUsers
-                                            .map { user -> user.id }
-                                            .contains(filter.userId)
-                                    }
-                                    else -> true
-                                }
-                            }
+                if (comments !is Resource.Success) {
+                    return@combine when (comments) {
+                        is Resource.Failure -> Resource.Failure(comments.error)
+                        is Resource.Loading -> Resource.Loading(comments.isLoading)
+                        else -> throw IllegalStateException()
                     }
                 }
-                return@map Resource.Success(result)
+                val restaurants = transformedRestaurant(restaurantList.result, comments.result)
+                    ?: throw Exception(
+                        "Unable to fetch latest restaurant data. Please try again later"
+                    )
+                val result = restaurants.filter { restaurant ->
+                    when (filter) {
+                        is Filter.GetUsersFavoriteRestaurants -> {
+                            restaurant.favoriteUsers
+                                .map { user -> user.id }
+                                .contains(filter.userId)
+                        }
+                        else -> true
+                    }
+                }
+                return@combine Resource.Success(result)
             }
             .catch { e ->
                 val error = ResourceError.DefaultError(e.message.toString())
@@ -68,47 +69,54 @@ class GetRestaurantsUseCase @Inject constructor(
     fun getById(restaurantId: String): Flow<Resource<TransformedRestaurant>> =
         restaurantRepository.getRestaurantById(restaurantId)
             .onStart { emit(Resource.Loading(isLoading = true)) }
-            .map {
-                if (it !is Resource.Success) {
-                    return@map when (it) {
-                        is Resource.Failure -> Resource.Failure(it.error)
-                        is Resource.Loading -> Resource.Loading(it.isLoading)
+            .combineTransform(getCommentsUseCase(restaurantId)) { restaurant, comments ->
+                if (restaurant !is Resource.Success) {
+                    return@combineTransform when (restaurant) {
+                        is Resource.Failure -> emit(Resource.Failure(restaurant.error))
+                        is Resource.Loading -> emit(Resource.Loading(restaurant.isLoading))
                         else -> throw IllegalStateException()
                     }
                 }
-                val result = transformedRestaurant(it.result) ?: return@map Resource.Failure(
-                    ResourceError.DefaultError("Unable to get latest restaurants data. Please try again later.")
+                if (comments !is Resource.Success) {
+                    return@combineTransform when (comments) {
+                        is Resource.Failure -> emit(Resource.Failure(comments.error))
+                        is Resource.Loading -> emit(Resource.Loading(comments.isLoading))
+                        else -> throw IllegalStateException()
+                    }
+                }
+                val result = transformedRestaurant(
+                    restaurantList = listOf(restaurant.result),
+                    comments = comments.result
+                ) ?: return@combineTransform emit(
+                    Resource.Failure(
+                        ResourceError.DefaultError("Unable to get latest restaurants data. Please try again later.")
+                    )
                 )
-                return@map Resource.Success(result)
+                return@combineTransform emit(Resource.Success(result[0]))
             }
             .catch { e ->
                 val error = ResourceError.DefaultError(e.message.toString())
                 emit(Resource.Failure(error))
             }
 
-    private suspend fun transformedRestaurant(restaurant: Restaurant): TransformedRestaurant? {
+    private suspend fun transformedRestaurant(
+        restaurantList: List<Restaurant>,
+        comments: List<Comment> = emptyList()
+    ): List<TransformedRestaurant>? {
         return coroutineScope {
-            withContext(Dispatchers.IO) {
-                val comments = async {
-                    getCommentsUseCase(restaurantId = restaurant.id).last()
-                }
-                val favoritesOfRestaurant = async {
-                    favoriteRepository.getUsersWhoFavoriteRestaurant(
-                        restaurant.id
-                    )
-                }
-                return@withContext TransformedRestaurant(
+            val favoritesOfRestaurant = restaurantList.map {
+                async(Dispatchers.IO) { favoriteRepository.getUsersWhoFavoriteRestaurant(it.id) }
+            }.awaitAll()
+            return@coroutineScope restaurantList.mapIndexed { i, restaurant ->
+                TransformedRestaurant(
                     id = restaurant.id,
                     name = restaurant.name,
                     description = restaurant.description,
                     imageUrl = restaurant.image.url,
                     branches = restaurant.branches,
-                    comments = comments.await().let {
-                        if (it !is Resource.Success) return@withContext null
-                        it.result
-                    },
-                    favoriteUsers = favoritesOfRestaurant.await().let {
-                        if (it !is Resource.Success) return@withContext null
+                    comments = comments.filter { it.restaurant.id == restaurant.id },
+                    favoriteUsers = favoritesOfRestaurant[i].let {
+                        if (it !is Resource.Success) return@coroutineScope null
                         it.result
                     }
                 )

@@ -1,9 +1,7 @@
 package com.nasportfolio.data.branch
 
-import androidx.room.withTransaction
 import com.nasportfolio.data.CltLocalDatabase
 import com.nasportfolio.data.branch.local.BranchEntity
-import com.nasportfolio.data.branch.local.LocalBranchDao
 import com.nasportfolio.data.branch.local.toBranchEntity
 import com.nasportfolio.data.branch.local.toExternalBranch
 import com.nasportfolio.data.branch.remote.RemoteBranchDao
@@ -16,24 +14,32 @@ import javax.inject.Inject
 
 class BranchRepositoryImpl @Inject constructor(
     private val remoteBranchDao: RemoteBranchDao,
-    private val cltLocalDatabase: CltLocalDatabase,
+    cltLocalDatabase: CltLocalDatabase,
 ) : BranchRepository {
     private val localBranchDao = cltLocalDatabase.getBranchDao()
 
-    override fun getAllBranches(fetchFromRemote: Boolean): Flow<Resource<List<Branch>>> =
-        localBranchDao.getAllBranchesWithRestaurant()
-            .map { list -> list.map { it.toExternalBranch() } }
-            .map { list ->
-                if (list.isNotEmpty() && !fetchFromRemote) return@map Resource.Success(
-                    list.mapNotNull { it }
-                )
-                val branches = remoteBranchDao.getAllBranches()
-                if (branches !is Resource.Success) return@map branches
-                val branchEntityList = branches.result.map { it.toBranchEntity() }
-                localBranchDao.deleteAllBranches()
-                localBranchDao.insertBranch(*branchEntityList.toTypedArray())
-                branches
-            }
+    override fun getAllBranches(
+        fetchFromRemote: Boolean
+    ): Flow<Resource<List<Branch>>> = flow {
+        val localBranches = localBranchDao.getAllBranchesWithRestaurant().first()
+        if (localBranches.isNotEmpty() && !fetchFromRemote) return@flow emitAll(
+            localBranchDao.getAllBranchesWithRestaurant()
+                .map { list -> list.mapNotNull { it.toExternalBranch() } }
+                .map { list -> Resource.Success(list) }
+                .conflate()
+        )
+        val branches = remoteBranchDao.getAllBranches()
+        if (branches !is Resource.Success) return@flow emit(branches)
+        val branchEntityList = branches.result.map { it.toBranchEntity() }
+        localBranchDao.deleteAllBranches()
+        localBranchDao.insertBranch(*branchEntityList.toTypedArray())
+        emitAll(
+            localBranchDao.getAllBranchesWithRestaurant()
+                .map { list -> list.mapNotNull { it.toExternalBranch() } }
+                .map { list -> Resource.Success(list) }
+                .conflate()
+        )
+    }
 
 
     override suspend fun createBranch(

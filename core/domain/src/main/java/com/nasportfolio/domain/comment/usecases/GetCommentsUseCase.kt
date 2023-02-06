@@ -28,6 +28,14 @@ class GetCommentsUseCase @Inject constructor(
         }
     }
 
+    fun all() = flow<Resource<List<Comment>>> {
+        emit(Resource.Loading(isLoading = true))
+        when (val commentResource = commentRepository.getAllComments()) {
+            is Resource.Success -> emit(transformComment(commentResource))
+            else -> emit(commentResource)
+        }
+    }
+
     fun byUser(userId: String) = flow<Resource<List<Comment>>> {
         emit(Resource.Loading(isLoading = true))
         val commentResource = commentRepository.getCommentsByUser(
