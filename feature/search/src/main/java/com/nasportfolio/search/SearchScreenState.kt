@@ -9,7 +9,8 @@ data class SearchScreenState(
     val isUserLoading: Boolean = true,
     val isRefreshing: Boolean = false,
     val restaurants: List<TransformedRestaurant> = emptyList(),
-    val users: List<User> = emptyList()
+    val users: List<User> = emptyList(),
+    val currentLoggedInUser: User? = null,
 ) {
     val filteredRestaurants: List<TransformedRestaurant>
         get() {

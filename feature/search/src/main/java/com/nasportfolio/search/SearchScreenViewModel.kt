@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nasportfolio.domain.favorites.usecases.ToggleFavoriteUseCase
 import com.nasportfolio.domain.restaurant.usecases.GetRestaurantsUseCase
+import com.nasportfolio.domain.user.usecases.GetCurrentLoggedInUser
 import com.nasportfolio.domain.user.usecases.GetUsersUseCase
 import com.nasportfolio.domain.utils.Resource
 import com.nasportfolio.domain.utils.ResourceError
@@ -18,6 +19,7 @@ import javax.inject.Inject
 class SearchScreenViewModel @Inject constructor(
     private val getRestaurantsUseCase: GetRestaurantsUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
+    private val getCurrentLoggedInUser: GetCurrentLoggedInUser,
     private val getUsersUseCase: GetUsersUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(SearchScreenState())
@@ -29,6 +31,27 @@ class SearchScreenViewModel @Inject constructor(
     init {
         getRestaurants()
         getUsers()
+        getCurrentUser()
+    }
+
+    private fun getCurrentUser() {
+        getCurrentLoggedInUser().onEach {
+            when (it) {
+                is Resource.Success -> _state.update { state ->
+                    state.copy(
+                        currentLoggedInUser = it.result
+                    )
+                }
+                is Resource.Failure -> {
+                    if (it.error !is ResourceError.DefaultError) return@onEach
+                    val defaultError = it.error as ResourceError.DefaultError
+                    _errorChannel.send(defaultError.error)
+                }
+                is Resource.Loading -> _state.update { state ->
+                    state.copy(isRestaurantLoading = it.isLoading)
+                }
+            }
+        }
     }
 
     private fun getRestaurants() {
@@ -89,6 +112,9 @@ class SearchScreenViewModel @Inject constructor(
         viewModelScope.launch {
             val index = _state.value.restaurants.map { it.id }.indexOf(restaurantId)
             val restaurant = _state.value.restaurants[index]
+            val isFavorited = restaurant.favoriteUsers
+                .map { it.id }
+                .contains(_state.value.currentLoggedInUser?.id)
             lateinit var oldState: SearchScreenState
             _state.update { state ->
                 oldState = state
@@ -97,7 +123,13 @@ class SearchScreenViewModel @Inject constructor(
                         set(
                             index,
                             restaurant.copy(
-                                isFavoriteByCurrentUser = !restaurant.isFavoriteByCurrentUser
+                                favoriteUsers = restaurant.favoriteUsers.filter {
+                                    if (!isFavorited) return@filter true
+                                    it.id != state.currentLoggedInUser?.id
+                                }.toMutableList().apply list@{
+                                    if (isFavorited) return@list
+                                    add(state.currentLoggedInUser!!)
+                                }
                             )
                         )
                     }
@@ -131,5 +163,6 @@ class SearchScreenViewModel @Inject constructor(
         _state.value = _state.value.copy(isRefreshing = true)
         getRestaurants()
         getUsers()
+        getCurrentUser()
     }
 }

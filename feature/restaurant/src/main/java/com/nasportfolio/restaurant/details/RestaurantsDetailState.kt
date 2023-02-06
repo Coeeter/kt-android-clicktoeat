@@ -3,6 +3,7 @@ package com.nasportfolio.restaurant.details
 import com.google.android.gms.maps.model.LatLng
 import com.nasportfolio.domain.comment.Comment
 import com.nasportfolio.domain.restaurant.TransformedRestaurant
+import com.nasportfolio.domain.user.User
 
 data class RestaurantsDetailState(
     val oldCommentSize: Int = 0,
@@ -18,7 +19,7 @@ data class RestaurantsDetailState(
     val reviewError: String? = null,
     val ratingError: String? = null,
     val isSubmitting: Boolean = false,
-    val currentUserId: String? = null,
+    val currentUser: User? = null,
 
     val commentBeingEdited: Comment? = null,
     val editingReviewValue: String = "",

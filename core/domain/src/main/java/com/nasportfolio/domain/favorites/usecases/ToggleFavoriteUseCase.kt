@@ -17,7 +17,15 @@ class ToggleFavoriteUseCase @Inject constructor(
             (tokenResource as Resource.Failure).error
         )
         val token = tokenResource.result
-        val resource = toggleFavorite(restaurant.isFavoriteByCurrentUser).invoke(
+        val currentLoggedInUser = userRepository.validateToken(token)
+        if (currentLoggedInUser !is Resource.Success) return Resource.Failure<Unit>(
+            (currentLoggedInUser as Resource.Failure).error
+        )
+        val resource = toggleFavorite(
+            restaurant.favoriteUsers
+                .map { it.id }
+                .contains(currentLoggedInUser.result.id)
+        ).invoke(
             token,
             restaurant.id
         )

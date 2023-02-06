@@ -78,7 +78,7 @@ fun CreateUpdateRestaurantScreen(
         scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
-                title = { Text(text = if (state.isUpdateForm) "Update restaurant" else "Create restaurant") },
+                title = { Text(text = if (state.isUpdateForm) "Update restaurantEntity" else "Create restaurantEntity") },
                 navigationIcon = {
                     IconButton(onClick = navController::popBackStack) {
                         Icon(

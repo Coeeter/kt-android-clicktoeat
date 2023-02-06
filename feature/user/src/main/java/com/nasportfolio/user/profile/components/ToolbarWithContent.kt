@@ -44,7 +44,7 @@ fun ToolbarWithContent(
                 arrowShown = !state.fromNav,
                 appBarHeight = appBarHeight,
                 navController = navController,
-                isCurrentUser = state.loggedInUserId == state.user?.id,
+                isCurrentUser = state.currentUser?.id == state.user?.id,
                 isLoading = state.isUserLoading,
                 uploadPhoto = editPhoto,
                 removePhoto = deletePhoto

@@ -46,7 +46,8 @@ fun LazyListScope.allRestaurantsSection(
                         navController.navigateToRestaurantDetails(
                             restaurantId = restaurantId
                         )
-                    }
+                    },
+                    currentUser = state.currentUser!!
                 )
             }
             if (chunk.size == 1) Box(modifier = Modifier.weight(1f))

@@ -74,8 +74,12 @@ fun SearchRestaurantCard(
                 )
             }
             IconButton(onClick = onFavBtnClicked) {
+                val isFavorited = restaurant.favoriteUsers
+                    .map { it.id }
+                    .contains(state.currentLoggedInUser?.id)
+
                 Icon(
-                    imageVector = if (restaurant.isFavoriteByCurrentUser) {
+                    imageVector = if (isFavorited) {
                         Icons.Default.Favorite
                     } else {
                         Icons.Default.FavoriteBorder

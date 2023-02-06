@@ -90,14 +90,12 @@ class GetCommentsUseCase @Inject constructor(
     private suspend fun transformComment(
         commentResource: Resource.Success<List<Comment>>
     ): Resource<List<Comment>> = coroutineScope {
-        val deferredLikes = commentResource.result.map {
+        val likes = commentResource.result.map {
             async { likeRepository.getUsersWhoLikedComment(it.id) }
-        }
-        val deferredDislikes = commentResource.result.map {
+        }.awaitAll()
+        val dislikes = commentResource.result.map {
             async { dislikeRepository.getUsersWhoDislikedComments(it.id) }
-        }
-        val likes = deferredLikes.awaitAll()
-        val dislikes = deferredDislikes.awaitAll()
+        }.awaitAll()
         val comments = commentResource.result.mapIndexed { index, comment ->
             val likesOfComment = likes[index]
             val dislikesOfComment = dislikes[index]

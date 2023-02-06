@@ -1,11 +1,12 @@
 package com.nasportfolio.domain.restaurant
 
 import com.nasportfolio.domain.utils.Resource
+import kotlinx.coroutines.flow.Flow
 
 interface RestaurantRepository {
-    suspend fun getAllRestaurants(): Resource<List<Restaurant>>
+    fun getAllRestaurants(fetchFromRemote: Boolean = false): Flow<Resource<List<Restaurant>>>
 
-    suspend fun getRestaurantById(id: String): Resource<Restaurant>
+    fun getRestaurantById(id: String): Flow<Resource<Restaurant>>
 
     suspend fun createRestaurant(
         token: String,

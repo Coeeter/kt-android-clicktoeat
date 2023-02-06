@@ -100,7 +100,8 @@ fun UserProfileScreen(
                                     navController.navigateToRestaurantDetails(
                                         restaurantId = restaurantId
                                     )
-                                }
+                                },
+                                currentUser = state.currentUser!!
                             )
                         }
                         if (row.size == 1) Box(modifier = Modifier.weight(1f))
@@ -111,13 +112,13 @@ fun UserProfileScreen(
                 Spacer(modifier = Modifier.height(5.dp))
                 if (!state.isCommentLoading && state.comments.isEmpty()) EmptyReviews()
                 if (!state.isCommentLoading) repeat(state.comments.size) {
-                    state.loggedInUserId?.let { it1 ->
+                    state.currentUser?.let { it1 ->
                         Column {
                             CltCommentCard(
                                 modifier = Modifier.padding(horizontal = 5.dp),
                                 navController = navController,
                                 comment = state.comments[it],
-                                currentUserId = it1,
+                                currentUserId = it1.id,
                                 topBar = TopBar.Restaurant,
                                 editComment = {},
                                 deleteComment = {},

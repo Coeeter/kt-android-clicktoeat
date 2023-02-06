@@ -181,8 +181,8 @@ private fun DeleteDialog(
     setIsOpen: (Boolean) -> Unit,
     state: RestaurantsDetailState,
     restaurantDetailsViewModel: RestaurantDetailsViewModel,
-    title: String = "restaurant ${state.restaurant?.name}?",
-    content: String = "restaurant",
+    title: String = "restaurantEntity ${state.restaurant?.name}?",
+    content: String = "restaurantEntity",
     event: RestaurantDetailsEvent = RestaurantDetailsEvent.DeleteRestaurant
 ) {
     AlertDialog(
@@ -257,7 +257,7 @@ private fun SpeedDial(
             CltSpeedDialFabItem(
                 testTag = TestTags.EDIT_RESTAURANT_SPEED_DIAL,
                 backgroundColor = mediumOrange,
-                hint = "Edit restaurant",
+                hint = "Edit restaurantEntity",
                 onClick = {
                     state.restaurant?.let {
                         navController.navigateToUpdateRestaurant(
@@ -270,7 +270,7 @@ private fun SpeedDial(
             }
             CltSpeedDialFabItem(
                 backgroundColor = Color.Red,
-                hint = "Delete restaurant",
+                hint = "Delete restaurantEntity",
                 onClick = {
                     openDialog()
                     speedDialState.isExpanded = false
@@ -354,7 +354,7 @@ private fun ScreenContent(
                 navController = navController
             )
         }
-        state.currentUserId?.let { userId ->
+        state.currentUser?.id?.let { userId ->
             AnimatedVisibility(
                 visible = restaurant.comments.isNotEmpty(),
                 enter = slideInVertically(

@@ -40,9 +40,9 @@ class HomeViewModel @Inject constructor(
     val errorChannel = _errorChannel.receiveAsFlow()
 
     init {
-        getRestaurants()
-        getBranches()
         getLoggedInUser()
+        getBranches()
+        getRestaurants()
         getCurrentLocation()
     }
 
@@ -50,8 +50,8 @@ class HomeViewModel @Inject constructor(
         _state.update { state ->
             state.copy(isRefreshing = true)
         }
-        getRestaurants()
-        getBranches()
+        getRestaurants(fetchFromRemote = true)
+        getBranches(fetchFromRemote = true)
         getCurrentLocation()
     }
 
@@ -59,6 +59,9 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val index = _state.value.restaurantList.map { it.id }.indexOf(restaurantId)
             val restaurant = _state.value.restaurantList[index]
+            val isFavorited = restaurant.favoriteUsers
+                .map { it.id }
+                .contains(_state.value.currentUser?.id)
             lateinit var oldState: HomeState
             _state.update { state ->
                 oldState = state
@@ -67,7 +70,13 @@ class HomeViewModel @Inject constructor(
                         set(
                             index,
                             restaurant.copy(
-                                isFavoriteByCurrentUser = !restaurant.isFavoriteByCurrentUser
+                                favoriteUsers = restaurant.favoriteUsers.filter {
+                                    if (!isFavorited) return@filter true
+                                    it.id != state.currentUser?.id
+                                }.toMutableList().apply list@{
+                                    if (isFavorited) return@list
+                                    add(state.currentUser!!)
+                                }
                             )
                         )
                     }
@@ -89,7 +98,7 @@ class HomeViewModel @Inject constructor(
         getCurrentLoggedInUser().onEach {
             when (it) {
                 is Resource.Success -> _state.update { state ->
-                    state.copy(currentUserUsername = it.result.username)
+                    state.copy(currentUser = it.result)
                 }
                 is Resource.Failure -> {
                     if (it.error !is ResourceError.DefaultError) return@onEach
@@ -101,13 +110,13 @@ class HomeViewModel @Inject constructor(
         }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
     }
 
-    private fun getRestaurants() {
-        getRestaurantsUseCase().onEach { restaurantResource ->
+    private fun getRestaurants(fetchFromRemote: Boolean = false) {
+        getRestaurantsUseCase(fetchFromRemote = fetchFromRemote).onEach { restaurantResource ->
             when (restaurantResource) {
                 is Resource.Success -> _state.update { state ->
                     val restaurantList = restaurantResource.result.sortedBy { it.name }
                     val favRestaurants = restaurantList
-                        .filter { it.isFavoriteByCurrentUser }
+                        .filter { it.favoriteUsers.map { it.id }.contains(state.currentUser!!.id) }
                         .map { restaurantList.indexOf(it) }
                     val featuredRestaurants = restaurantList
                         .sortedByDescending { it.averageRating }
@@ -131,6 +140,7 @@ class HomeViewModel @Inject constructor(
                     }
                     if (restaurantResource.error !is ResourceError.DefaultError) return@onEach
                     val defaultError = restaurantResource.error as ResourceError.DefaultError
+                    println("debug: ${defaultError.error}")
                     _errorChannel.send(defaultError.error)
                 }
                 is Resource.Loading -> _state.update { state ->
@@ -140,8 +150,8 @@ class HomeViewModel @Inject constructor(
         }.flowOn(Dispatchers.IO).launchIn(viewModelScope)
     }
 
-    private fun getBranches() {
-        getBranchUseCase().onEach {
+    private fun getBranches(fetchFromRemote: Boolean = false) {
+        getBranchUseCase(fetchFromRemote = fetchFromRemote).onEach {
             when (it) {
                 is Resource.Success -> _state.update { state ->
                     state.copy(branches = it.result)
@@ -149,6 +159,7 @@ class HomeViewModel @Inject constructor(
                 is Resource.Failure -> {
                     if (it.error !is ResourceError.DefaultError) return@onEach
                     val defaultError = it.error as ResourceError.DefaultError
+                    println("debug: ${defaultError.error}")
                     _errorChannel.send(defaultError.error)
                 }
                 else -> Unit
@@ -169,6 +180,7 @@ class HomeViewModel @Inject constructor(
         task.addOnCompleteListener {
             it.exception?.let {
                 return@addOnCompleteListener runBlocking {
+                    println("debug: ${it.message}")
                     _errorChannel.send(it.message.toString())
                 }
             }

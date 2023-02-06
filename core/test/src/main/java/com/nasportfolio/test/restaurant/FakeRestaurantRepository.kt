@@ -5,6 +5,8 @@ import com.nasportfolio.domain.restaurant.Restaurant
 import com.nasportfolio.domain.restaurant.RestaurantRepository
 import com.nasportfolio.domain.utils.Resource
 import com.nasportfolio.domain.utils.ResourceError
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 class FakeRestaurantRepository : RestaurantRepository {
     var restaurants: List<Restaurant> = emptyList()
@@ -27,15 +29,17 @@ class FakeRestaurantRepository : RestaurantRepository {
         }
     }
 
-    override suspend fun getAllRestaurants(): Resource<List<Restaurant>> {
-        return Resource.Success(restaurants)
+    override fun getAllRestaurants(fetchFromRemote: Boolean): Flow<Resource<List<Restaurant>>> = flow {
+        emit(Resource.Success(restaurants))
     }
 
-    override suspend fun getRestaurantById(id: String): Resource<Restaurant> {
-        val restaurant = restaurants.find { it.id == id } ?: return Resource.Failure(
-            ResourceError.DefaultError("Cannot find restaurant with id $id")
+    override fun getRestaurantById(id: String): Flow<Resource<Restaurant>> = flow {
+        val restaurant = restaurants.find { it.id == id } ?: return@flow emit(
+            Resource.Failure(
+                ResourceError.DefaultError("Cannot find restaurant with id $id")
+            )
         )
-        return Resource.Success(restaurant)
+        emit(Resource.Success(restaurant))
     }
 
     override suspend fun createRestaurant(

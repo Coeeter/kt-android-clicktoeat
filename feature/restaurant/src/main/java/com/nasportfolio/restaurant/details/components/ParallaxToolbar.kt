@@ -216,8 +216,11 @@ private fun AppBar(
                     }
                 ) {
                     state.restaurant?.let {
+                        val isFavorited = it.favoriteUsers
+                            .map { it.id }
+                            .contains(state.currentUser?.id)
                         Icon(
-                            imageVector = if (it.isFavoriteByCurrentUser) {
+                            imageVector = if (isFavorited) {
                                 Icons.Default.Favorite
                             } else {
                                 Icons.Default.FavoriteBorder

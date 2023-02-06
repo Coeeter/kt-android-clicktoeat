@@ -94,7 +94,7 @@ class UserProfileViewModel @Inject constructor(
                     state.copy(
                         isUserLoading = false,
                         isRefreshing = false,
-                        loggedInUserId = it.result.id,
+                        currentUser = it.result,
                     )
                 }
                 is Resource.Loading -> _state.update { state ->
@@ -144,7 +144,7 @@ class UserProfileViewModel @Inject constructor(
     }
 
     private fun getFavoriteRestaurants(userId: String) {
-        val filter = GetRestaurantsUseCase.Filter.UserIdInFav(
+        val filter = GetRestaurantsUseCase.Filter.GetUsersFavoriteRestaurants(
             userId = userId
         )
         getRestaurantsUseCase(filter = filter).onEach {
@@ -188,6 +188,9 @@ class UserProfileViewModel @Inject constructor(
         viewModelScope.launch {
             val index = _state.value.favRestaurants.map { it.id }.indexOf(restaurantId)
             val restaurant = _state.value.favRestaurants[index]
+            val isFavorited = restaurant.favoriteUsers
+                .map { it.id }
+                .contains(_state.value.currentUser?.id)
             lateinit var oldState: UserProfileState
             _state.update { state ->
                 oldState = state
@@ -196,7 +199,13 @@ class UserProfileViewModel @Inject constructor(
                         set(
                             index,
                             restaurant.copy(
-                                isFavoriteByCurrentUser = !restaurant.isFavoriteByCurrentUser
+                                favoriteUsers = restaurant.favoriteUsers.filter {
+                                    if (!isFavorited) return@filter true
+                                    it.id != state.currentUser?.id
+                                }.toMutableList().apply list@{
+                                    if (isFavorited) return@list
+                                    add(state.currentUser!!)
+                                }
                             )
                         )
                     }

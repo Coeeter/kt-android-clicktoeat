@@ -26,12 +26,14 @@ import com.nasportfolio.common.theme.lightOrange
 import com.nasportfolio.common.theme.mediumOrange
 import com.nasportfolio.common.utils.toStringAsFixed
 import com.nasportfolio.domain.restaurant.TransformedRestaurant
+import com.nasportfolio.domain.user.User
 import com.nasportfolio.test.tags.TestTags
 
 @Composable
 fun CltRestaurantCard(
     modifier: Modifier = Modifier,
     restaurant: TransformedRestaurant,
+    currentUser: User,
     toggleFavorite: (String) -> Unit,
     onClick: (String) -> Unit,
 ) {
@@ -85,7 +87,11 @@ fun CltRestaurantCard(
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = getFavoriteIcon(restaurant.isFavoriteByCurrentUser),
+                                imageVector = getFavoriteIcon(
+                                    restaurant.favoriteUsers
+                                        .map { it.id }
+                                        .contains(currentUser.id)
+                                ),
                                 contentDescription = null,
                                 modifier = Modifier.gradientBackground(
                                     brush = Brush.linearGradient(

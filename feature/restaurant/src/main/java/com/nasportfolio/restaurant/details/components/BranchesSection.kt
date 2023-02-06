@@ -82,7 +82,7 @@ fun BranchesSection(
             CameraUpdateFactory.newCameraPosition(position)
         )
         delay(2000L)
-        val distances = state.restaurant!!.branches.map {
+        val distances = state.restaurant.branches.map {
             val results = FloatArray(1)
             Location.distanceBetween(
                 state.currentLocation.latitude,

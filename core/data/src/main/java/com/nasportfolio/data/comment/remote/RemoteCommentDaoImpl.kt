@@ -97,7 +97,7 @@ class RemoteCommentDaoImpl @Inject constructor(
 
     override suspend fun getCommentsByRestaurant(restaurantId: String): Resource<List<Comment>> =
         tryWithIoHandling {
-            val (json, code) = get(endpoint = "?restaurant=$restaurantId")
+            val (json, code) = get(endpoint = "?restaurantEntity=$restaurantId")
             json ?: return@tryWithIoHandling Resource.Failure(
                 ResourceError.DefaultError(NO_RESPONSE)
             )

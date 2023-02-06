@@ -6,9 +6,9 @@ import com.nasportfolio.domain.user.User
 
 data class UserProfileState(
     val fromNav: Boolean = true,
-    val loggedInUserId: String? = null,
     val isRefreshing: Boolean = false,
     val user: User? = null,
+    val currentUser: User? = null,
     val favRestaurants: List<TransformedRestaurant> = emptyList(),
     val comments: List<Comment> = emptyList(),
     val isRestaurantLoading: Boolean = true,

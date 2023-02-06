@@ -54,7 +54,7 @@ fun EmptyRestaurants() {
             style = MaterialTheme.typography.h5
         )
         Text(
-            text = "Try creating a restaurant!",
+            text = "Try creating a restaurantEntity!",
             style = MaterialTheme.typography.h6.copy(
                 fontWeight = FontWeight.Light
             )

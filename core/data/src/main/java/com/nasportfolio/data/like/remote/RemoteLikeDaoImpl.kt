@@ -73,7 +73,7 @@ class RemoteLikeDaoImpl @Inject constructor(
 
     override suspend fun getUsersWhoLikedComment(commentId: String): Resource<List<User>> =
         tryWithIoHandling {
-            val (json, code) = get(endpoint = "?comment=$commentId")
+            val (json, code) = get(endpoint = "?commentEntity=$commentId")
             json ?: return@tryWithIoHandling Resource.Failure(
                 ResourceError.DefaultError(NO_RESPONSE)
             )

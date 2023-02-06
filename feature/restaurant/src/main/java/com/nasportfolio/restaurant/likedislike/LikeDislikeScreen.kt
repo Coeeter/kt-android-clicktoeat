@@ -102,7 +102,7 @@ fun LikeDislikeScreen(
         topBar = {
             Column {
                 TopAppBar(
-                    title = { Text(text = "Likes and Dislikes of comment") },
+                    title = { Text(text = "Likes and Dislikes of commentEntity") },
                     navigationIcon = {
                         IconButton(onClick = navController::popBackStack) {
                             Icon(

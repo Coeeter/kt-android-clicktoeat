@@ -65,7 +65,8 @@ fun FeaturedRestaurantsSection(
                         navController.navigateToRestaurantDetails(
                             restaurantId = restaurantId
                         )
-                    }
+                    },
+                    currentUser = state.currentUser!!
                 )
             }
         }

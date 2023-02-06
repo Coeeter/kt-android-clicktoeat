@@ -74,7 +74,7 @@ class RemoteDislikeDaoImpl @Inject constructor(
 
     override suspend fun getUsersWhoDislikedComments(commentId: String): Resource<List<User>> =
         tryWithIoHandling {
-            val (json, code) = get(endpoint = "?comment=$commentId")
+            val (json, code) = get(endpoint = "?commentEntity=$commentId")
             json ?: return@tryWithIoHandling Resource.Failure(
                 ResourceError.DefaultError(NO_RESPONSE)
             )

@@ -1,10 +1,11 @@
 package com.nasportfolio.domain.branch
 
 import com.nasportfolio.domain.utils.Resource
+import kotlinx.coroutines.flow.Flow
 
 interface BranchRepository {
 
-    suspend fun getAllBranches(): Resource<List<Branch>>
+    fun getAllBranches(fetchFromRemote: Boolean = false): Flow<Resource<List<Branch>>>
 
     suspend fun createBranch(
         token: String,

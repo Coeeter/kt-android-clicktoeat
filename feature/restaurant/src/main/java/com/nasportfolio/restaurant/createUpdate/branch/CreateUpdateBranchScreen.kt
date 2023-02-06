@@ -109,7 +109,7 @@ fun CreateUpdateBranchScreen(
                     Text(
                         text = state.branchId?.let {
                             "Update branch"
-                        } ?: "Add branch to restaurant"
+                        } ?: "Add branch to restaurantEntity"
                     )
                 },
                 navigationIcon = {

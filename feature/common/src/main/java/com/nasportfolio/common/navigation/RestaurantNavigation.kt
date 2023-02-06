@@ -3,8 +3,8 @@ package com.nasportfolio.common.navigation
 import androidx.navigation.NavHostController
 
 const val homeScreenRoute = "/home"
-const val restaurantDetailScreenRoute = "/restaurant"
-const val createUpdateRestaurantScreenRoute = "create-update/restaurant"
+const val restaurantDetailScreenRoute = "/restaurantEntity"
+const val createUpdateRestaurantScreenRoute = "create-update/restaurantEntity"
 const val createUpdateBranchScreenRoute = "create-update/branch"
 const val commentsScreenRoute = "/comments"
 const val likeDislikeRoute = "/likeDislike"

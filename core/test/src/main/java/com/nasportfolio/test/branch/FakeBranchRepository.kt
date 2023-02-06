@@ -5,6 +5,8 @@ import com.nasportfolio.domain.branch.BranchRepository
 import com.nasportfolio.domain.image.Image
 import com.nasportfolio.domain.restaurant.Restaurant
 import com.nasportfolio.domain.utils.Resource
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 class FakeBranchRepository : BranchRepository {
     var branches: List<Branch> = emptyList()
@@ -35,8 +37,8 @@ class FakeBranchRepository : BranchRepository {
         )
     )
 
-    override suspend fun getAllBranches(): Resource<List<Branch>> {
-        return Resource.Success(branches)
+    override fun getAllBranches(fetchFromRemote: Boolean): Flow<Resource<List<Branch>>> = flow {
+        emit(Resource.Success(branches))
     }
 
     override suspend fun createBranch(

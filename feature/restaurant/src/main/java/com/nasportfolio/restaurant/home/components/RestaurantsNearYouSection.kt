@@ -66,7 +66,7 @@ fun RestaurantsNearYouSection(
             isAnimationDone = false
             return@LaunchedEffect
         }
-        if (isAnimationDone) return@LaunchedEffect
+        if (isAnimationDone || state.isLoading) return@LaunchedEffect
         if (!isMapLoaded) {
             delay(2000L)
             isMapLoaded = true

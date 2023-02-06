@@ -91,7 +91,7 @@ fun CommentScreen(
         scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
-                title = { Text(text = "Comments of restaurant") },
+                title = { Text(text = "Comments of restaurantEntity") },
                 navigationIcon = {
                     IconButton(
                         onClick = {

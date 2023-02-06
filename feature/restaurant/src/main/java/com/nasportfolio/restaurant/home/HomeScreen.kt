@@ -109,7 +109,7 @@ fun HomeScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = state.currentUserUsername?.let {
+                        text = state.currentUser?.username?.let {
                             "Welcome, $it"
                         } ?: "Loading..."
                     )

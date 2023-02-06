@@ -51,14 +51,14 @@ class RestaurantDetailsViewModel @Inject constructor(
     val errorChannel = _errorChannel.receiveAsFlow()
 
     init {
+        getCurrentUser()
+        getCurrentLocation()
         savedStateHandle.get<String>("restaurantId")?.let {
             getRestaurant(id = it)
         } ?: runBlocking {
             _state.update { it.copy(shouldNavigateBack = true) }
             _errorChannel.send("Unknown error has occurred. Please try again later")
         }
-        getCurrentLocation()
-        getCurrentUser()
     }
 
     private fun getCurrentLocation() {
@@ -114,7 +114,7 @@ class RestaurantDetailsViewModel @Inject constructor(
         getCurrentLoggedInUser().onEach {
             when (it) {
                 is Resource.Success -> _state.update { state ->
-                    state.copy(currentUserId = it.result.id)
+                    state.copy(currentUser = it.result)
                 }
                 is Resource.Failure -> _errorChannel.send(
                     (it.error as ResourceError.DefaultError).error
@@ -151,16 +151,20 @@ class RestaurantDetailsViewModel @Inject constructor(
         _state.value.restaurant ?: return
         viewModelScope.launch {
             val restaurant = state.value.restaurant!!
+            val isFavorited = restaurant.favoriteUsers
+                .map { it.id }
+                .contains(_state.value.currentUser?.id)
             lateinit var oldState: RestaurantsDetailState
             _state.update { state ->
                 oldState = state
                 state.copy(
                     restaurant = state.restaurant!!.copy(
-                        isFavoriteByCurrentUser = !state.restaurant.isFavoriteByCurrentUser,
-                        favoriteSize = if (state.restaurant.isFavoriteByCurrentUser) {
-                            state.restaurant.favoriteSize - 1
-                        } else {
-                            state.restaurant.favoriteSize + 1
+                        favoriteUsers = restaurant.favoriteUsers.filter {
+                            if (!isFavorited) return@filter true
+                            it.id != state.currentUser?.id
+                        }.toMutableList().apply list@{
+                            if (isFavorited) return@list
+                            add(state.currentUser!!)
                         }
                     )
                 )
