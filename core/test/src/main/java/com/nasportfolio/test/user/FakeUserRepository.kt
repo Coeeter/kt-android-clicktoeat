@@ -5,6 +5,8 @@ import com.nasportfolio.domain.user.User
 import com.nasportfolio.domain.user.UserRepository
 import com.nasportfolio.domain.utils.Resource
 import com.nasportfolio.domain.utils.ResourceError
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import java.util.*
 
 class FakeUserRepository : UserRepository {
@@ -43,16 +45,17 @@ class FakeUserRepository : UserRepository {
         token = null
     }
 
-    override suspend fun getAllUsers(): Resource<List<User>> {
-        return Resource.Success(users)
+    override fun getAllUsers(fetchFromRemote: Boolean): Flow<Resource<List<User>>> = flow {
+        emit(Resource.Success(users))
     }
 
-    override suspend fun getUserById(id: String): Resource<User> {
-        return users.find { it.id == id }?.let {
+    override fun getUserById(id: String, fetchFromRemote: Boolean): Flow<Resource<User>> = flow {
+        val user = users.find { it.id == id }?.let {
             Resource.Success(it)
         } ?: Resource.Failure(
             ResourceError.DefaultError("Cannot find user with id $id")
         )
+        emit(user)
     }
 
     override suspend fun validateToken(token: String): Resource<User> {
